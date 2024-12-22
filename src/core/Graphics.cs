@@ -11,45 +11,37 @@ public class Graphics : DrawableGameComponent
 {
     private const int ReferencePixelsPerUnit = 100;
 
-    private readonly static Vector2[] TextAlignmentPositions = new Vector2[]
-    {
-                        new(0f, -1f),
-        new(-1f, 0f),   new(0f, 0f),    new(1f, 0f),
-                        new(0f, 1f),
-    };
-
     public int PixelsPerUnit { get; set; } = 100;
+    private float UnitScale => (float)ReferencePixelsPerUnit / PixelsPerUnit;
     // TODO: Other aspect ratios aren't currently supported.
+
     public float AspectRatio { get; set; } = 16f / 9f;
 
     public Camera ActiveCamera { get; set; }
+
+    public bool IsFullscreen { get => GraphicsDeviceManager.IsFullScreen; set => GraphicsDeviceManager.IsFullScreen = value; }
+    public Vector2 Resolution
+    {
+        get => new(GraphicsDeviceManager.PreferredBackBufferWidth, GraphicsDeviceManager.PreferredBackBufferHeight);
+
+        set
+        {
+            GraphicsDeviceManager.PreferredBackBufferWidth = (int)value.X;
+            GraphicsDeviceManager.PreferredBackBufferHeight = (int)value.Y;
+        }
+    }
 
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
 
     private Dictionary<TransformSpace, List<IDrawer>> DrawersBySpace { get; }
 
-    private Texture2D PixelTexture { get; set; }
-
     public Graphics(Game game) : base(game)
     {
         GraphicsDeviceManager = new(game);
         DrawersBySpace = new();
 
-        // TODO: Extract to a method.
-        foreach (TransformSpace space in Enum.GetValues(typeof(TransformSpace)))
-        {
-            DrawersBySpace.Add(space, new List<IDrawer>());
-        }
-
-        // TODO: Application should set this.
-        GraphicsDeviceManager.PreferredBackBufferWidth = 1280;
-        GraphicsDeviceManager.PreferredBackBufferHeight = 720;
-    }
-
-    private static Vector2 GetTextAlignmentPosition(TextAlignment alignment)
-    {
-        return TextAlignmentPositions[(int)alignment];
+        CreateDrawerSpaces();
     }
 
     private static float CalculateLayerDepth(short layer)
@@ -117,22 +109,37 @@ public class Graphics : DrawableGameComponent
         });
     }
 
+    private void CreateDrawerSpaces()
+    {
+        foreach (TransformSpace space in Enum.GetValues(typeof(TransformSpace)))
+        {
+            DrawersBySpace.Add(space, new List<IDrawer>());
+        }
+    }
+
     private void Draw(TransformSpace space, IDrawer drawer)
     {
         DrawersBySpace[space].Add(drawer);
     }
 
-    private Vector2 CalculateUnitVector(Vector2 vector)
+    private Vector2 CalculateWorldPosition(Vector2 position)
     {
-        vector.X *= PixelsPerUnit;
-        vector.Y *= PixelsPerUnit;
-        return vector;
+        position.X *= PixelsPerUnit;
+        position.Y *= PixelsPerUnit;
+        return position;
     }
 
-    private RectangleF CalculateUnitBounds(RectangleF bounds)
+    private RectangleF CalculateWorldBounds(RectangleF bounds)
     {
-        bounds.Position = CalculateUnitVector(bounds.Position + (Vector2)bounds.Size * 0.5f) - bounds.Size * 0.5f;
-        //bounds.Size = CalculateUnitVector(bounds.Size);
+        // We ignore the size when scaling.
+        bounds.Position = CalculateWorldPosition(bounds.Position + (Vector2)bounds.Size * 0.5f) - bounds.Size * 0.5f;
+        return bounds;
+    }
+
+    private RectangleF CalculateScreenBounds(RectangleF bounds, Vector2 rootAnchorPosition)
+    {
+        // Roots will be anchored on the viewport itself.
+        bounds.Position += Vector2.Multiply(rootAnchorPosition, ActiveCamera.ViewportSize / UnitScale) * 0.5f;
         return bounds;
     }
 
@@ -158,7 +165,7 @@ public class Graphics : DrawableGameComponent
 
         GraphicsDevice.SetRenderTarget(null);
     }
-    
+
     private void DrawView()
     {
         GraphicsDevice.Clear(Color.Black);
@@ -177,18 +184,16 @@ public class Graphics : DrawableGameComponent
 
     private void DrawWorldSpace()
     {
-        float scale = (float)ReferencePixelsPerUnit / PixelsPerUnit;
-
         Transform cameraTransform = ActiveCamera.Entity.Transform;
-        Vector2 cameraPosition = CalculateUnitVector(cameraTransform.Position);
+        Vector2 cameraPosition = CalculateWorldPosition(cameraTransform.Position);
 
-        Matrix transformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(cameraPosition.X, cameraPosition.Y, 0f) * Matrix.CreateScale(scale, scale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.ViewportSize * 0.5f, 0f));
+        Matrix transformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(cameraPosition.X, cameraPosition.Y, 0f) * Matrix.CreateScale(UnitScale, UnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.ViewportSize * 0.5f, 0f));
 
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix);
 
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.World])
         {
-            drawer.Draw(SpriteBatch, CalculateUnitBounds(drawer.Transform.Bounds), CalculateLayerDepth(drawer.Layer));
+            drawer.Draw(SpriteBatch, CalculateWorldBounds(drawer.Transform.Bounds), CalculateLayerDepth(drawer.Layer));
         }
 
         SpriteBatch.End();
@@ -196,20 +201,14 @@ public class Graphics : DrawableGameComponent
 
     private void DrawScreenSpace()
     {
-        float scale = (float)ReferencePixelsPerUnit / PixelsPerUnit;
-
-        Matrix transformMatrix = Matrix.CreateScale(scale, scale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.ViewportSize * 0.5f, 0f));
+        Matrix transformMatrix = Matrix.CreateScale(UnitScale, UnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.ViewportSize * 0.5f, 0f));
 
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix);
 
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.Screen])
         {
             Transform transform = drawer.Transform;
-            RectangleF bounds = transform.Bounds;
-
-            bounds.Position += Vector2.Multiply(transform.Root.AnchorPosition, ActiveCamera.ViewportSize / scale) * 0.5f;
-
-            drawer.Draw(SpriteBatch, bounds, CalculateLayerDepth(drawer.Layer));
+            drawer.Draw(SpriteBatch, CalculateScreenBounds(transform.Bounds, transform.Root.AnchorPosition), CalculateLayerDepth(drawer.Layer));
         }
 
         SpriteBatch.End();
