@@ -1,2 +1,6 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"E:/Documents/C#/Flatlanders/Content/Slots.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Slots.xnb","TextureProcessor","Texture2DContent",251,1685,0,0866194
+"E:/Documents/C#/Flatlanders/Content/Arial.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Arial.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21535,0,1590078
+"E:/Documents/C#/Flatlanders/Content/DogicaPixel.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/DogicaPixel.xnb","FontDescriptionProcessor","SpriteFontContent",2075,21535,0,0090391
+"E:/Documents/C#/Flatlanders/Content/Player.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Player.xnb","TextureProcessor","Texture2DContent",331,1109,0,0095257
+"E:/Documents/C#/Flatlanders/Content/Slots.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Slots.xnb","TextureProcessor","Texture2DContent",246,1109,0,0009549
+"E:/Documents/C#/Flatlanders/Content/Tiles.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Tiles.xnb","TextureProcessor","Texture2DContent",385,65621,0,0021652

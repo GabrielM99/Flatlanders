@@ -20,7 +20,14 @@
 /processorParam:TextureFormat=Compressed
 /build:Arial.spritefont
 
-#begin Icon.bmp
+#begin DogicaPixel.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:DogicaPixel.spritefont
+
+#begin Player.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -30,7 +37,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Icon.bmp
+/build:Player.png
 
 #begin Slots.png
 /importer:TextureImporter

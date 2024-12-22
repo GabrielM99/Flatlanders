@@ -18,19 +18,50 @@ public class WorldScene : Scene
         base.Load();
 
         Entity cameraEntity = Engine.EntityManager.CreateEntity();
-        Engine.Graphics.ActiveCamera = cameraEntity.AddComponent<Camera>();
+        Camera camera = Engine.Graphics.ActiveCamera = cameraEntity.AddComponent<Camera>();
+        camera.BackgroundColor = new Color(54, 197, 244);
+
+        Entity tilemapEntity = Engine.EntityManager.CreateEntity();
+        Tilemap tilemap = tilemapEntity.AddComponent<Tilemap>();
+        TilemapRenderer tilemapRenderer = tilemapEntity.AddComponent<TilemapRenderer>();
+        tilemapRenderer.Layer = -1;
+
+        Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)));
+        Tile rockTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16)));
+
+        Vector2 worldSize = new(16, 16);
+
+        Random random = new();
+
+        for (int x = -(int)(worldSize.X / 2); x < worldSize.X / 2; x++)
+        {
+            for (int y = -(int)(worldSize.Y / 2); y < worldSize.Y / 2; y++)
+            {
+                if (random.NextSingle() <= 0.75f)
+                {
+                    tilemap.SetTile(grassTile, new Vector3(x, y, 0f));
+                }
+                else
+                {
+                    tilemap.SetTile(rockTile, new Vector3(x, y, 0f));
+                }
+            }
+        }
 
         Entity playerEntity = Engine.EntityManager.CreateEntity();
-        playerEntity.AddComponent<Player>();
+        Player player = playerEntity.AddComponent<Player>();
+        player.tilemap = tilemap;
+        player.rockTile = rockTile;
         SpriteRenderer playerSpriteRenderer = playerEntity.AddComponent<SpriteRenderer>();
-        playerSpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16));
+        playerSpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Player"));
 
         Entity textEntity = Engine.EntityManager.CreateEntity();
         TextRenderer textRenderer = textEntity.AddComponent<TextRenderer>();
-        textRenderer.Font = Engine.Content.Load<SpriteFont>("Arial");
+        textRenderer.Font = Engine.Content.Load<SpriteFont>("DogicaPixel");
         textRenderer.Text = "Flatlanders";
-        textRenderer.Color = Color.Orange;
+        textRenderer.Color = Color.Black;
         textEntity.Transform.Pivot = -Vector2.UnitY;
+        textEntity.Transform.Position = Vector2.UnitY;
         textEntity.Transform.Space = TransformSpace.Screen;
         textEntity.Transform.Anchor = TransformAnchor.Top;
 

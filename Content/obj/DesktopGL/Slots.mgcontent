@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SourceFile>E:/Documents/C#/Flatlanders/Content/Slots.png</SourceFile>
-  <SourceTime>2024-12-17T13:40:54.912746-03:00</SourceTime>
+  <SourceTime>2024-12-17T13:41:52.1660763-03:00</SourceTime>
   <DestFile>E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Slots.xnb</DestFile>
-  <DestTime>2024-12-17T13:41:20.3185339-03:00</DestTime>
+  <DestTime>2024-12-22T02:56:06.1775467-03:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2022-07-26T08:44:56-03:00</ImporterTime>
   <Processor>TextureProcessor</Processor>

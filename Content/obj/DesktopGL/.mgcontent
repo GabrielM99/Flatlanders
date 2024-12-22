@@ -4,12 +4,17 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>E:/Documents/C#/Flatlanders/Content/Slots.png</File>
     <File>E:/Documents/C#/Flatlanders/Content/Arial.spritefont</File>
-    <File>E:/Documents/C#/Flatlanders/Content/Icon.bmp</File>
+    <File>E:/Documents/C#/Flatlanders/Content/DogicaPixel.spritefont</File>
+    <File>E:/Documents/C#/Flatlanders/Content/Player.png</File>
+    <File>E:/Documents/C#/Flatlanders/Content/Slots.png</File>
     <File>E:/Documents/C#/Flatlanders/Content/Tiles.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>
 </SourceFileCollection>

@@ -17,7 +17,6 @@ public struct TextureDrawer : IDrawer
 
     public readonly void Draw(SpriteBatch spriteBatch, RectangleF bounds, float layerDepth)
     {
-        // PIVOT for WORLD!
         spriteBatch.Draw(Texture, bounds.Center, SourceRectangle, Color, Transform.Rotation, Origin + SourceRectangle.Size.ToVector2() * 0.5f, Transform.Scale, Effects, layerDepth);
     }
 }

@@ -7,13 +7,14 @@ namespace Flatlanders.Application;
 public class Application : IApplication
 {
     private Engine Engine { get; }
-    
+
     public Application()
     {
         Engine = new(this);
         Engine.Graphics.PixelsPerUnit = 16;
-        Engine.Graphics.Resolution = new Vector2(1280f, 720f);
-        Engine.Graphics.IsFullscreen = true;
+        Engine.Graphics.WindowSize = new Vector2(1280f, 720f);
+        Engine.IsMouseVisible = true;
+        Engine.Window.AllowUserResizing = true;
         Engine.Run();
     }
 

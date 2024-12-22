@@ -20,7 +20,8 @@ public class Transform : Component
         new(-1f, 1f),   new(0f, 1f),    new(1f, 1f)
     };
 
-    public RectangleF Bounds => new(LocalPosition - Vector2.Multiply(Pivot, Size * 0.5f) - Size * 0.5f + (Parent == null ? Vector2.Zero : Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f)), Size);
+    public RectangleF Bounds => new(LocalPosition + LocalBounds.Position, LocalBounds.Size);
+    public RectangleF LocalBounds => new(Vector2.Multiply(-Pivot, Size * 0.5f) - Size * 0.5f + (Parent == null ? Vector2.Zero : Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f)), Size);
 
     public Transform Parent
     {
@@ -97,7 +98,7 @@ public class Transform : Component
     {
         base.OnUpdate(deltaTime);
         ProcessPendingCalculateSize();
-        Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
+        // Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
     }
 
     public override void OnDestroy()
@@ -189,12 +190,12 @@ public class Transform : Component
 
         foreach (Transform child in Children)
         {
-            size = Vector2.Max(size, child.Size);
+            size = Vector2.Max(size, Vector2.Multiply(child.Size, child.Scale));
             volume += child.Size;
         }
 
         Volume = volume;
-        Size = size;
+        Size = Vector2.Multiply(size, Scale);
 
         Parent?.CalculateSize();
     }
