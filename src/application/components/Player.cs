@@ -19,7 +19,7 @@ public class Player : Component
     {
         base.OnUpdate(deltaTime);
 
-        debugTextRenderer.Text = $"Flatlands 0.0.1\nTPS:{(int)Engine.Time.TicksPerSecond}\nFPS:{(int)Engine.Time.FramesPerSecond}";
+        debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.Time.TicksPerSecond}\nFPS:{(int)Engine.Time.FramesPerSecond}\nPOS: (X: {(int)Entity.Transform.Position.X}, Y: {(int)Entity.Transform.Position.Y})";
 
         KeyboardState keyboardState = Keyboard.GetState();
 
