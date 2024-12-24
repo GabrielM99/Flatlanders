@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,10 +17,9 @@ public class TextRenderer : Renderer
         {
             if (value != _font)
             {
-                CalculateTransformSize(Text);
+                _font = value;
+                UpdateSize();
             }
-
-            _font = value;
         }
     }
 
@@ -31,10 +31,9 @@ public class TextRenderer : Renderer
         {
             if (value != _text)
             {
-                CalculateTransformSize(value);
+                _text = value;
+                UpdateSize();
             }
-
-            _text = value;
         }
     }
 
@@ -42,14 +41,19 @@ public class TextRenderer : Renderer
     {
     }
 
+    public override void OnCreate()
+    {
+        base.OnCreate();
+        Font = Engine.Content.Load<SpriteFont>("Arial");
+    }
+
     public override void Draw(Graphics graphics)
     {
         graphics.DrawText(Font, Text, Entity.Transform, Color, Effects, Layer);
     }
 
-    // TODO: Make calculating a Transform's size be generic.
-    private void CalculateTransformSize(string text)
+    private void UpdateSize()
     {
-        Size = Font == null ? Vector2.Zero : Font.MeasureString(text);
+        Size = Font == null ? Vector2.Zero : Font.MeasureString(Text);
     }
 }

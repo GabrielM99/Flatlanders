@@ -52,22 +52,23 @@ public class WorldScene : Scene
             }
         }
 
+        Entity debugTextEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Text);
+        TextRenderer debugTextRenderer = debugTextEntity.GetComponent<TextRenderer>();
+        debugTextRenderer.Font = Engine.Content.Load<SpriteFont>("DogicaPixel");
+        debugTextRenderer.Color = Color.Black;
+        debugTextEntity.Transform.Pivot = -Vector2.One;
+        debugTextEntity.Transform.Position = Vector2.One;
+        debugTextEntity.Transform.Scale = Vector2.One * 0.5f;
+        debugTextEntity.Transform.Space = TransformSpace.Screen;
+        debugTextEntity.Transform.Anchor = TransformAnchor.TopLeft;
+        
         Entity playerEntity = Engine.EntityManager.CreateEntity();
         Player player = playerEntity.AddComponent<Player>();
         player.tilemap = tilemap;
         player.rockTile = rockTile;
+        player.debugTextRenderer = debugTextRenderer;
         SpriteRenderer playerSpriteRenderer = playerEntity.AddComponent<SpriteRenderer>();
         playerSpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Player"));
-
-        Entity textEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Text);
-        TextRenderer textRenderer = textEntity.GetComponent<TextRenderer>();
-        textRenderer.Font = Engine.Content.Load<SpriteFont>("DogicaPixel");
-        textRenderer.Text = "Flatlanders";
-        textRenderer.Color = Color.Black;
-        textEntity.Transform.Pivot = -Vector2.UnitY;
-        textEntity.Transform.Position = Vector2.UnitY;
-        textEntity.Transform.Space = TransformSpace.Screen;
-        textEntity.Transform.Anchor = TransformAnchor.Top;
 
         Entity slotParentEntity = Engine.EntityManager.CreateEntity();
         slotParentEntity.Transform.Position = new Vector2(0f, -1f);

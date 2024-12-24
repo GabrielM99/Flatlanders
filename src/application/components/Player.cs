@@ -6,25 +6,20 @@ using Microsoft.Xna.Framework.Input;
 namespace Flatlanders.Application.Components;
 
 public class Player : Component
-{
+{     
     public Tilemap tilemap;
     public Tile rockTile;
+    public TextRenderer debugTextRenderer;
 
     public Player(Entity entity) : base(entity)
     {
     }
 
-    private TextRenderer tpsTextRenderer;
-    private TextRenderer fpsTextRenderer;
-
-    public override void OnCreate()
-    {
-        base.OnCreate();
-    }
-
     public override void OnUpdate(float deltaTime)
     {
         base.OnUpdate(deltaTime);
+
+        debugTextRenderer.Text = $"Flatlands 0.0.1\nTPS:{(int)Engine.Time.TicksPerSecond}\nFPS:{(int)Engine.Time.FramesPerSecond}";
 
         KeyboardState keyboardState = Keyboard.GetState();
 

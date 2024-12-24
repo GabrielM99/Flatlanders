@@ -85,8 +85,9 @@ public class Transform : Component
     }
 
     private List<Transform> Children { get; }
-
-    private bool IsCalculateSizePending { get; set; }
+    
+    // Transforms will always update their sizes in the first frame.
+    private bool IsUpdateSizePending { get; set; } = true;
 
     public Transform(Entity entity) : base(entity)
     {
@@ -110,8 +111,8 @@ public class Transform : Component
     public override void OnUpdate(float deltaTime)
     {
         base.OnUpdate(deltaTime);
-        ProcessPendingCalculateSize();
-        Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
+        ProcessPendingUpdateSize();
+        //Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
     }
 
     public override void OnDestroy()
@@ -159,18 +160,18 @@ public class Transform : Component
     private void OnChildAdded(Transform child)
     {
         ChildAdded?.Invoke(child);
-        CalculateSize();
+        UpdateSize();
     }
 
     private void OnChildRemoved(Transform child)
     {
         ChildRemoved?.Invoke(child);
-        CalculateSize();
+        UpdateSize();
     }
 
     private void OnEntityComponentSizeChanged(Component component)
     {
-        CalculateSize();
+        UpdateSize();
     }
 
     private void OnEntityComponentAdded(Component component)
@@ -183,12 +184,12 @@ public class Transform : Component
         component.SizeChanged -= OnEntityComponentSizeChanged;
     }
 
-    private void CalculateSize()
+    private void UpdateSize()
     {
-        IsCalculateSizePending = true;
+        IsUpdateSizePending = true;
     }
 
-    private void OnCalculateSize()
+    private void OnUpdateSize()
     {
         Vector2 size = Vector2.Zero;
         Vector2 volume = Vector2.Zero;
@@ -210,15 +211,15 @@ public class Transform : Component
         Volume = volume;
         Size = Vector2.Multiply(size, Scale);
 
-        Parent?.CalculateSize();
+        Parent?.UpdateSize();
     }
 
-    private void ProcessPendingCalculateSize()
+    private void ProcessPendingUpdateSize()
     {
-        if (IsCalculateSizePending)
+        if (IsUpdateSizePending)
         {
-            IsCalculateSizePending = false;
-            OnCalculateSize();
+            IsUpdateSizePending = false;
+            OnUpdateSize();
         }
     }
 }
