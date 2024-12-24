@@ -21,7 +21,20 @@ public class Transform : Component
     };
 
     public RectangleF Bounds => new(LocalPosition + LocalBounds.Position, LocalBounds.Size);
-    public RectangleF LocalBounds => new(Vector2.Multiply(-Pivot, Size * 0.5f) - Size * 0.5f + (Parent == null ? Vector2.Zero : Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f)), Size);
+    public RectangleF LocalBounds
+    {
+        get
+        {
+            Vector2 size = Size;
+
+            if (Space == TransformSpace.World)
+            {
+                size = Engine.Graphics.ViewToWorldVector(size);
+            }
+
+            return new(Vector2.Multiply(-Pivot, size * 0.5f) - size * 0.5f + (Parent == null ? Vector2.Zero : Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f)), size);
+        }
+    }
 
     public Transform Parent
     {
@@ -77,7 +90,7 @@ public class Transform : Component
 
     public Transform(Entity entity) : base(entity)
     {
-        Children = new();
+        Children = new List<Transform>();
         Root = this;
     }
 
@@ -98,7 +111,7 @@ public class Transform : Component
     {
         base.OnUpdate(deltaTime);
         ProcessPendingCalculateSize();
-        // Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
+        Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
     }
 
     public override void OnDestroy()

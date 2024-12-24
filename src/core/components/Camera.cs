@@ -5,10 +5,10 @@ namespace Flatlanders.Core.Components;
 
 public class Camera : Component
 {
-    public Color BackgroundColor { get; set; } = Color.CornflowerBlue;
-
     public Vector2 Resolution { get; set; } = new Vector2(1920, 1080);
     public RenderTarget2D Viewport { get; private set; }
+    
+    public Color BackgroundColor { get; set; } = Color.CornflowerBlue;
 
     public Camera(Entity entity) : base(entity)
     {
@@ -21,11 +21,6 @@ public class Camera : Component
         UpdateViewport();
     }
 
-    public Vector2 ScreenToWorldPosition(Vector2 screenPosition)
-    {
-        return screenPosition / 100f; 
-    }
-
     private void CreateViewport()
     {
         Viewport = new RenderTarget2D(Engine.GraphicsDevice, (int)Resolution.X, (int)Resolution.Y);
@@ -33,9 +28,11 @@ public class Camera : Component
 
     private void UpdateViewport()
     {
-        if (Viewport != null && Viewport.Bounds.Size.ToVector2() != Resolution)
+        if (Viewport.Bounds.Size.ToVector2() != Resolution)
         {
             CreateViewport();
         }
+
+        Size = Engine.Graphics.ScreenToViewVector(Resolution);
     }
 }

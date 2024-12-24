@@ -11,7 +11,7 @@ public class Graphics : DrawableGameComponent
 {
     public int ReferencePixelsPerUnit { get; set; } = 100;
     public int PixelsPerUnit { get; set; } = 100;
-    private float PixelsPerUnitScale => (float)ReferencePixelsPerUnit / PixelsPerUnit;
+    public float PixelsPerUnitScale => (float)ReferencePixelsPerUnit / PixelsPerUnit;
 
     public Camera ActiveCamera { get; set; }
 
@@ -37,8 +37,8 @@ public class Graphics : DrawableGameComponent
 
     public Graphics(Game game) : base(game)
     {
-        GraphicsDeviceManager = new(game);
-        DrawersBySpace = new();
+        GraphicsDeviceManager = new GraphicsDeviceManager(game);
+        DrawersBySpace = new Dictionary<TransformSpace, List<IDrawer>>();
 
         CreateDrawerSpaces();
     }
@@ -66,7 +66,12 @@ public class Graphics : DrawableGameComponent
         DrawCamera();
     }
 
-    public Vector2 ScreenToWorldPosition(Vector2 screenPosition)
+    public Vector2 ScreenToViewVector(Vector2 screenVector)
+    {
+        return screenVector / PixelsPerUnitScale;
+    }
+
+    public Vector2 ScreenToWorldVector(Vector2 screenVector)
     {
         if (ActiveCamera == null)
         {
@@ -74,12 +79,22 @@ public class Graphics : DrawableGameComponent
         }
 
         Vector2 offset = new((WindowSize.X - ViewportSize.X) * 0.5f, (WindowSize.Y - ViewportSize.Y) * 0.5f);
-        Vector2 normalized = (screenPosition - ViewportSize * 0.5f - offset) / ViewportSize;
+        Vector2 normalized = (screenVector - ViewportSize * 0.5f - offset) / ViewportSize;
 
         return normalized * (ActiveCamera.Resolution / ReferencePixelsPerUnit) + ActiveCamera.Entity.Transform.Position;
     }
 
-    public Vector2 WorldToScreenPosition(Vector2 worldPosition)
+    public Vector2 ViewToScreenVector(Vector2 viewVector)
+    {
+        return viewVector * PixelsPerUnitScale;
+    }
+
+    public Vector2 ViewToWorldVector(Vector2 viewVector)
+    {
+        return viewVector / PixelsPerUnit;
+    }
+
+    public Vector2 WorldToScreenVector(Vector2 worldVector)
     {
         if (ActiveCamera == null)
         {
@@ -87,9 +102,14 @@ public class Graphics : DrawableGameComponent
         }
 
         Vector2 offset = new((WindowSize.X - ViewportSize.X) * 0.5f, (WindowSize.Y - ViewportSize.Y) * 0.5f);
-        Vector2 normalized = (worldPosition - ActiveCamera.Entity.Transform.Position) / (ActiveCamera.Resolution / ReferencePixelsPerUnit);
+        Vector2 normalized = (worldVector - ActiveCamera.Entity.Transform.Position) / (ActiveCamera.Resolution / ReferencePixelsPerUnit);
 
         return (normalized * ViewportSize) + offset + ViewportSize * 0.5f;
+    }
+
+    private Vector2 WorldToViewVector(Vector2 worldVector)
+    {
+        return worldVector * PixelsPerUnit;
     }
 
     public void DrawSprite(Sprite sprite, Transform transform, Vector2 offset, Color color, SpriteEffects effects, short layer)
@@ -155,13 +175,6 @@ public class Graphics : DrawableGameComponent
         DrawersBySpace[space].Add(drawer);
     }
 
-    private Vector2 CalculateWorldPosition(Vector2 position)
-    {
-        position.X *= PixelsPerUnit;
-        position.Y *= PixelsPerUnit;
-        return position;
-    }
-
     private void DrawCamera()
     {
         if (ActiveCamera == null)
@@ -188,30 +201,25 @@ public class Graphics : DrawableGameComponent
     private void DrawView()
     {
         GraphicsDevice.Clear(Color.Black);
-
-        SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
-                        SamplerState.PointClamp, DepthStencilState.Default,
-                        RasterizerState.CullNone);
-
+        SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
         SpriteBatch.Draw(ActiveCamera.Viewport, new Rectangle(((WindowSize - ViewportSize) * 0.5f).ToPoint(), ViewportSize.ToPoint()), Color.White);
-
         SpriteBatch.End();
     }
 
     private void DrawWorldSpace()
     {
         Transform cameraTransform = ActiveCamera.Entity.Transform;
-        Vector2 cameraPosition = CalculateWorldPosition(cameraTransform.Position);
+        Vector2 cameraPosition = WorldToViewVector(cameraTransform.Position);
 
         Matrix transformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
 
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix);
 
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.World])
-        {
-            Transform transform = drawer.Transform;
-            RectangleF bounds = transform.Bounds;
-            bounds.Position = CalculateWorldPosition(bounds.Position - transform.LocalBounds.Position) + transform.LocalBounds.Position;
+        {            
+            RectangleF bounds = drawer.Transform.Bounds;
+            bounds.Position = WorldToViewVector(bounds.Position);
+            bounds.Size = WorldToViewVector(bounds.Size);
             drawer.Draw(SpriteBatch, bounds, CalculateLayerDepth(drawer.Layer));
         }
 

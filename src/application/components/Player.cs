@@ -1,4 +1,3 @@
-using Flatlanders.Application.Scenes;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
@@ -13,6 +12,14 @@ public class Player : Component
 
     public Player(Entity entity) : base(entity)
     {
+    }
+
+    private TextRenderer tpsTextRenderer;
+    private TextRenderer fpsTextRenderer;
+
+    public override void OnCreate()
+    {
+        base.OnCreate();
     }
 
     public override void OnUpdate(float deltaTime)
@@ -44,7 +51,8 @@ public class Player : Component
         }
 
         MouseState mouseState = Mouse.GetState();
-        Vector2 worldMousePosition = Engine.Graphics.ScreenToWorldPosition(mouseState.Position.ToVector2());
+        Vector2 mousePosition = mouseState.Position.ToVector2();
+        Vector2 worldMousePosition = Engine.Graphics.ScreenToWorldVector(mousePosition);
 
         if (mouseState.LeftButton == ButtonState.Pressed)
         {

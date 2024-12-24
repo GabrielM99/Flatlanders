@@ -7,6 +7,7 @@ public class Engine : Game
     private const string DefaultContentDirectory = "Content";
 
     public Graphics Graphics { get; }
+    public Time Time { get; }
     public EntityManager EntityManager { get; }
     public SceneManager SceneManager { get; }
 
@@ -16,9 +17,10 @@ public class Engine : Game
     {
         Application = application;
 
-        Graphics = new(this);
-        EntityManager = new(this);
-        SceneManager = new(this);
+        Graphics = new Graphics(this);
+        Time = new Time(this);
+        EntityManager = new EntityManager(this);
+        SceneManager = new SceneManager(this);
 
         if (string.IsNullOrEmpty(Content.RootDirectory))
         {
@@ -30,6 +32,7 @@ public class Engine : Game
     {
         Application.Initialize();
 
+        Components.Add(Time);
         Components.Add(Graphics);
         Components.Add(EntityManager);
         Components.Add(SceneManager);

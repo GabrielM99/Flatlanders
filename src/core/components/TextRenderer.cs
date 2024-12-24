@@ -1,14 +1,12 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 
 namespace Flatlanders.Core.Components;
 
 public class TextRenderer : Renderer
 {
     private SpriteFont _font;
-    private string _text;
+    private string _text = "Text";
 
     public SpriteFont Font
     {

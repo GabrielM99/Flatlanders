@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flatlanders.Core.Components;
+using Flatlanders.Core.Prefabs;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core;
@@ -26,16 +27,22 @@ public class EntityManager : GameComponent
     {
         base.Update(gameTime);
 
+        float deltaTime = Engine.Time.DeltaTime;
+
         for (int i = 0; i < Components.Count; i++)
         {
-            Components[i].OnUpdate((float)gameTime.ElapsedGameTime.TotalSeconds);
+            Components[i].OnUpdate(deltaTime);
         }
     }
 
-    public Entity CreateEntity(string name = nameof(Entity))
+    public Entity CreateEntity(string name = "")
     {
-        Entity entity = (Entity)Activator.CreateInstance(typeof(Entity), new object[] { Engine, name });
-        return entity;
+        return (Entity)Activator.CreateInstance(typeof(Entity), new object[] { Engine, name });
+    }
+
+    public Entity CreateEntity(Prefab prefab, string name = "")
+    {
+        return prefab.Create(this, name);
     }
 
     public T CreateComponent<T>(Entity entity) where T : Component

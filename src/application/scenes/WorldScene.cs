@@ -1,5 +1,6 @@
 using System;
 using Flatlanders.Application.Components;
+using Flatlanders.Application.Databases;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
@@ -17,6 +18,9 @@ public class WorldScene : Scene
     {
         base.Load();
 
+        PrefabDatabase prefabDatabase = new();
+        prefabDatabase.Load();
+
         Entity cameraEntity = Engine.EntityManager.CreateEntity();
         Camera camera = Engine.Graphics.ActiveCamera = cameraEntity.AddComponent<Camera>();
         camera.BackgroundColor = new Color(54, 197, 244);
@@ -29,7 +33,7 @@ public class WorldScene : Scene
         Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)));
         Tile rockTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16)));
 
-        Vector2 worldSize = new(16, 16);
+        Vector2 worldSize = new(256, 256);
 
         Random random = new();
 
@@ -55,8 +59,8 @@ public class WorldScene : Scene
         SpriteRenderer playerSpriteRenderer = playerEntity.AddComponent<SpriteRenderer>();
         playerSpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Player"));
 
-        Entity textEntity = Engine.EntityManager.CreateEntity();
-        TextRenderer textRenderer = textEntity.AddComponent<TextRenderer>();
+        Entity textEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Text);
+        TextRenderer textRenderer = textEntity.GetComponent<TextRenderer>();
         textRenderer.Font = Engine.Content.Load<SpriteFont>("DogicaPixel");
         textRenderer.Text = "Flatlanders";
         textRenderer.Color = Color.Black;

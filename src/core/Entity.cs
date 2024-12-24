@@ -15,11 +15,11 @@ public class Entity
 
     private Dictionary<Type, Component> ComponentByType { get; }
 
-    public Entity(Engine engine, string name = nameof(Entity))
+    public Entity(Engine engine, string name = "")
     {
         Name = name;
         Engine = engine;
-        ComponentByType = new();
+        ComponentByType = new Dictionary<Type, Component>();
         Transform = AddComponent<Transform>();
     }
 
