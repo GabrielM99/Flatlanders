@@ -26,9 +26,14 @@ public class Graphics : DrawableGameComponent
             GraphicsDeviceManager.PreferredBackBufferHeight = (int)value.Y;
         }
     }
-    // TODO: Other aspect ratios aren't currently supported.
-    public float AspectRatio { get; set; } = 16f / 9f;
-    public Vector2 ViewSize => (WindowSize.X / AspectRatio <= WindowSize.Y) ? new Vector2(WindowSize.X, WindowSize.X / AspectRatio) : new Vector2(WindowSize.Y * AspectRatio, WindowSize.Y);
+    public Vector2 ViewSize
+    {
+        get
+        {
+            float aspectRatio = ActiveCamera == null ? 1f : ActiveCamera.AspectRatio;
+            return (WindowSize.X / aspectRatio <= WindowSize.Y) ? new Vector2(WindowSize.X, WindowSize.X / aspectRatio) : new Vector2(WindowSize.Y * aspectRatio, WindowSize.Y);
+        }
+    }
 
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
@@ -216,7 +221,7 @@ public class Graphics : DrawableGameComponent
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix);
 
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.World])
-        {            
+        {
             RectangleF bounds = drawer.Transform.Bounds;
             bounds.Position = WorldToViewVector(bounds.Position);
             bounds.Size = WorldToViewVector(bounds.Size);

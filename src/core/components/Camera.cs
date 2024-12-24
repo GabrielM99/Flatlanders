@@ -6,6 +6,8 @@ namespace Flatlanders.Core.Components;
 public class Camera : Component
 {
     public Vector2 Resolution { get; set; } = new Vector2(1920, 1080);
+    public float AspectRatio => Resolution.X / Resolution.Y;
+    
     public RenderTarget2D RenderTarget { get; private set; }
     
     public Color BackgroundColor { get; set; } = Color.CornflowerBlue;

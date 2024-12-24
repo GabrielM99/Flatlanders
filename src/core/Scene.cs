@@ -9,13 +9,6 @@ public abstract class Scene
         Engine = engine;
     }
 
-    public virtual void Load()
-    {
-
-    }
-
-    public virtual void Unload()
-    {
-
-    }
+    public virtual void Load() { }
+    public virtual void Unload() { }
 }
