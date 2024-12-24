@@ -28,7 +28,7 @@ public class Graphics : DrawableGameComponent
     }
     // TODO: Other aspect ratios aren't currently supported.
     public float AspectRatio { get; set; } = 16f / 9f;
-    public Vector2 ViewportSize => (WindowSize.X / AspectRatio <= WindowSize.Y) ? new Vector2(WindowSize.X, WindowSize.X / AspectRatio) : new Vector2(WindowSize.Y * AspectRatio, WindowSize.Y);
+    public Vector2 ViewSize => (WindowSize.X / AspectRatio <= WindowSize.Y) ? new Vector2(WindowSize.X, WindowSize.X / AspectRatio) : new Vector2(WindowSize.Y * AspectRatio, WindowSize.Y);
 
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
@@ -78,8 +78,8 @@ public class Graphics : DrawableGameComponent
             return Vector2.Zero;
         }
 
-        Vector2 offset = new((WindowSize.X - ViewportSize.X) * 0.5f, (WindowSize.Y - ViewportSize.Y) * 0.5f);
-        Vector2 normalized = (screenVector - ViewportSize * 0.5f - offset) / ViewportSize;
+        Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
+        Vector2 normalized = (screenVector - ViewSize * 0.5f - offset) / ViewSize;
 
         return normalized * (ActiveCamera.Resolution / ReferencePixelsPerUnit) + ActiveCamera.Entity.Transform.Position;
     }
@@ -101,10 +101,10 @@ public class Graphics : DrawableGameComponent
             return Vector2.Zero;
         }
 
-        Vector2 offset = new((WindowSize.X - ViewportSize.X) * 0.5f, (WindowSize.Y - ViewportSize.Y) * 0.5f);
+        Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
         Vector2 normalized = (worldVector - ActiveCamera.Entity.Transform.Position) / (ActiveCamera.Resolution / ReferencePixelsPerUnit);
 
-        return (normalized * ViewportSize) + offset + ViewportSize * 0.5f;
+        return (normalized * ViewSize) + offset + ViewSize * 0.5f;
     }
 
     private Vector2 WorldToViewVector(Vector2 worldVector)
@@ -189,7 +189,7 @@ public class Graphics : DrawableGameComponent
 
     private void DrawSpaces()
     {
-        GraphicsDevice.SetRenderTarget(ActiveCamera.Viewport);
+        GraphicsDevice.SetRenderTarget(ActiveCamera.RenderTarget);
         GraphicsDevice.Clear(ActiveCamera.BackgroundColor);
 
         DrawWorldSpace();
@@ -202,7 +202,7 @@ public class Graphics : DrawableGameComponent
     {
         GraphicsDevice.Clear(Color.Black);
         SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
-        SpriteBatch.Draw(ActiveCamera.Viewport, new Rectangle(((WindowSize - ViewportSize) * 0.5f).ToPoint(), ViewportSize.ToPoint()), Color.White);
+        SpriteBatch.Draw(ActiveCamera.RenderTarget, new Rectangle(((WindowSize - ViewSize) * 0.5f).ToPoint(), ViewSize.ToPoint()), Color.White);
         SpriteBatch.End();
     }
 
