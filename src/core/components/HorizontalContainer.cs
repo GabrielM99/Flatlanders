@@ -1,10 +1,11 @@
-using System;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
 
-public class HorizontalContainer : Container
+public class HorizontalContainer : Container, ISizable
 {
+    public Vector2 Size { get; private set; }
+    
     public HorizontalContainer(Entity entity) : base(entity)
     {
     }
@@ -30,5 +31,6 @@ public class HorizontalContainer : Container
         }
 
         Size = new Vector2(sizeX, transform.Size.Y);
+        Entity.Transform.RecalculateSize();
     }
 }

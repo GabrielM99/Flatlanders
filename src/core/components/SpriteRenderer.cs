@@ -1,3 +1,5 @@
+using Microsoft.Xna.Framework;
+
 namespace Flatlanders.Core.Components;
 
 public class SpriteRenderer : Renderer
@@ -13,10 +15,12 @@ public class SpriteRenderer : Renderer
             if (!Sprite.Equals(value))
             {
                 _sprite = value;
-                Size = value.Rectangle.Size.ToVector2();
+                Entity.Transform.RecalculateSize();
             }
         }
     }
+
+    public override Vector2 Size => Sprite.Rectangle.Size.ToVector2();
 
     public SpriteRenderer(Entity entity) : base(entity)
     {

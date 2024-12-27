@@ -6,6 +6,9 @@ namespace Flatlanders.Core.Components;
 
 public class TilemapRenderer : Renderer
 {
+    // TODO: Implement this.
+    public override Vector2 Size { get; }
+
     public Tilemap Tilemap { get; set; }
 
     public TilemapRenderer(Entity entity) : base(entity)

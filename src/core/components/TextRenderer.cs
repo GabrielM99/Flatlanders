@@ -1,13 +1,14 @@
-using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core.Components;
 
-public class TextRenderer : Renderer
+public class TextRenderer : Renderer, ISizable
 {
     private SpriteFont _font;
     private string _text = "Text";
+
+    public override Vector2 Size => Text == null || Font == null ? Vector2.Zero : Font.MeasureString(Text);
 
     public SpriteFont Font
     {
@@ -18,7 +19,7 @@ public class TextRenderer : Renderer
             if (value != _font)
             {
                 _font = value;
-                UpdateSize();
+                Entity.Transform.RecalculateSize();
             }
         }
     }
@@ -32,7 +33,7 @@ public class TextRenderer : Renderer
             if (value != _text)
             {
                 _text = value;
-                UpdateSize();
+                Entity.Transform.RecalculateSize();
             }
         }
     }
@@ -50,10 +51,5 @@ public class TextRenderer : Renderer
     public override void Draw(Graphics graphics)
     {
         graphics.DrawText(Font, Text, Entity.Transform, Color, Effects, Layer);
-    }
-
-    private void UpdateSize()
-    {
-        Size = Font == null ? Vector2.Zero : Font.MeasureString(Text);
     }
 }

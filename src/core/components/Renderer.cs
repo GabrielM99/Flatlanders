@@ -3,11 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core.Components;
 
-public abstract class Renderer : Component
+public abstract class Renderer : Component, ISizable
 {
     public Color Color { get; set; } = Color.White;
     public SpriteEffects Effects { get; set; }
     public short Layer { get; set; }
+
+    public abstract Vector2 Size { get; }
 
     public Renderer(Entity entity) : base(entity)
     {

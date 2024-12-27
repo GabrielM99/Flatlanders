@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
 
-public interface ISizableComponent
+public interface ISizable
 {
-    Vector2 Size { get; set; }
+    Vector2 Size { get; }
 }

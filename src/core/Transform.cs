@@ -5,7 +5,7 @@ using MonoGame.Extended;
 
 namespace Flatlanders.Core.Components;
 
-public class Transform : Component, ISizableComponent
+public class Transform : Component, ISizable
 {
     public event Action<Transform> ChildAdded;
     public event Action<Transform> ChildRemoved;
@@ -19,6 +19,8 @@ public class Transform : Component, ISizableComponent
         new(-1f, 0f),   new(0f, 0f),    new(1f, 0f),
         new(-1f, 1f),   new(0f, 1f),    new(1f, 1f)
     };
+
+    public Vector2 Size { get; set; }
 
     public RectangleF Bounds => new(LocalPosition + LocalBounds.Position, LocalBounds.Size);
     public RectangleF LocalBounds
@@ -86,14 +88,14 @@ public class Transform : Component, ISizableComponent
 
     private List<Transform> Children { get; }
 
-    // Transforms will always update their sizes in the first frame.
-    private bool IsUpdateSizePending { get; set; } = true;
-    private List<ISizableComponent> SizableComponents { get; }
+    // Transforms will always recalculate their sizes in the first frame.
+    private bool IsRecalculateSizePending { get; set; } = true;
+    private List<ISizable> SizableComponents { get; }
 
     public Transform(Entity entity) : base(entity)
     {
         Children = new List<Transform>();
-        SizableComponents = new List<ISizableComponent>();
+        SizableComponents = new List<ISizable>();
         Root = this;
     }
 
@@ -113,7 +115,7 @@ public class Transform : Component, ISizableComponent
     public override void OnUpdate(float deltaTime)
     {
         base.OnUpdate(deltaTime);
-        ProcessPendingUpdateSize();
+        ProcessPendingRecalculateSize();
         Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
     }
 
@@ -162,25 +164,18 @@ public class Transform : Component, ISizableComponent
     private void OnChildAdded(Transform child)
     {
         ChildAdded?.Invoke(child);
-        UpdateSize();
+        RecalculateSize();
     }
 
     private void OnChildRemoved(Transform child)
     {
         ChildRemoved?.Invoke(child);
-        UpdateSize();
-    }
-
-    private void OnEntityComponentSizeChanged(Component component)
-    {
-        UpdateSize();
+        RecalculateSize();
     }
 
     private void OnEntityComponentAdded(Component component)
     {
-        component.SizeChanged += OnEntityComponentSizeChanged;
-
-        if (component is ISizableComponent sizableComponent)
+        if (component is ISizable sizableComponent)
         {
             SizableComponents.Add(sizableComponent);
         }
@@ -188,25 +183,23 @@ public class Transform : Component, ISizableComponent
 
     private void OnEntityComponentRemoved(Component component)
     {
-        component.SizeChanged -= OnEntityComponentSizeChanged;
-
-        if (component is ISizableComponent sizableComponent)
+        if (component is ISizable sizableComponent)
         {
             SizableComponents.Remove(sizableComponent);
         }
     }
 
-    private void UpdateSize()
+    public void RecalculateSize()
     {
-        IsUpdateSizePending = true;
+        IsRecalculateSizePending = true;
     }
 
-    private void OnUpdateSize()
+    private void OnRecalculateSize()
     {
         Vector2 size = Vector2.Zero;
         Vector2 volume = Vector2.Zero;
 
-        foreach (ISizableComponent sizableComponent in SizableComponents)
+        foreach (ISizable sizableComponent in SizableComponents)
         {
             if (sizableComponent != this)
             {
@@ -223,15 +216,15 @@ public class Transform : Component, ISizableComponent
         Volume = volume;
         Size = Vector2.Multiply(size, Scale);
 
-        Parent?.UpdateSize();
+        Parent?.RecalculateSize();
     }
 
-    private void ProcessPendingUpdateSize()
+    private void ProcessPendingRecalculateSize()
     {
-        if (IsUpdateSizePending)
+        if (IsRecalculateSizePending)
         {
-            IsUpdateSizePending = false;
-            OnUpdateSize();
+            IsRecalculateSizePending = false;
+            OnRecalculateSize();
         }
     }
 }
