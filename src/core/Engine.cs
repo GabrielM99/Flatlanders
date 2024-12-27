@@ -10,6 +10,7 @@ public class Engine : Game
     public Time Time { get; }
     public EntityManager EntityManager { get; }
     public SceneManager SceneManager { get; }
+    public Physics Physics { get; }
 
     private IApplication Application { get; }
 

@@ -5,7 +5,7 @@ using MonoGame.Extended;
 
 namespace Flatlanders.Core.Components;
 
-public class Transform : Component
+public class Transform : Component, ISizableComponent
 {
     public event Action<Transform> ChildAdded;
     public event Action<Transform> ChildRemoved;
@@ -85,13 +85,15 @@ public class Transform : Component
     }
 
     private List<Transform> Children { get; }
-    
+
     // Transforms will always update their sizes in the first frame.
     private bool IsUpdateSizePending { get; set; } = true;
+    private List<ISizableComponent> SizableComponents { get; }
 
     public Transform(Entity entity) : base(entity)
     {
         Children = new List<Transform>();
+        SizableComponents = new List<ISizableComponent>();
         Root = this;
     }
 
@@ -112,7 +114,7 @@ public class Transform : Component
     {
         base.OnUpdate(deltaTime);
         ProcessPendingUpdateSize();
-        //Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
+        Engine.Graphics.DrawRectangle(this, Color.Red, short.MaxValue);
     }
 
     public override void OnDestroy()
@@ -177,11 +179,21 @@ public class Transform : Component
     private void OnEntityComponentAdded(Component component)
     {
         component.SizeChanged += OnEntityComponentSizeChanged;
+
+        if (component is ISizableComponent sizableComponent)
+        {
+            SizableComponents.Add(sizableComponent);
+        }
     }
 
     private void OnEntityComponentRemoved(Component component)
     {
         component.SizeChanged -= OnEntityComponentSizeChanged;
+
+        if (component is ISizableComponent sizableComponent)
+        {
+            SizableComponents.Remove(sizableComponent);
+        }
     }
 
     private void UpdateSize()
@@ -194,11 +206,11 @@ public class Transform : Component
         Vector2 size = Vector2.Zero;
         Vector2 volume = Vector2.Zero;
 
-        foreach (Component component in Entity.GetComponents())
+        foreach (ISizableComponent sizableComponent in SizableComponents)
         {
-            if (component != this)
+            if (sizableComponent != this)
             {
-                size = Vector2.Max(size, component.Size);
+                size = Vector2.Max(size, sizableComponent.Size);
             }
         }
 
