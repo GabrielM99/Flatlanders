@@ -8,10 +8,10 @@ public class Entity
 {
     public event Action<Component> ComponentAdded;
     public event Action<Component> ComponentRemoved;
-    
+
     public string Name { get; set; }
     public Engine Engine { get; }
-    public Transform Transform { get; }
+    public Node Node { get; }
 
     private Dictionary<Type, Component> ComponentByType { get; }
 
@@ -20,7 +20,7 @@ public class Entity
         Name = name;
         Engine = engine;
         ComponentByType = new Dictionary<Type, Component>();
-        Transform = AddComponent<Transform>();
+        Node = AddComponent<Node>();
     }
 
     public T AddComponent<T>() where T : Component
@@ -33,14 +33,26 @@ public class Entity
 
     public bool TryGetComponent<T>(out T component) where T : Component
     {
+        component = null;
+        
+        // Search by the specific type.
         if (ComponentByType.TryGetValue(typeof(T), out Component uncastComponent))
         {
             component = (T)uncastComponent;
             return true;
         }
+        
+        // Search by derivative types.
+        foreach (Component tempUncastComponent in ComponentByType.Values)
+        {
+            if (tempUncastComponent is T castComponent)
+            {
+                component = castComponent;
+                return true;
+            }
+        }
 
-        component = null;
-        return false;
+        return component != null;
     }
 
     public T GetComponent<T>() where T : Component

@@ -13,6 +13,7 @@ public class Application : IApplication
         Engine = new Engine(this);
         Engine.Graphics.PixelsPerUnit = 16;
         Engine.Graphics.WindowSize = new Vector2(1280f, 720f);
+        Engine.Graphics.SortAxis = Vector2.UnitY;
         Engine.IsMouseVisible = true;
         Engine.Window.AllowUserResizing = true;
         Engine.Run();

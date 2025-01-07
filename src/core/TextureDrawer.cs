@@ -8,7 +8,7 @@ namespace Flatlanders.Core;
 public struct TextureDrawer : IDrawer
 {
     public Texture2D Texture { get; set; }
-    public Transform Transform { get; set; }
+    public ITransform Transform { get; set; }
     public Rectangle SourceRectangle { get; set; }
     public Color Color { get; set; }
     public Vector2 Origin { get; set; }

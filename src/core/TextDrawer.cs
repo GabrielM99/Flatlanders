@@ -9,7 +9,7 @@ public struct TextDrawer : IDrawer
 {
     public string Text { get; set; }
     public SpriteFont Font { get; set; }
-    public Transform Transform { get; set; }
+    public ITransform Transform { get; set; }
     public Color Color { get; set; }
     public Vector2 Origin { get; set; }
     public SpriteEffects Effects { get; set; }

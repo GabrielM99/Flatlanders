@@ -14,16 +14,16 @@ public abstract class Layout : Component
     {
         base.OnCreate();
         Build();
-        Entity.Transform.VolumeChanged += OnTransformVolumeChanged;
+        Entity.Node.ChildrenSizeChanged += OnTransformChildrenSizeChanged;
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
-        Entity.Transform.VolumeChanged -= OnTransformVolumeChanged;
+        Entity.Node.ChildrenSizeChanged -= OnTransformChildrenSizeChanged;
     }
 
-    private void OnTransformVolumeChanged(Transform transform)
+    private void OnTransformChildrenSizeChanged(Node node)
     {
         Build();
     }

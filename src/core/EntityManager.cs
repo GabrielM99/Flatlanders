@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using Flatlanders.Core.Components;
 using Flatlanders.Core.Prefabs;
 using Microsoft.Xna.Framework;
@@ -9,12 +10,12 @@ namespace Flatlanders.Core;
 public class EntityManager : GameComponent
 {
     private Engine Engine { get; }
-    private List<Component> Components { get; }
+    private SortedDictionary<int, HashSet<Component>> ComponentsByOrder { get; }
 
     public EntityManager(Engine engine) : base(engine)
     {
         Engine = engine;
-        Components = new();
+        ComponentsByOrder = new SortedDictionary<int, HashSet<Component>>();
     }
 
     public override void Initialize()
@@ -28,10 +29,13 @@ public class EntityManager : GameComponent
         base.Update(gameTime);
 
         float deltaTime = Engine.Time.DeltaTime;
-
-        for (int i = 0; i < Components.Count; i++)
+        
+        foreach (HashSet<Component> components in ComponentsByOrder.Values)
         {
-            Components[i].OnUpdate(deltaTime);
+            foreach (Component component in components)
+            {
+                component.OnUpdate(deltaTime);
+            }
         }
     }
 
@@ -59,8 +63,15 @@ public class EntityManager : GameComponent
 
     private void OnCreateComponent(Component component)
     {
-        component.ID = Components.Count;
-        Components.Add(component);
+        int order = component.Order;
+
+        if (!ComponentsByOrder.TryGetValue(order, out HashSet<Component> components))
+        {
+            components = new HashSet<Component>();
+            ComponentsByOrder.Add(order, components);
+        }
+
+        components.Add(component);
         component.OnCreate();
     }
 
@@ -70,21 +81,31 @@ public class EntityManager : GameComponent
 
         if (cleanUp)
         {
-            Component lastComponent = Components[^1];
-            lastComponent.ID = component.ID;
-            Components[component.ID] = lastComponent;
-            Components.RemoveAt(Components.Count - 1);
+            int order = component.Order;
+
+            if (ComponentsByOrder.TryGetValue(order, out HashSet<Component> components))
+            {
+                components.Remove(component);
+
+                if (components.Count == 0)
+                {
+                    ComponentsByOrder.Remove(order);
+                }
+            }
         }
     }
 
     private void Clear()
     {
-        for (int i = 0; i < Components.Count; i++)
+        foreach (HashSet<Component> components in ComponentsByOrder.Values)
         {
-            OnDestroyComponent(Components[i], false);
+            foreach (Component component in components)
+            {
+                OnDestroyComponent(component, false);
+            }
         }
 
-        Components.Clear();
+        ComponentsByOrder.Clear();
     }
 
     private void OnSceneLoaded(Scene scene)

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
@@ -15,7 +16,7 @@ public class SpriteRenderer : Renderer
             if (!Sprite.Equals(value))
             {
                 _sprite = value;
-                Entity.Transform.RecalculateSize();
+                Entity.Node.RecalculateSize();
             }
         }
     }
@@ -28,6 +29,6 @@ public class SpriteRenderer : Renderer
 
     public override void Draw(Graphics graphics)
     {
-        Engine.Graphics.DrawSprite(Sprite, Entity.Transform, Color, Effects, Layer);
+        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, Effects, Layer);
     }
 }

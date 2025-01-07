@@ -26,7 +26,7 @@ public class TilemapRenderer : Renderer
         if (Tilemap != null)
         {
             Camera camera = Engine.Graphics.ActiveCamera;
-            RectangleF cameraBounds = camera.Entity.Transform.Bounds;
+            RectangleF cameraBounds = camera.Entity.Node.Bounds;
             Vector3 cameraMin = new Vector3(cameraBounds.TopLeft, 0f) - Vector3.One;
             Vector3 cameraMax = new Vector3(cameraBounds.BottomRight, 0f) + Vector3.One;
 
@@ -37,7 +37,8 @@ public class TilemapRenderer : Renderer
 
                 if (tile != null)
                 {
-                    Engine.Graphics.DrawSprite(tile.Sprite, Entity.Transform, new Vector2(position.X, position.Y), Color, Effects, Layer);
+                    Vector2 size = tile.Sprite.Rectangle.Size.ToVector2();
+                    Engine.Graphics.DrawSprite(tile.Sprite, new Transform() { Position = new Vector2(position.X, position.Y) - size * 0.5f, Size = size }, Color, Effects, Layer);
                 }
             }
         }

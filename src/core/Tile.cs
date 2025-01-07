@@ -3,9 +3,11 @@ namespace Flatlanders.Core;
 public class Tile
 {
     public Sprite Sprite { get; }
-    
-    public Tile(Sprite sprite)
+    public bool IsCollidable { get; }
+
+    public Tile(Sprite sprite, bool isCollidable = true)
     {
         Sprite = sprite;
+        IsCollidable = isCollidable;
     }
 }

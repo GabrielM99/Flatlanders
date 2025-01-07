@@ -7,7 +7,7 @@ namespace Flatlanders.Core;
 
 public interface IDrawer
 {
-    Transform Transform { get; set; }
+    ITransform Transform { get; set; }
     Color Color { get; set; }
     Vector2 Origin { get; set; }
     SpriteEffects Effects { get; set; }

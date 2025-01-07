@@ -5,6 +5,8 @@ namespace Flatlanders.Core.Components;
 
 public abstract class Renderer : Component, ISizable
 {
+    public override int Order => 1;
+
     public Color Color { get; set; } = Color.White;
     public SpriteEffects Effects { get; set; }
     public short Layer { get; set; }

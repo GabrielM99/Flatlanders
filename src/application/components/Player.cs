@@ -1,3 +1,4 @@
+using System;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
@@ -6,20 +7,28 @@ using Microsoft.Xna.Framework.Input;
 namespace Flatlanders.Application.Components;
 
 public class Player : Component
-{     
+{
     public Tilemap tilemap;
     public Tile rockTile;
     public TextRenderer debugTextRenderer;
 
+    private Rigidbody Rigidbody { get; set; }
+
     public Player(Entity entity) : base(entity)
     {
+    }
+
+    public override void OnCreate()
+    {
+        base.OnCreate();
+        Rigidbody = Entity.GetComponent<Rigidbody>();
     }
 
     public override void OnUpdate(float deltaTime)
     {
         base.OnUpdate(deltaTime);
 
-        debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.Time.TicksPerSecond}\nFPS:{(int)Engine.Time.FramesPerSecond}\nPOS: (X: {(int)Entity.Transform.Position.X}, Y: {(int)Entity.Transform.Position.Y})";
+        debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.Time.TicksPerSecond}\nFPS:{(int)Engine.Time.FramesPerSecond}\nPOS: (X: {(int)Entity.Node.Position.X}, Y: {(int)Entity.Node.Position.Y})";
 
         KeyboardState keyboardState = Keyboard.GetState();
 
@@ -59,7 +68,6 @@ public class Player : Component
             tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
         }
 
-        Entity.Transform.Position += direction * 5f * deltaTime;
-        Engine.Graphics.ActiveCamera.Entity.Transform.Position += direction * 5f * deltaTime;
+        Rigidbody.Velocity = direction * 5f;
     }
 }

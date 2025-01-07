@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core.Components;
 
+// TODO: Text wrapping options (support for break line and masking text based on parent size)
 public class TextRenderer : Renderer, ISizable
 {
     private SpriteFont _font;
@@ -19,7 +20,7 @@ public class TextRenderer : Renderer, ISizable
             if (value != _font)
             {
                 _font = value;
-                Entity.Transform.RecalculateSize();
+                Entity.Node.RecalculateSize();
             }
         }
     }
@@ -33,7 +34,7 @@ public class TextRenderer : Renderer, ISizable
             if (value != _text)
             {
                 _text = value;
-                Entity.Transform.RecalculateSize();
+                Entity.Node.RecalculateSize();
             }
         }
     }
@@ -50,6 +51,6 @@ public class TextRenderer : Renderer, ISizable
 
     public override void Draw(Graphics graphics)
     {
-        graphics.DrawText(Font, Text, Entity.Transform, Color, Effects, Layer);
+        graphics.DrawText(Font, Text, Entity.Node, Color, Effects, Layer);
     }
 }

@@ -36,7 +36,7 @@ public class Camera : Component, ISizable
         {
             CreateRenderTarget();
             // TODO: Size won't be recalculated if PPU is changed.
-            Entity.Transform.RecalculateSize();
+            Entity.Node.RecalculateSize();
         }
     }
 }

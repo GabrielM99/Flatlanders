@@ -35,6 +35,8 @@ public class Graphics : DrawableGameComponent
         }
     }
 
+    public Vector2 SortAxis { get; set; }
+
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
 
@@ -76,6 +78,11 @@ public class Graphics : DrawableGameComponent
         return screenVector / PixelsPerUnitScale;
     }
 
+    public Vector2 ViewToScreenVector(Vector2 screenVector)
+    {
+        return screenVector * PixelsPerUnitScale;
+    }
+
     public Vector2 ScreenToWorldVector(Vector2 screenVector)
     {
         if (ActiveCamera == null)
@@ -86,12 +93,7 @@ public class Graphics : DrawableGameComponent
         Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
         Vector2 normalized = (screenVector - ViewSize * 0.5f - offset) / ViewSize;
 
-        return normalized * (ActiveCamera.Resolution / ReferencePixelsPerUnit) + ActiveCamera.Entity.Transform.Position;
-    }
-
-    public Vector2 ViewToScreenVector(Vector2 viewVector)
-    {
-        return viewVector * PixelsPerUnitScale;
+        return normalized * (ActiveCamera.Resolution / ReferencePixelsPerUnit) + ActiveCamera.Entity.Node.Position;
     }
 
     public Vector2 ViewToWorldVector(Vector2 viewVector)
@@ -107,7 +109,7 @@ public class Graphics : DrawableGameComponent
         }
 
         Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
-        Vector2 normalized = (worldVector - ActiveCamera.Entity.Transform.Position) / (ActiveCamera.Resolution / ReferencePixelsPerUnit);
+        Vector2 normalized = (worldVector - ActiveCamera.Entity.Node.Position) / (ActiveCamera.Resolution / ReferencePixelsPerUnit);
 
         return (normalized * ViewSize) + offset + ViewSize * 0.5f;
     }
@@ -117,7 +119,7 @@ public class Graphics : DrawableGameComponent
         return worldVector * PixelsPerUnit;
     }
 
-    public void DrawSprite(Sprite sprite, Transform transform, Vector2 offset, Color color, SpriteEffects effects, short layer)
+    public void DrawSprite(Sprite sprite, ITransform transform, Color color, SpriteEffects effects, short layer)
     {
         Draw(transform.Space, new TextureDrawer
         {
@@ -125,18 +127,13 @@ public class Graphics : DrawableGameComponent
             Transform = transform,
             SourceRectangle = sprite.Rectangle,
             Color = color,
-            Origin = sprite.Origin - Vector2.Multiply(offset, sprite.Rectangle.Size.ToVector2()),
+            Origin = sprite.Origin,
             Effects = effects,
             Layer = layer,
         });
     }
 
-    public void DrawSprite(Sprite sprite, Transform transform, Color color, SpriteEffects effects, short layer)
-    {
-        DrawSprite(sprite, transform, Vector2.Zero, color, effects, layer);
-    }
-
-    public void DrawText(SpriteFont font, string text, Transform transform, Color color, SpriteEffects effects, short layer)
+    public void DrawText(SpriteFont font, string text, ITransform transform, Color color, SpriteEffects effects, short layer)
     {
         Draw(transform.Space, new TextDrawer
         {
@@ -149,7 +146,7 @@ public class Graphics : DrawableGameComponent
         });
     }
 
-    public void DrawRectangle(Transform transform, Color color, short layer)
+    public void DrawRectangle(ITransform transform, Color color, short layer)
     {
         Draw(transform.Space, new RectangleDrawer
         {
@@ -213,7 +210,7 @@ public class Graphics : DrawableGameComponent
 
     private void DrawWorldSpace()
     {
-        Transform cameraTransform = ActiveCamera.Entity.Transform;
+        Node cameraTransform = ActiveCamera.Entity.Node;
         Vector2 cameraPosition = WorldToViewVector(cameraTransform.Position);
 
         Matrix transformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
@@ -223,12 +220,29 @@ public class Graphics : DrawableGameComponent
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.World])
         {
             RectangleF bounds = drawer.Transform.Bounds;
+
+            Vector2 screenPosition = WorldToScreenVector(bounds.Position);
+
+            float layerDepth = CalculateLayerDepth(drawer.Layer);
+            float layerDepthSortOffset = Remap(
+                (SortAxis.X * screenPosition.X / WindowSize.X) +
+                (SortAxis.Y * screenPosition.Y / WindowSize.Y),
+                0f, 1f, 0f, int.MaxValue / short.MaxValue / (float)int.MaxValue);
+
+            layerDepth = MathHelper.Clamp(layerDepth + layerDepthSortOffset, 0f, 1f);
+
             bounds.Position = WorldToViewVector(bounds.Position);
             bounds.Size = WorldToViewVector(bounds.Size);
-            drawer.Draw(SpriteBatch, bounds, CalculateLayerDepth(drawer.Layer));
+
+            drawer.Draw(SpriteBatch, bounds, layerDepth);
         }
 
         SpriteBatch.End();
+    }
+
+    public static float Remap(float value, float oldMin, float oldMax, float newMin, float newMax)
+    {
+        return (value - oldMin) * (newMax - newMin) / (oldMax - oldMin) + newMin;
     }
 
     private void DrawScreenSpace()
@@ -239,7 +253,7 @@ public class Graphics : DrawableGameComponent
 
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.Screen])
         {
-            Transform transform = drawer.Transform;
+            ITransform transform = drawer.Transform;
             RectangleF bounds = transform.Bounds;
             bounds.Position += Vector2.Multiply(transform.Root.AnchorPosition, ActiveCamera.Resolution / PixelsPerUnitScale) * 0.5f;
             drawer.Draw(SpriteBatch, bounds, CalculateLayerDepth(drawer.Layer));

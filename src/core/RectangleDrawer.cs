@@ -7,7 +7,7 @@ namespace Flatlanders.Core;
 
 public struct RectangleDrawer : IDrawer
 {
-    public Transform Transform { get; set; }
+    public ITransform Transform { get; set; }
     public Color Color { get; set; }
     public Vector2 Origin { get; set; }
     public SpriteEffects Effects { get; set; }

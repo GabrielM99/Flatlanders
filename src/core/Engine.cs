@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 
 namespace Flatlanders.Core;
 
@@ -22,6 +23,7 @@ public class Engine : Game
         Time = new Time(this);
         EntityManager = new EntityManager(this);
         SceneManager = new SceneManager(this);
+        Physics = new Physics(this, new RectangleF(int.MinValue * 0.5f, int.MinValue * 0.5f, int.MaxValue, int.MaxValue));
 
         if (string.IsNullOrEmpty(Content.RootDirectory))
         {
@@ -31,12 +33,13 @@ public class Engine : Game
 
     protected override void Initialize()
     {
-        Application.Initialize();
-
         Components.Add(Time);
         Components.Add(Graphics);
         Components.Add(EntityManager);
         Components.Add(SceneManager);
+        Components.Add(Physics);
+        
+        Application.Initialize();
 
         base.Initialize();
     }

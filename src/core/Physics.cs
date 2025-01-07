@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
@@ -11,7 +12,7 @@ using MonoGame.Extended.Collisions.QuadTree;
 
 namespace Flatlanders.Core
 {
-    public class Physics : SimpleGameComponent
+    public class Physics : GameComponent
     {
         public const string DEFAULT_LAYER_NAME = "default";
 
@@ -21,22 +22,19 @@ namespace Flatlanders.Core
 
         private HashSet<(Layer, Layer)> _layerCollision = new();
 
-        public Physics(RectangleF boundary)
-        {
-            SetDefaultLayer(new Layer(new QuadTreeSpace(boundary)));
-        }
+        private Engine Engine { get; }
 
-        public Physics(Layer layer = null)
+        public Physics(Engine engine, RectangleF boundary) : base(engine)
         {
-            if (layer is not null)
-                SetDefaultLayer(layer);
+            Engine = engine;
+            SetDefaultLayer(new Layer(new QuadTreeSpace(boundary)));
         }
 
         public void SetDefaultLayer(Layer layer)
         {
             if (_layers.ContainsKey(DEFAULT_LAYER_NAME))
-                Remove(DEFAULT_LAYER_NAME);
-            Add(DEFAULT_LAYER_NAME, layer);
+                RemoveLayer(DEFAULT_LAYER_NAME);
+            AddLayer(DEFAULT_LAYER_NAME, layer);
             foreach (var otherLayer in _layers.Values)
                 AddCollisionBetweenLayer(layer, otherLayer);
         }
@@ -44,35 +42,59 @@ namespace Flatlanders.Core
         public override void Update(GameTime gameTime)
         {
             foreach (var layer in _layers.Values)
+            {
                 layer.Reset();
+            }
 
             foreach (var (firstLayer, secondLayer) in _layerCollision)
-            foreach (var actor in firstLayer.Space)
             {
-                var collisions = secondLayer.Space.Query(actor.Bounds.BoundingRectangle);
-                foreach (var other in collisions)
-                    if (actor != other && actor.Bounds.Intersects(other.Bounds))
-                    {
-                        var penetrationVector = CalculatePenetrationVector(actor.Bounds, other.Bounds);
-
-                        actor.OnCollision(new CollisionEventArgs
-                        {
-                            Other = other,
-                            PenetrationVector = penetrationVector
-                        });
-                        other.OnCollision(new CollisionEventArgs
-                        {
-                            Other = actor,
-                            PenetrationVector = -penetrationVector
-                        });
-                    }
-
+                foreach (ICollisionActor actor in firstLayer.Space)
+                {
+                    //Engine.Graphics.DrawRectangle(new Transform() { Position = actor.Bounds.Position, Size = actor.Bounds.BoundingRectangle.Size }, Color.Red, short.MaxValue);
+                }
             }
         }
 
-        public void Insert(ICollisionActor target)
+        public int CastCollider(IShapeF shape, in CollisionEventArgs[] collisionInfo, string layerName = DEFAULT_LAYER_NAME, ICollisionActor exclude = null)
+        {
+            if (collisionInfo == null)
+            {
+                return 0;
+            }
+
+            int collisionCount = 0;
+
+            if (_layers.TryGetValue(layerName, out Layer layer))
+            {
+                IEnumerable<ICollisionActor> collisions = layer.Space.Query(shape.BoundingRectangle);
+
+                foreach (ICollisionActor other in collisions)
+                {
+                    if (other != exclude && shape.Intersects(other.Bounds))
+                    {
+                        Vector2 penetrationVector = CalculatePenetrationVector(shape, other.Bounds);
+
+                        if (collisionCount < collisionInfo.Length)
+                        {
+                            collisionInfo[collisionCount] = new CollisionEventArgs
+                            {
+                                Other = other,
+                                PenetrationVector = penetrationVector
+                            };
+                        }
+
+                        collisionCount++;
+                    }
+                }
+            }
+
+            return collisionCount;
+        }
+
+        public void AddCollider(ICollisionActor target)
         {
             var layerName = target.LayerName ?? DEFAULT_LAYER_NAME;
+            
             if (!_layers.TryGetValue(layerName, out var layer))
             {
                 throw new UndefinedLayerException(layerName);
@@ -81,19 +103,27 @@ namespace Flatlanders.Core
             layer.Space.Insert(target);
         }
 
-        public void Remove(ICollisionActor target)
+        public void RemoveCollider(ICollisionActor target)
         {
             if (target.LayerName is not null)
+            {
                 _layers[target.LayerName].Space.Remove(target);
+            }
             else
+            {
                 foreach (var layer in _layers.Values)
+                {
                     if (layer.Space.Remove(target))
+                    {
                         return;
+                    }
+                }
+            }
         }
 
         #region Layers
 
-        public void Add(string name, Layer layer)
+        public void AddLayer(string name, Layer layer)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
@@ -105,7 +135,7 @@ namespace Flatlanders.Core
                 AddCollisionBetweenLayer(_layers[DEFAULT_LAYER_NAME], layer);
         }
 
-        public void Remove(string name = null, Layer layer = null)
+        public void RemoveLayer(string name = null, Layer layer = null)
         {
             name ??= _layers.First(x => x.Value == layer).Key;
             _layers.Remove(name, out layer);
@@ -129,21 +159,21 @@ namespace Flatlanders.Core
         private static Vector2 CalculatePenetrationVector(IShapeF a, IShapeF b)
         {
             return a switch
-                {
-                    CircleF circleA when b is CircleF circleB => PenetrationVector(circleA, circleB),
-                    CircleF circleA when b is RectangleF rectangleB => PenetrationVector(circleA, rectangleB),
-                    CircleF circleA when b is OrientedRectangle orientedRectangleB => PenetrationVector(circleA, orientedRectangleB),
+            {
+                CircleF circleA when b is CircleF circleB => PenetrationVector(circleA, circleB),
+                CircleF circleA when b is RectangleF rectangleB => PenetrationVector(circleA, rectangleB),
+                CircleF circleA when b is OrientedRectangle orientedRectangleB => PenetrationVector(circleA, orientedRectangleB),
 
-                    RectangleF rectangleA when b is CircleF circleB => PenetrationVector(rectangleA, circleB),
-                    RectangleF rectangleA when b is RectangleF rectangleB => PenetrationVector(rectangleA, rectangleB),
-                    RectangleF rectangleA when b is OrientedRectangle orientedRectangleB => PenetrationVector(rectangleA, orientedRectangleB),
+                RectangleF rectangleA when b is CircleF circleB => PenetrationVector(rectangleA, circleB),
+                RectangleF rectangleA when b is RectangleF rectangleB => PenetrationVector(rectangleA, rectangleB),
+                RectangleF rectangleA when b is OrientedRectangle orientedRectangleB => PenetrationVector(rectangleA, orientedRectangleB),
 
-                    OrientedRectangle orientedRectangleA when b is CircleF circleB => PenetrationVector(orientedRectangleA, circleB),
-                    OrientedRectangle orientedRectangleA when b is RectangleF rectangleB => PenetrationVector(orientedRectangleA, rectangleB),
-                    OrientedRectangle orientedRectangleA when b is OrientedRectangle orientedRectangleB => PenetrationVector(orientedRectangleA, orientedRectangleB),
+                OrientedRectangle orientedRectangleA when b is CircleF circleB => PenetrationVector(orientedRectangleA, circleB),
+                OrientedRectangle orientedRectangleA when b is RectangleF rectangleB => PenetrationVector(orientedRectangleA, rectangleB),
+                OrientedRectangle orientedRectangleA when b is OrientedRectangle orientedRectangleB => PenetrationVector(orientedRectangleA, orientedRectangleB),
 
-                    _ => throw new ArgumentOutOfRangeException(nameof(a))
-                };
+                _ => throw new ArgumentOutOfRangeException(nameof(a))
+            };
         }
 
         private static Vector2 PenetrationVector(CircleF circ1, CircleF circ2)

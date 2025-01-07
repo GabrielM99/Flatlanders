@@ -2,9 +2,10 @@ namespace Flatlanders.Core.Components;
 
 public abstract class Component
 {
+    public virtual int Order { get; }
+    
     public Engine Engine { get; }
     public Entity Entity { get; }
-    public int ID { get; internal set; }
 
     public Component(Entity entity)
     {

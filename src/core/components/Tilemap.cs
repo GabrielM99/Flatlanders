@@ -1,27 +1,12 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 
 namespace Flatlanders.Core.Components;
 
 public class Tilemap : Component
 {
-    /*private class TileChunk
-    {
-        private Tile[,,] Tiles { get; }
-        
-        public TileChunk(Vector3 size)
-        {
-            Tiles = new Tile[(int)size.X, (int)size.Y, (int)size.Z];
-        }
-        
-        public void SetTile(Tile tile, Vector3 position)
-        {
-            Tiles[(int)position.X, (int)position.Y, (int)position.Z] = tile;
-        }
-        
-        public IEnumerable<>
-    }*/
+    public event Action<Tile, Vector3> TileSetted;
 
     private Dictionary<Vector3, Tile> TileByPosition { get; }
 
@@ -41,12 +26,20 @@ public class Tilemap : Component
 
         if (tile == null)
         {
-            TileByPosition.Remove(position);
+            if (TileByPosition.Remove(position))
+            {
+                TileSetted?.Invoke(tile, position);
+            }
         }
         else
         {
-            TileByPosition[position] = tile;
+            if (!TileByPosition.TryGetValue(position, out Tile oldTile) || tile != oldTile)
+            {
+                TileByPosition[position] = tile;
+                TileSetted?.Invoke(tile, position);
+            }
         }
+
     }
 
     public IEnumerable<KeyValuePair<Vector3, Tile>> GetTiles(Vector3 min, Vector3 max)
