@@ -1,1 +1,1 @@
-A game and engine made using the MonoGame framework.
+A C# game and engine made using the MonoGame framework.
