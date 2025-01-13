@@ -1,12 +1,12 @@
-[ ] Databases
+[X] Databases
 [X] Dynamic UI
-[ ] Physics
+[X] Physics
+[ ] Animations
+[ ] Lighting
+[ ] Particles
 [ ] Debug Flags
 [ ] Input System
 [ ] Logging
-[ ] Animation Curves
-[ ] Particles
-[ ] Lighting
 [ ] Masking
 [ ] Modding
 [ ] Networking

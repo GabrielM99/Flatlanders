@@ -1,4 +1,5 @@
 using System;
+using Flatlanders.Application.Animations;
 using Flatlanders.Application.Components;
 using Flatlanders.Application.Databases;
 using Flatlanders.Core;
@@ -63,11 +64,13 @@ public class WorldScene : Scene
         debugTextEntity.Node.Scale = Vector2.One * 0.5f;
         debugTextEntity.Node.Space = TransformSpace.Screen;
         debugTextEntity.Node.Anchor = TransformAnchor.TopLeft;
+        Animator debugTextAnimator = debugTextEntity.AddComponent<Animator>();
+        debugTextAnimator.PlayAnimation(new NodeSwingAnimation(), debugTextEntity.Node);
 
         Entity playerEntity = Engine.EntityManager.CreateEntity();
         RectangleCollider playerCollider = playerEntity.AddComponent<RectangleCollider>();
-        playerCollider.Size = new Vector2(0.5f);
-        playerCollider.Offset = new Vector2(0f);
+        playerCollider.Size = new Vector2(0.25f);
+        playerCollider.Offset = new Vector2(0f, -0.125f);
         Rigidbody playerRigidbody = playerEntity.AddComponent<Rigidbody>();
         Player player = playerEntity.AddComponent<Player>();
         player.tilemap = tilemap;
