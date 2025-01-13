@@ -6,49 +6,24 @@ public class Animator : Component
 {
     private class AnimatorLayer
     {
-        private class RuntimeAnimationProperty
-        {
-            public IAnimationProperty Property { get; }
-            public int PreviousFrameIndex { get; set; }
-            public int NextFrameIndex { get; set; }
-
-            public RuntimeAnimationProperty(IAnimationProperty animationProperty)
-            {
-                Property = animationProperty;
-            }
-        }
-
-        public Animation PlayingAnimation { get; private set; }
+        public RuntimeAnimation RuntimeAnimation { get; private set; }
         public float Time { get; private set; }
-
-        private List<RuntimeAnimationProperty> RuntimeAnimationProperties { get; }
-
-        public AnimatorLayer()
-        {
-            RuntimeAnimationProperties = new List<RuntimeAnimationProperty>();
-        }
 
         public void OnUpdate(float deltaTime)
         {
-            if (PlayingAnimation == null)
+            if (RuntimeAnimation == null)
             {
                 return;
             }
 
-            int frameIndex = (int)(PlayingAnimation.FrameRate * Time);
+            int currentFrameIndex = (int)(RuntimeAnimation.Animation.FrameRate * Time);
 
-            foreach (RuntimeAnimationProperty runtimeAnimationProperty in RuntimeAnimationProperties)
+            foreach (RuntimeAnimationProperty property in RuntimeAnimation.GetProperties())
             {
-                int previousFrameIndex = runtimeAnimationProperty.PreviousFrameIndex;
-                int nextFrameIndex = runtimeAnimationProperty.NextFrameIndex;
-
-                runtimeAnimationProperty.Property.Evaluate(ref previousFrameIndex, frameIndex, ref nextFrameIndex);
-
-                runtimeAnimationProperty.PreviousFrameIndex = previousFrameIndex;
-                runtimeAnimationProperty.NextFrameIndex = nextFrameIndex;
+                property.Evaluate(currentFrameIndex);
             }
 
-            if (frameIndex >= PlayingAnimation.Frames)
+            if (currentFrameIndex >= RuntimeAnimation.Animation.Frames)
             {
                 Time = 0f;
             }
@@ -62,20 +37,15 @@ public class Animator : Component
         {
             if (animation == null)
             {
-                RuntimeAnimationProperties.Clear();
+                RuntimeAnimation = null;
                 return;
             }
 
-            if (animation != PlayingAnimation)
+            if (RuntimeAnimation == null || animation != RuntimeAnimation.Animation)
             {
-                animation.Bind(obj);
-
-                foreach (IAnimationProperty animationProperty in animation.GetProperties())
-                {
-                    RuntimeAnimationProperties.Add(new RuntimeAnimationProperty(animationProperty));
-                }
-
-                PlayingAnimation = animation;
+                RuntimeAnimation runtimeAnimation = new(animation);
+                animation.Bind(runtimeAnimation, obj);
+                RuntimeAnimation = runtimeAnimation;
             }
         }
     }
