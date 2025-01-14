@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Flatlanders.Core.Components;
@@ -25,7 +26,14 @@ public class Animator : Component
 
             if (currentFrameIndex >= RuntimeAnimation.Animation.Frames)
             {
-                Time = 0f;
+                if (RuntimeAnimation.Animation.IsLoopable)
+                {
+                    Reset();
+                }
+                else
+                {
+                    Clear();
+                }
             }
             else
             {
@@ -37,16 +45,27 @@ public class Animator : Component
         {
             if (animation == null)
             {
-                RuntimeAnimation = null;
+                Clear();
                 return;
             }
 
             if (RuntimeAnimation == null || animation != RuntimeAnimation.Animation)
             {
-                RuntimeAnimation runtimeAnimation = new(animation);
-                animation.Bind(runtimeAnimation, obj);
-                RuntimeAnimation = runtimeAnimation;
+                RuntimeAnimation = new(animation);
+                animation.Bind(RuntimeAnimation, obj);
+                Reset();
             }
+        }
+
+        private void Reset()
+        {
+            Time = 0f;
+        }
+
+        private void Clear()
+        {
+            RuntimeAnimation = null;
+            Reset();
         }
     }
 

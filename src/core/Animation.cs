@@ -8,6 +8,7 @@ public abstract class Animation
     public abstract int Frames { get; }
 
     public virtual int FrameRate { get; } = 30;
+    public virtual bool IsLoopable { get; } = true;
 
     private Dictionary<Type, object> InterpolatorByType { get; }
 

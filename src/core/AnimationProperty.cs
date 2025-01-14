@@ -24,11 +24,16 @@ public class AnimationProperty<T> : IAnimationProperty
 
     private SortedDictionary<int, AnimationKeyframe> FrameByIndex { get; }
     private IAnimationInterpolator<T> Interpolator { get; }
+    private Animation Animation { get; }
 
     public AnimationProperty(Animation animation)
     {
+        Animation = animation;
         FrameByIndex = new SortedDictionary<int, AnimationKeyframe>();
         Interpolator = animation.GetInterpolator<T>();
+        
+        SetKeyframe(0, default);
+        SetKeyframe(animation.Frames, default);
     }
 
     public T Evaluate(ref int lastKeyframeIndex, int currentFrameIndex)
@@ -42,14 +47,13 @@ public class AnimationProperty<T> : IAnimationProperty
             currentKeyframe = FrameByIndex[lastKeyframeIndex];
         }
 
-
         T lastKeyframeValue = FrameByIndex[lastKeyframeIndex].Value;
         T currentFrameValue = currentKeyframe.Value;
 
         if (Interpolator != null)
         {
             AnimationKeyframe nextKeyframe = currentKeyframe.Next;
-            float t = (float)(currentFrameIndex - lastKeyframeIndex) / Math.Abs(nextKeyframe.Index - lastKeyframeIndex);
+            float t = nextKeyframe.Index - lastKeyframeIndex == 0f ? 0f : (float)(currentFrameIndex - lastKeyframeIndex) / Math.Abs(nextKeyframe.Index - lastKeyframeIndex);
             currentFrameValue = Interpolator.Interpolate(lastKeyframeValue, nextKeyframe.Value, t);
         }
 
@@ -73,10 +77,8 @@ public class AnimationProperty<T> : IAnimationProperty
     {
         int index = frame.Index;
 
-        AnimationKeyframe firstFrame = FrameByIndex[0];
-
-        frame.Previous = firstFrame;
-        frame.Next = firstFrame;
+        frame.Previous = FrameByIndex[0];
+        frame.Next = FrameByIndex.GetValueOrDefault(Animation.Frames);
 
         foreach (AnimationKeyframe otherFrame in FrameByIndex.Values)
         {
