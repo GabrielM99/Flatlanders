@@ -11,12 +11,15 @@ public abstract class Animation
     public virtual int FrameRate { get; } = 30;
     public virtual bool IsLoopable { get; } = true;
 
+    public Engine Engine { get; }
+
     private Dictionary<Type, object> InterpolatorByType { get; }
 
-    public Animation()
+    public Animation(Engine engine)
     {
+        Engine = engine;
         InterpolatorByType = new Dictionary<Type, object>();
-        
+
         AddDefaultInterpolator<int>(AnimationInterpolators.Linear);
         AddDefaultInterpolator<float>(AnimationInterpolators.Linear);
         AddDefaultInterpolator<double>(AnimationInterpolators.Linear);
@@ -30,11 +33,15 @@ public abstract class Animation
 
     public AnimationInterpolator<T> GetDefaultInterpolator<T>()
     {
-        return (AnimationInterpolator<T>)InterpolatorByType[typeof(T)];
+        return (AnimationInterpolator<T>)InterpolatorByType.GetValueOrDefault(typeof(T));
     }
 }
 
 public abstract class Animation<T> : Animation
 {
+    protected Animation(Engine engine) : base(engine)
+    {
+    }
+
     public abstract void Bind(RuntimeAnimation runtimeAnimation, T obj);
 }

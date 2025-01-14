@@ -121,6 +121,11 @@ public class Graphics : DrawableGameComponent
 
     public void DrawSprite(Sprite sprite, ITransform transform, Color color, SpriteEffects effects, short layer)
     {
+        if(sprite == null)
+        {
+            return;
+        }
+        
         Draw(transform.Space, new TextureDrawer
         {
             Texture = sprite.Texture,
@@ -220,7 +225,6 @@ public class Graphics : DrawableGameComponent
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.World])
         {
             RectangleF bounds = drawer.Transform.Bounds;
-
             Vector2 screenPosition = WorldToScreenVector(bounds.Position);
 
             float layerDepth = CalculateLayerDepth(drawer.Layer);

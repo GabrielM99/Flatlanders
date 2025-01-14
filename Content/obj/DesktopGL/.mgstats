@@ -1,2 +1,7 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"E:/Documents/C#/Flatlanders/Content/Anti.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Anti.xnb","TextureProcessor","Texture2DContent",307,1493,0,1434145
+"E:/Documents/C#/Flatlanders/Content/Anti.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Anti.xnb","TextureProcessor","Texture2DContent",307,1493,0,1294921
+"E:/Documents/C#/Flatlanders/Content/Arial.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Arial.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21535,0,1642734
+"E:/Documents/C#/Flatlanders/Content/DogicaPixel.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/DogicaPixel.xnb","FontDescriptionProcessor","SpriteFontContent",2066,21536,0,0543831
+"E:/Documents/C#/Flatlanders/Content/Player.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Player.xnb","TextureProcessor","Texture2DContent",580,30805,0,0018996
+"E:/Documents/C#/Flatlanders/Content/Slots.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Slots.xnb","TextureProcessor","Texture2DContent",246,1109,0,0053774
+"E:/Documents/C#/Flatlanders/Content/Tiles.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Tiles.xnb","TextureProcessor","Texture2DContent",385,65621,0,0055073

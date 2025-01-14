@@ -19,8 +19,7 @@ public class WorldScene : Scene
     {
         base.Load();
 
-        PrefabDatabase prefabDatabase = new();
-        prefabDatabase.Load();
+        PrefabDatabase prefabDatabase = Engine.DatabaseManager.GetDatabase<PrefabDatabase>();
 
         Entity cameraEntity = Engine.EntityManager.CreateEntity();
         Camera camera = Engine.Graphics.ActiveCamera = cameraEntity.AddComponent<Camera>();
@@ -30,8 +29,8 @@ public class WorldScene : Scene
         Entity tilemapEntity = Engine.EntityManager.CreateEntity();
         Tilemap tilemap = tilemapEntity.AddComponent<Tilemap>();
         TilemapRenderer tilemapRenderer = tilemapEntity.AddComponent<TilemapRenderer>();
-        TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
         tilemapRenderer.Layer = -1;
+        TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
 
         Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)), false);
         Tile rockTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16)));
@@ -55,8 +54,8 @@ public class WorldScene : Scene
             }
         }
 
-        Entity debugTextEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Text);
-        TextRenderer debugTextRenderer = debugTextEntity.GetComponent<TextRenderer>();
+        Entity debugTextEntity = Engine.EntityManager.CreateEntity();
+        TextRenderer debugTextRenderer = debugTextEntity.AddComponent<TextRenderer>();
         debugTextRenderer.Font = Engine.Content.Load<SpriteFont>("DogicaPixel");
         debugTextRenderer.Color = Color.Black;
         debugTextEntity.Node.Pivot = -Vector2.One;
@@ -65,19 +64,13 @@ public class WorldScene : Scene
         debugTextEntity.Node.Space = TransformSpace.Screen;
         debugTextEntity.Node.Anchor = TransformAnchor.TopLeft;
         Animator debugTextAnimator = debugTextEntity.AddComponent<Animator>();
-        debugTextAnimator.PlayAnimation(new NodeDemoAnimation(), debugTextEntity.Node);
+        debugTextAnimator.PlayAnimation(new NodeDemoAnimation(Engine), debugTextEntity.Node);
 
-        Entity playerEntity = Engine.EntityManager.CreateEntity();
-        RectangleCollider playerCollider = playerEntity.AddComponent<RectangleCollider>();
-        playerCollider.Size = new Vector2(0.25f);
-        playerCollider.Offset = new Vector2(0f, -0.125f);
-        Rigidbody playerRigidbody = playerEntity.AddComponent<Rigidbody>();
-        Player player = playerEntity.AddComponent<Player>();
+        Entity playerEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Player);
+        Player player = playerEntity.GetComponent<Player>();
         player.tilemap = tilemap;
         player.rockTile = rockTile;
         player.debugTextRenderer = debugTextRenderer;
-        SpriteRenderer playerSpriteRenderer = playerEntity.AddComponent<SpriteRenderer>();
-        playerSpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Player"), null, new Vector2(0f, 8f));
 
         playerCamera.Target = playerEntity.Node;
 

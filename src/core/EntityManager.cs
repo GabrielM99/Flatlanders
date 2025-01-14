@@ -20,7 +20,7 @@ public class EntityManager : GameComponent
 
     public override void Initialize()
     {
-        Engine.SceneManager.SceneLoaded += OnSceneLoaded;
+        Engine.SceneManager.SceneLoading += OnSceneLoading;
         base.Initialize();
     }
 
@@ -108,7 +108,7 @@ public class EntityManager : GameComponent
         ComponentsByOrder.Clear();
     }
 
-    private void OnSceneLoaded(Scene scene)
+    private void OnSceneLoading(Scene scene)
     {
         Clear();
     }

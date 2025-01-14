@@ -6,7 +6,7 @@ namespace Flatlanders.Core;
 public class SceneManager : GameComponent
 {
     public Scene LoadedScene { get; private set; }
-    public event Action<Scene> SceneLoaded;
+    public event Action<Scene> SceneLoading;
 
     private Engine Engine { get; }
 
@@ -20,7 +20,7 @@ public class SceneManager : GameComponent
         T scene = (T)Activator.CreateInstance(typeof(T), new object[] { Engine });
         LoadedScene?.Unload();
         LoadedScene = scene;
+        SceneLoading?.Invoke(scene);
         scene.Load();
-        SceneLoaded?.Invoke(scene);
     }
 }

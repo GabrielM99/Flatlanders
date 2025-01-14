@@ -24,32 +24,34 @@ public class AnimationProperty<T> : IAnimationProperty
 
     public int Frames { get; private set; }
 
-    private SortedDictionary<int, AnimationKeyframe> FrameByIndex { get; }
+    private SortedDictionary<int, AnimationKeyframe> KeyframeByIndex { get; }
     private Animation Animation { get; }
     private AnimationInterpolator<T> DefaultInterpolator { get; }
 
     public AnimationProperty(Animation animation)
     {
         Animation = animation;
-        FrameByIndex = new SortedDictionary<int, AnimationKeyframe>();
+        KeyframeByIndex = new SortedDictionary<int, AnimationKeyframe>();
         DefaultInterpolator = animation.GetDefaultInterpolator<T>();
-
-        SetKeyframe(0, default);
-        SetKeyframe(animation.Frames, default);
     }
 
     public T Evaluate(ref int lastKeyframeIndex, int currentFrameIndex)
     {
-        if (FrameByIndex.TryGetValue(currentFrameIndex, out AnimationKeyframe currentKeyframe))
+        if(KeyframeByIndex.Count == 0)
+        {
+            return default;
+        }
+        
+        if (KeyframeByIndex.TryGetValue(currentFrameIndex, out AnimationKeyframe currentKeyframe))
         {
             lastKeyframeIndex = currentFrameIndex;
         }
         else
         {
-            currentKeyframe = FrameByIndex[lastKeyframeIndex];
+            currentKeyframe = KeyframeByIndex[lastKeyframeIndex];
         }
 
-        T lastKeyframeValue = FrameByIndex[lastKeyframeIndex].Value;
+        T lastKeyframeValue = KeyframeByIndex[lastKeyframeIndex].Value;
         T currentFrameValue = currentKeyframe.Value;
 
         AnimationInterpolator<T> interpolator = currentKeyframe.Interpolator ?? DefaultInterpolator;
@@ -67,24 +69,29 @@ public class AnimationProperty<T> : IAnimationProperty
     public void SetKeyframe(int index, T value, AnimationInterpolator<T> interpolator = null)
     {
         AnimationKeyframe newFrame = new(index, value, interpolator);
-        FrameByIndex[index] = newFrame;
+        KeyframeByIndex[index] = newFrame;
 
-        foreach (AnimationKeyframe frame in FrameByIndex.Values)
+        foreach (AnimationKeyframe frame in KeyframeByIndex.Values)
         {
             LinkFrame(frame);
         }
 
         Frames = Math.Max(index, Frames);
+
+        if (index == 0 && !KeyframeByIndex.ContainsKey(Animation.Frames))
+        {
+            SetKeyframe(Animation.Frames, value);
+        }
     }
 
     private void LinkFrame(AnimationKeyframe frame)
     {
         int index = frame.Index;
 
-        frame.Previous = FrameByIndex[0];
-        frame.Next = FrameByIndex.GetValueOrDefault(Animation.Frames);
+        frame.Previous = KeyframeByIndex[0];
+        frame.Next = KeyframeByIndex.GetValueOrDefault(Animation.Frames);
 
-        foreach (AnimationKeyframe otherFrame in FrameByIndex.Values)
+        foreach (AnimationKeyframe otherFrame in KeyframeByIndex.Values)
         {
             if (otherFrame.Index < index)
             {

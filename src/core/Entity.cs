@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flatlanders.Core.Components;
+using Flatlanders.Core.Prefabs;
 
 namespace Flatlanders.Core;
 
@@ -23,6 +24,20 @@ public class Entity
         Node = AddComponent<Node>();
     }
 
+    public Entity CreateChild(string name = "")
+    {
+        Entity child = Engine.EntityManager.CreateEntity(name);
+        OnCreateChild(child);
+        return child;
+    }
+
+    public Entity CreateChild(Prefab prefab, string name = "")
+    {
+        Entity child = Engine.EntityManager.CreateEntity(prefab, name);
+        OnCreateChild(child);
+        return child;
+    }
+
     public T AddComponent<T>() where T : Component
     {
         T component = Engine.EntityManager.CreateComponent<T>(this);
@@ -34,14 +49,14 @@ public class Entity
     public bool TryGetComponent<T>(out T component) where T : Component
     {
         component = null;
-        
+
         // Search by the specific type.
         if (ComponentByType.TryGetValue(typeof(T), out Component uncastComponent))
         {
             component = (T)uncastComponent;
             return true;
         }
-        
+
         // Search by derivative types.
         foreach (Component tempUncastComponent in ComponentByType.Values)
         {
@@ -73,5 +88,10 @@ public class Entity
             Engine.EntityManager.DestroyComponent(component);
             ComponentRemoved?.Invoke(component);
         }
+    }
+
+    private void OnCreateChild(Entity child)
+    {
+        Node.AddChild(child.Node);
     }
 }

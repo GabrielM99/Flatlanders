@@ -49,8 +49,8 @@ public class TextRenderer : Renderer, ISizable
         Font = Engine.Content.Load<SpriteFont>("Arial");
     }
 
-    public override void Draw(Graphics graphics)
+    public override void OnDraw(Graphics graphics, short layer)
     {
-        graphics.DrawText(Font, Text, Entity.Node, Color, Effects, Layer);
+        graphics.DrawText(Font, Text, Entity.Node, Color, Effects, layer);
     }
 }

@@ -11,6 +11,7 @@ public class Engine : Game
     public Time Time { get; }
     public EntityManager EntityManager { get; }
     public SceneManager SceneManager { get; }
+    public DatabaseManager DatabaseManager { get; }
     public Physics Physics { get; }
 
     private IApplication Application { get; }
@@ -23,6 +24,7 @@ public class Engine : Game
         Time = new Time(this);
         EntityManager = new EntityManager(this);
         SceneManager = new SceneManager(this);
+        DatabaseManager = new DatabaseManager(this);
         Physics = new Physics(this, new RectangleF(int.MinValue * 0.5f, int.MinValue * 0.5f, int.MaxValue, int.MaxValue));
 
         if (string.IsNullOrEmpty(Content.RootDirectory))
@@ -38,9 +40,10 @@ public class Engine : Game
         Components.Add(EntityManager);
         Components.Add(SceneManager);
         Components.Add(Physics);
+        Components.Add(DatabaseManager);
         
-        Application.Initialize();
-
         base.Initialize();
+
+        Application.Initialize();
     }
 }

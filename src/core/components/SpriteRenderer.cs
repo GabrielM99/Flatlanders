@@ -13,7 +13,7 @@ public class SpriteRenderer : Renderer
 
         set
         {
-            if (!Sprite.Equals(value))
+            if (Sprite != value)
             {
                 _sprite = value;
                 Entity.Node.RecalculateSize();
@@ -21,14 +21,14 @@ public class SpriteRenderer : Renderer
         }
     }
 
-    public override Vector2 Size => Sprite.Rectangle.Size.ToVector2();
+    public override Vector2 Size => Sprite == null ? Vector2.Zero : Sprite.Rectangle.Size.ToVector2();
 
     public SpriteRenderer(Entity entity) : base(entity)
     {
     }
 
-    public override void Draw(Graphics graphics)
+    public override void OnDraw(Graphics graphics, short layer)
     {
-        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, Effects, Layer);
+        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, Effects, layer);
     }
 }

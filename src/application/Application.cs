@@ -1,4 +1,5 @@
-﻿using Flatlanders.Application.Scenes;
+﻿using Flatlanders.Application.Databases;
+using Flatlanders.Application.Scenes;
 using Flatlanders.Core;
 using Microsoft.Xna.Framework;
 
@@ -11,11 +12,18 @@ public class Application : IApplication
     public Application()
     {
         Engine = new Engine(this);
+        
+        Engine.IsMouseVisible = true;
+        Engine.Window.AllowUserResizing = true;
+        
         Engine.Graphics.PixelsPerUnit = 16;
         Engine.Graphics.WindowSize = new Vector2(1280f, 720f);
         Engine.Graphics.SortAxis = Vector2.UnitY;
-        Engine.IsMouseVisible = true;
-        Engine.Window.AllowUserResizing = true;
+        
+        Engine.DatabaseManager.AddDatabase<PrefabDatabase>();
+        Engine.DatabaseManager.AddDatabase<SpriteSheetDatabase>();
+        Engine.DatabaseManager.AddDatabase<AnimationDatabase>();
+
         Engine.Run();
     }
 

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core;
 
-public readonly struct Sprite
+public class Sprite
 {
     public Texture2D Texture { get; }
     public Rectangle Rectangle { get; }
