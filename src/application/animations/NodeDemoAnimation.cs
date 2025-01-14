@@ -4,15 +4,17 @@ using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Application.Animations;
 
-public class NodeSwingAnimation : Animation<Node>
+public class NodeDemoAnimation : Animation<Node>
 {
     public override int Frames => 80;
-    public override bool IsLoopable => true;
+    public override int FrameRate => 60;
 
     private AnimationProperty<Vector2> LocalPosition { get; }
 
-    public NodeSwingAnimation()
+    public NodeDemoAnimation()
     {
+        AddDefaultInterpolator<Vector2>(AnimationInterpolators.EaseInOut);
+        
         LocalPosition = new(this);
         LocalPosition.SetKeyframe(0, Vector2.Zero);
         LocalPosition.SetKeyframe(20, new Vector2(225f, 150f));

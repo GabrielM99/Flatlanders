@@ -65,7 +65,7 @@ public class WorldScene : Scene
         debugTextEntity.Node.Space = TransformSpace.Screen;
         debugTextEntity.Node.Anchor = TransformAnchor.TopLeft;
         Animator debugTextAnimator = debugTextEntity.AddComponent<Animator>();
-        debugTextAnimator.PlayAnimation(new NodeSwingAnimation(), debugTextEntity.Node);
+        debugTextAnimator.PlayAnimation(new NodeDemoAnimation(), debugTextEntity.Node);
 
         Entity playerEntity = Engine.EntityManager.CreateEntity();
         RectangleCollider playerCollider = playerEntity.AddComponent<RectangleCollider>();

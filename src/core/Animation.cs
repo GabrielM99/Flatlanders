@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core;
 
@@ -15,17 +16,21 @@ public abstract class Animation
     public Animation()
     {
         InterpolatorByType = new Dictionary<Type, object>();
-        AddInterpolator(new Vector2Interpolator());
+        
+        AddDefaultInterpolator<int>(AnimationInterpolators.Linear);
+        AddDefaultInterpolator<float>(AnimationInterpolators.Linear);
+        AddDefaultInterpolator<double>(AnimationInterpolators.Linear);
+        AddDefaultInterpolator<Vector2>(AnimationInterpolators.Linear);
     }
 
-    public void AddInterpolator<T>(IAnimationInterpolator<T> interpolator)
+    public void AddDefaultInterpolator<T>(AnimationInterpolator<T> interpolator)
     {
         InterpolatorByType[typeof(T)] = interpolator;
     }
 
-    public IAnimationInterpolator<T> GetInterpolator<T>()
+    public AnimationInterpolator<T> GetDefaultInterpolator<T>()
     {
-        return (IAnimationInterpolator<T>)InterpolatorByType[typeof(T)];
+        return (AnimationInterpolator<T>)InterpolatorByType[typeof(T)];
     }
 }
 
