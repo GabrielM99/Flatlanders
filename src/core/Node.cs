@@ -13,12 +13,12 @@ public class Node : Component, ITransform, ISizable
 
     private Node _parent;
 
-    private static Vector2[] AnchorPositions { get; } = new Vector2[]
-    {
+    private static Vector2[] AnchorPositions { get; } =
+    [
         new(-1f, -1f),  new(0f, -1f),   new(1f, -1f),
         new(-1f, 0f),   new(0f, 0f),    new(1f, 0f),
         new(-1f, 1f),   new(0f, 1f),    new(1f, 1f)
-    };
+    ];
 
     private Vector2 _minSize;
     public Vector2 MinSize
@@ -49,7 +49,7 @@ public class Node : Component, ITransform, ISizable
         }
     }
 
-    // TODO: Ensure setting a size is supported.
+    // TODO: Check if setting a size is really supported.
     public Vector2 Size { get; set; }
 
     public RectangleF Bounds
@@ -63,8 +63,7 @@ public class Node : Component, ITransform, ISizable
                 size = Engine.Graphics.ViewToWorldVector(size);
             }
 
-            // TODO: Bounds should just use the global position.
-            return new(Vector2.Multiply(-Pivot, size * 0.5f) - size * 0.5f + (Parent == null ? LocalPosition : Vector2.Multiply(LocalPosition, Parent.Scale) + Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f)), size);
+            return new(Position + Vector2.Multiply(-Pivot, size * 0.5f) - size * 0.5f, size);
         }
     }
 
@@ -96,11 +95,16 @@ public class Node : Component, ITransform, ISizable
     public Vector2 LocalPosition { get; set; }
     public Vector2 Position
     {
-        get => Parent == null ? LocalPosition : Vector2.Multiply(LocalPosition, Parent.Scale) + Parent.Position;
+        get => Parent == null ? LocalPosition : Vector2.Multiply(LocalPosition, Parent.Scale) + Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f);
         set => LocalPosition = value - (Parent == null ? Vector2.Zero : Parent.Position);
     }
 
-    public float Rotation { get; set; }
+    public float LocalRotation { get; set; }
+    public float Rotation
+    {
+        get => Parent == null ? LocalRotation : LocalRotation * Parent.Scale.X + Parent.Rotation;
+        set => LocalRotation = value - (Parent == null ? 0f : Parent.Rotation);
+    }
 
     public Vector2 LocalScale { get; set; } = Vector2.One;
     public Vector2 Scale
@@ -108,6 +112,7 @@ public class Node : Component, ITransform, ISizable
         get => Vector2.Multiply(LocalScale, Parent == null ? Vector2.One : Parent.Scale);
         set => LocalScale = Vector2.Divide(value, Parent == null ? Vector2.One : Parent.Scale);
     }
+
     private Vector2 _childrenSize;
     public Vector2 ChildrenSize
     {
@@ -122,11 +127,9 @@ public class Node : Component, ITransform, ISizable
             }
         }
     }
-
     private List<Node> Children { get; }
 
-    // Nodes will always recalculate their sizes in the first frame.
-    private bool IsRecalculateSizePending { get; set; } = true;
+    private bool IsRecalculateSizePending { get; set; }
     private List<ISizable> SizableComponents { get; }
 
     public Node(Entity entity) : base(entity)
@@ -134,6 +137,8 @@ public class Node : Component, ITransform, ISizable
         Children = new List<Node>();
         SizableComponents = new List<ISizable>();
         Root = this;
+        // Nodes will always recalculate their sizes upon start.
+        IsRecalculateSizePending = true;
     }
 
     private static Vector2 GetAnchorPosition(TransformAnchor anchor)

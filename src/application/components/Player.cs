@@ -147,6 +147,6 @@ public class Player : Component
             tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
         }
 
-        //Rigidbody.Velocity = direction * 5f;
+        Rigidbody.Velocity = direction * 5f;
     }
 }
