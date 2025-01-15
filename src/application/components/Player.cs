@@ -14,11 +14,14 @@ public class Player : Component
     public Tile rockTile;
     public TextRenderer debugTextRenderer;
 
+    public SpriteRenderer HairSpriteRenderer { get; set; }
+    public SpriteRenderer EyebrowsSpriteRenderer { get; set; }
+    public SpriteRenderer EyesBackSpriteRenderer { get; set; }
+    public SpriteRenderer EyesSpriteRenderer { get; set; }
     public SpriteRenderer HeadSpriteRenderer { get; set; }
     public SpriteRenderer ChestSpriteRenderer { get; set; }
     public SpriteRenderer LegsSpriteRenderer { get; set; }
     public SpriteRenderer FeetSpriteRenderer { get; set; }
-    public SpriteRenderer HairSpriteRenderer { get; set; }
 
     private Rigidbody Rigidbody { get; set; }
     private Animator Animator { get; set; }
@@ -40,10 +43,25 @@ public class Player : Component
         Animator = Entity.AddComponent<Animator>();
 
         AnimationDatabase animationDatabase = Engine.DatabaseManager.GetDatabase<AnimationDatabase>();
-        Animator.PlayAnimation(animationDatabase.PlayerWalk, this);
+        Animator.PlayAnimation(animationDatabase.PlayerIdle, this);
 
         HeadSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
         HeadSpriteRenderer.Color = new Color(0.933333337f, 0.847058833f, 0.7019608f);
+
+        EyebrowsSpriteRenderer = HeadSpriteRenderer.Entity.CreateChild().AddComponent<SpriteRenderer>();
+        EyebrowsSpriteRenderer.Color = new Color(0.34117648f, 0.2784314f, 0.141176462f);
+        EyebrowsSpriteRenderer.Layer = 2;
+        
+        EyesBackSpriteRenderer = HeadSpriteRenderer.Entity.CreateChild().AddComponent<SpriteRenderer>();
+        EyesBackSpriteRenderer.Layer = 1;
+
+        EyesSpriteRenderer = HeadSpriteRenderer.Entity.CreateChild().AddComponent<SpriteRenderer>();
+        EyesSpriteRenderer.Color = new Color(0.34117648f, 0.2784314f, 0.141176462f);
+        EyesSpriteRenderer.Layer = 2;
+
+        HairSpriteRenderer = HeadSpriteRenderer.Entity.CreateChild().AddComponent<SpriteRenderer>();
+        HairSpriteRenderer.Color = new Color(0.34117648f, 0.2784314f, 0.141176462f);
+        HairSpriteRenderer.Layer = 1;
 
         ChestSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
         ChestSpriteRenderer.Color = new Color(0.807843149f, 0.572549045f, 0.282352984f);
@@ -55,16 +73,15 @@ public class Player : Component
         FeetSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
         FeetSpriteRenderer.Color = new Color(0.129411772f, 0.129411772f, 0.129411772f);
 
-        HairSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
-        HairSpriteRenderer.Color = new Color(0.34117648f, 0.2784314f, 0.141176462f);
-        HairSpriteRenderer.Layer = 1;
-
         RendererGroup rendererGroup = Entity.AddComponent<RendererGroup>();
+        rendererGroup.AddRenderer(HairSpriteRenderer);
+        rendererGroup.AddRenderer(EyebrowsSpriteRenderer);
+        rendererGroup.AddRenderer(EyesBackSpriteRenderer);
+        rendererGroup.AddRenderer(EyesSpriteRenderer);
         rendererGroup.AddRenderer(HeadSpriteRenderer);
         rendererGroup.AddRenderer(ChestSpriteRenderer);
         rendererGroup.AddRenderer(LegsSpriteRenderer);
         rendererGroup.AddRenderer(FeetSpriteRenderer);
-        rendererGroup.AddRenderer(HairSpriteRenderer);
     }
 
     public override void OnUpdate(float deltaTime)

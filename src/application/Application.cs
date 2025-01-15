@@ -18,7 +18,7 @@ public class Application : IApplication
         
         Engine.Graphics.PixelsPerUnit = 16;
         Engine.Graphics.WindowSize = new Vector2(1280f, 720f);
-        Engine.Graphics.SortAxis = Vector2.UnitY;
+        Engine.Graphics.SortingAxis = Vector2.UnitY;
         
         Engine.DatabaseManager.AddDatabase<PrefabDatabase>();
         Engine.DatabaseManager.AddDatabase<SpriteSheetDatabase>();

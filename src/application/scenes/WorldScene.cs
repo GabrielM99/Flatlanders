@@ -30,7 +30,7 @@ public class WorldScene : Scene
         Tilemap tilemap = tilemapEntity.AddComponent<Tilemap>();
         TilemapRenderer tilemapRenderer = tilemapEntity.AddComponent<TilemapRenderer>();
         tilemapRenderer.Layer = -1;
-        TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
+        tilemapEntity.AddComponent<TilemapCollider>();
 
         Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)), false);
         Tile rockTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16)));
@@ -38,12 +38,17 @@ public class WorldScene : Scene
         Vector2 worldSize = new(16, 16);
 
         Random random = new();
+        
+        int seed = random.Next();
+        Console.WriteLine($"Generating world with seed {seed}.");
+        
+        Random tileRandom = new(seed);
 
         for (int x = -(int)(worldSize.X / 2); x < worldSize.X / 2; x++)
         {
             for (int y = -(int)(worldSize.Y / 2); y < worldSize.Y / 2; y++)
             {
-                if (random.NextSingle() <= 0.75f)
+                if (tileRandom.NextSingle() <= 0.75f)
                 {
                     tilemap.SetTile(grassTile, new Vector3(x, y, 0f));
                 }

@@ -37,11 +37,11 @@ public class AnimationProperty<T> : IAnimationProperty
 
     public T Evaluate(ref int lastKeyframeIndex, int currentFrameIndex)
     {
-        if(KeyframeByIndex.Count == 0)
+        if (KeyframeByIndex.Count == 0)
         {
             return default;
         }
-        
+
         if (KeyframeByIndex.TryGetValue(currentFrameIndex, out AnimationKeyframe currentKeyframe))
         {
             lastKeyframeIndex = currentFrameIndex;
@@ -77,10 +77,15 @@ public class AnimationProperty<T> : IAnimationProperty
         }
 
         Frames = Math.Max(index, Frames);
-
+        
+        // Ensures a start and end keyframe always exist.
         if (index == 0 && !KeyframeByIndex.ContainsKey(Animation.Frames))
         {
             SetKeyframe(Animation.Frames, value);
+        }
+        else if (index != 0 && !KeyframeByIndex.ContainsKey(0))
+        {
+            SetKeyframe(0, value);
         }
     }
 

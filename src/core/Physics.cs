@@ -50,7 +50,7 @@ namespace Flatlanders.Core
             {
                 foreach (ICollisionActor actor in firstLayer.Space)
                 {
-                    Engine.Graphics.DrawRectangle(new Transform() { Position = actor.Bounds.Position, Size = actor.Bounds.BoundingRectangle.Size }, Color.Red, short.MaxValue);
+                    //Engine.Graphics.DrawRectangle(new Transform() { Position = actor.Bounds.Position, Size = actor.Bounds.BoundingRectangle.Size }, Color.Red, short.MaxValue);
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace Flatlanders.Core
         public void AddCollider(ICollisionActor target)
         {
             var layerName = target.LayerName ?? DEFAULT_LAYER_NAME;
-            
+
             if (!_layers.TryGetValue(layerName, out var layer))
             {
                 throw new UndefinedLayerException(layerName);

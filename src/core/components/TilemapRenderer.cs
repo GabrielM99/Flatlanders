@@ -21,7 +21,7 @@ public class TilemapRenderer : Renderer
         Tilemap ??= Entity.GetComponent<Tilemap>();
     }
 
-    public override void OnDraw(Graphics graphics, short layer)
+    public override void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default)
     {
         if (Tilemap != null)
         {

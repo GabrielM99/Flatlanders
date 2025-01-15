@@ -7,8 +7,6 @@ public abstract class Renderer : Component, ISizable
 {
     private RendererGroup _group;
 
-    public override int Order => 1;
-
     public Color Color { get; set; } = Color.White;
     public SpriteEffects Effects { get; set; }
     public short Layer { get; set; }
@@ -41,7 +39,7 @@ public abstract class Renderer : Component, ISizable
     {
     }
 
-    public abstract void OnDraw(Graphics graphics, short layer);
+    public abstract void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default);
 
     public override void OnUpdate(float deltaTime)
     {
@@ -53,8 +51,8 @@ public abstract class Renderer : Component, ISizable
         }
     }
 
-    public void Draw(short layer)
+    public void Draw(short layer, Vector2 sortingOrigin = default)
     {
-        OnDraw(Engine.Graphics, layer);
+        OnDraw(Engine.Graphics, layer, sortingOrigin);
     }
 }

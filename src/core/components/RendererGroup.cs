@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
 
@@ -66,7 +66,8 @@ public class RendererGroup : Component
         {
             foreach (Renderer renderer in renderers)
             {
-                renderer.Draw(Layer);
+                Vector2 sortingOrigin = Entity.Node.Position - renderer.Entity.Node.Position;
+                renderer.Draw(Layer, sortingOrigin);
             }
         }
     }

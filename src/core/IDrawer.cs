@@ -10,6 +10,7 @@ public interface IDrawer
     ITransform Transform { get; set; }
     Color Color { get; set; }
     Vector2 Origin { get; set; }
+    Vector2 SortingOrigin { get; set; }
     SpriteEffects Effects { get; set; }
     short Layer { get; set; }
     

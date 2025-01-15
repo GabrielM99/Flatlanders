@@ -27,8 +27,8 @@ public class SpriteRenderer : Renderer
     {
     }
 
-    public override void OnDraw(Graphics graphics, short layer)
+    public override void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default)
     {
-        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, Effects, layer);
+        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, Effects, layer, sortingOrigin);
     }
 }

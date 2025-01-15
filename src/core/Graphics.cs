@@ -9,6 +9,8 @@ namespace Flatlanders.Core;
 
 public class Graphics : DrawableGameComponent
 {
+    private const float OrderDepthEpsilon = 5.96046448e-8f;
+
     public int ReferencePixelsPerUnit { get; set; } = 100;
     public int PixelsPerUnit { get; set; } = 100;
     public float PixelsPerUnitScale => (float)ReferencePixelsPerUnit / PixelsPerUnit;
@@ -35,7 +37,7 @@ public class Graphics : DrawableGameComponent
         }
     }
 
-    public Vector2 SortAxis { get; set; }
+    public Vector2 SortingAxis { get; set; }
 
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
@@ -45,14 +47,13 @@ public class Graphics : DrawableGameComponent
     public Graphics(Game game) : base(game)
     {
         GraphicsDeviceManager = new GraphicsDeviceManager(game);
-        DrawersBySpace = new Dictionary<TransformSpace, List<IDrawer>>();
-
+        DrawersBySpace = [];
         CreateDrawerSpaces();
     }
 
     private static float CalculateLayerDepth(short layer)
     {
-        return ((float)layer / short.MaxValue + 1f) * 0.5f;
+        return Math.Clamp(((float)layer / short.MaxValue + 1f) * 0.5f, 0f, 1f);
     }
 
     protected override void LoadContent()
@@ -119,13 +120,13 @@ public class Graphics : DrawableGameComponent
         return worldVector * PixelsPerUnit;
     }
 
-    public void DrawSprite(Sprite sprite, ITransform transform, Color color, SpriteEffects effects, short layer)
+    public void DrawSprite(Sprite sprite, ITransform transform, Color color, SpriteEffects effects, short layer, Vector2 sortingOrigin = default)
     {
-        if(sprite == null)
+        if (sprite == null)
         {
             return;
         }
-        
+
         Draw(transform.Space, new TextureDrawer
         {
             Texture = sprite.Texture,
@@ -133,12 +134,13 @@ public class Graphics : DrawableGameComponent
             SourceRectangle = sprite.Rectangle,
             Color = color,
             Origin = sprite.Origin,
+            SortingOrigin = sortingOrigin,
             Effects = effects,
             Layer = layer,
         });
     }
 
-    public void DrawText(SpriteFont font, string text, ITransform transform, Color color, SpriteEffects effects, short layer)
+    public void DrawText(SpriteFont font, string text, ITransform transform, Color color, SpriteEffects effects, short layer, Vector2 sortingOrigin = default)
     {
         Draw(transform.Space, new TextDrawer
         {
@@ -146,18 +148,20 @@ public class Graphics : DrawableGameComponent
             Font = font,
             Transform = transform,
             Color = color,
+            SortingOrigin = sortingOrigin,
             Effects = effects,
             Layer = layer
         });
     }
 
-    public void DrawRectangle(ITransform transform, Color color, short layer)
+    public void DrawRectangle(ITransform transform, Color color, short layer, Vector2 sortingOrigin = default)
     {
         Draw(transform.Space, new RectangleDrawer
         {
             Transform = transform,
             Color = color,
-            Layer = layer
+            Layer = layer,
+            SortingOrigin = sortingOrigin
         });
     }
 
@@ -171,9 +175,9 @@ public class Graphics : DrawableGameComponent
 
     private void ClearDrawers()
     {
-        foreach (TransformSpace space in DrawersBySpace.Keys)
+        foreach (List<IDrawer> drawers in DrawersBySpace.Values)
         {
-            DrawersBySpace[space].Clear();
+            drawers.Clear();
         }
     }
 
@@ -220,25 +224,35 @@ public class Graphics : DrawableGameComponent
 
         Matrix transformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
 
-        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix);
+        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix, blendState: BlendState.AlphaBlend);
+
+        // This is used to maintain the order of consecutive draw calls in a layer.
+        short layerDrawIndex = 0;
+        short lastDrawLayer = 0;
 
         foreach (IDrawer drawer in DrawersBySpace[TransformSpace.World])
         {
-            RectangleF bounds = drawer.Transform.Bounds;
-            Vector2 screenPosition = WorldToScreenVector(bounds.Position);
+            if (drawer.Layer != lastDrawLayer)
+            {
+                layerDrawIndex = 0;
+                lastDrawLayer = drawer.Layer;
+            }
 
-            float layerDepth = CalculateLayerDepth(drawer.Layer);
-            float layerDepthSortOffset = Remap(
-                (SortAxis.X * screenPosition.X / WindowSize.X) +
-                (SortAxis.Y * screenPosition.Y / WindowSize.Y),
-                0f, 1f, 0f, int.MaxValue / short.MaxValue / (float)int.MaxValue);
+            ITransform transform = drawer.Transform;
+            RectangleF bounds = transform.Bounds;
 
-            layerDepth = MathHelper.Clamp(layerDepth + layerDepthSortOffset, 0f, 1f);
+            Vector2 sortingPosition = bounds.Position + drawer.SortingOrigin;
+            Vector2 screenPosition = WorldToScreenVector(sortingPosition);
+            Vector2 sortingScreenPosition = Vector2.Multiply(SortingAxis, Vector2.Divide(screenPosition, WindowSize));
 
+            int packedLayerDepth = (drawer.Layer << 16) | ((int)(sortingScreenPosition.Length() * 15) & 0xF) << 12 | (layerDrawIndex & 0xF) << 8;
+            float layerDepth = ((float)packedLayerDepth - int.MinValue) / ((float)int.MaxValue - int.MinValue);;
+            
             bounds.Position = WorldToViewVector(bounds.Position);
             bounds.Size = WorldToViewVector(bounds.Size);
 
             drawer.Draw(SpriteBatch, bounds, layerDepth);
+            layerDrawIndex++;
         }
 
         SpriteBatch.End();

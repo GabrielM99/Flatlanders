@@ -12,6 +12,7 @@ public struct TextureDrawer : IDrawer
     public Rectangle SourceRectangle { get; set; }
     public Color Color { get; set; }
     public Vector2 Origin { get; set; }
+    public Vector2 SortingOrigin { get; set; }
     public SpriteEffects Effects { get; set; }
     public short Layer { get; set; }
 
