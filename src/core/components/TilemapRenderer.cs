@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 
 namespace Flatlanders.Core.Components;
@@ -21,7 +22,7 @@ public class TilemapRenderer : Renderer
         Tilemap ??= Entity.GetComponent<Tilemap>();
     }
 
-    public override void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default)
+    public override void OnDraw(Graphics graphics, short layer, SpriteEffects effects, Vector2 sortingOrigin = default)
     {
         if (Tilemap != null)
         {
@@ -38,7 +39,7 @@ public class TilemapRenderer : Renderer
                 if (tile != null)
                 {
                     Vector2 size = tile.Sprite.Rectangle.Size.ToVector2();
-                    Engine.Graphics.DrawSprite(tile.Sprite, new Transform() { Position = new Vector2(position.X, position.Y) - size * 0.5f, Size = size }, Color, Effects, layer);
+                    Engine.Graphics.DrawSprite(tile.Sprite, new Transform() { Position = new Vector2(position.X, position.Y) - size * 0.5f, Size = size }, Color, effects, layer);
                 }
             }
         }

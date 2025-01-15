@@ -4,6 +4,7 @@ using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Flatlanders.Core.Prefabs;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Flatlanders.Application.Components;
@@ -14,6 +15,7 @@ public class Player : Component
     public Tile rockTile;
     public TextRenderer debugTextRenderer;
 
+    public RendererGroup RendererGroup { get; private set; }
     public SpriteRenderer HairSpriteRenderer { get; set; }
     public SpriteRenderer EyebrowsSpriteRenderer { get; set; }
     public SpriteRenderer EyesBackSpriteRenderer { get; set; }
@@ -22,6 +24,8 @@ public class Player : Component
     public SpriteRenderer ChestSpriteRenderer { get; set; }
     public SpriteRenderer LegsSpriteRenderer { get; set; }
     public SpriteRenderer FeetSpriteRenderer { get; set; }
+    public SpriteRenderer LeftHandSpriteRenderer { get; set; }
+    public SpriteRenderer RightHandSpriteRenderer { get; set; }
 
     private Rigidbody Rigidbody { get; set; }
     private Animator Animator { get; set; }
@@ -45,13 +49,17 @@ public class Player : Component
         AnimationDatabase animationDatabase = Engine.DatabaseManager.GetDatabase<AnimationDatabase>();
         Animator.PlayAnimation(animationDatabase.PlayerIdle, this);
 
+        SpriteDatabase spriteDatabase = Engine.DatabaseManager.GetDatabase<SpriteDatabase>();
+
+        Color skinColor = new(0.933333337f, 0.847058833f, 0.7019608f);
+
         HeadSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
-        HeadSpriteRenderer.Color = new Color(0.933333337f, 0.847058833f, 0.7019608f);
+        HeadSpriteRenderer.Color = skinColor;
 
         EyebrowsSpriteRenderer = HeadSpriteRenderer.Entity.CreateChild().AddComponent<SpriteRenderer>();
         EyebrowsSpriteRenderer.Color = new Color(0.34117648f, 0.2784314f, 0.141176462f);
         EyebrowsSpriteRenderer.Layer = 2;
-        
+
         EyesBackSpriteRenderer = HeadSpriteRenderer.Entity.CreateChild().AddComponent<SpriteRenderer>();
         EyesBackSpriteRenderer.Layer = 1;
 
@@ -73,15 +81,18 @@ public class Player : Component
         FeetSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
         FeetSpriteRenderer.Color = new Color(0.129411772f, 0.129411772f, 0.129411772f);
 
-        RendererGroup rendererGroup = Entity.AddComponent<RendererGroup>();
-        rendererGroup.AddRenderer(HairSpriteRenderer);
-        rendererGroup.AddRenderer(EyebrowsSpriteRenderer);
-        rendererGroup.AddRenderer(EyesBackSpriteRenderer);
-        rendererGroup.AddRenderer(EyesSpriteRenderer);
-        rendererGroup.AddRenderer(HeadSpriteRenderer);
-        rendererGroup.AddRenderer(ChestSpriteRenderer);
-        rendererGroup.AddRenderer(LegsSpriteRenderer);
-        rendererGroup.AddRenderer(FeetSpriteRenderer);
+        LeftHandSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        LeftHandSpriteRenderer.Sprite = spriteDatabase.Hand;
+        LeftHandSpriteRenderer.Layer = 2;
+        LeftHandSpriteRenderer.Color = Color.Pink;
+
+        RightHandSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        RightHandSpriteRenderer.Sprite = spriteDatabase.Hand;
+        RightHandSpriteRenderer.Layer = -1;
+        RightHandSpriteRenderer.Color = skinColor;
+
+        RendererGroup = Entity.AddComponent<RendererGroup>();
+        RendererGroup.AddRenderers(HairSpriteRenderer, EyebrowsSpriteRenderer, EyesBackSpriteRenderer, EyesSpriteRenderer, HeadSpriteRenderer, ChestSpriteRenderer, LegsSpriteRenderer, FeetSpriteRenderer, LeftHandSpriteRenderer, RightHandSpriteRenderer);
     }
 
     public override void OnUpdate(float deltaTime)
@@ -114,6 +125,14 @@ public class Player : Component
             direction.X += 1;
         }
 
+        if (direction.X != 0f)
+        {
+            Entity.Node.Scale = new Vector2(direction.X, 1f);
+            RendererGroup.Effects = direction.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+        }
+
+        Console.WriteLine(RightHandSpriteRenderer.Entity.Node.Position);
+
         MouseState mouseState = Mouse.GetState();
         Vector2 mousePosition = mouseState.Position.ToVector2();
         Vector2 worldMousePosition = Engine.Graphics.ScreenToWorldVector(mousePosition);
@@ -128,6 +147,6 @@ public class Player : Component
             tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
         }
 
-        Rigidbody.Velocity = direction * 5f;
+        //Rigidbody.Velocity = direction * 5f;
     }
 }

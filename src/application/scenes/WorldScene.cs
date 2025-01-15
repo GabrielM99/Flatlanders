@@ -35,7 +35,7 @@ public class WorldScene : Scene
         Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)), false);
         Tile rockTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16)));
 
-        Vector2 worldSize = new(16, 16);
+        Vector2 worldSize = new(32, 32);
 
         Random random = new();
         
@@ -68,8 +68,6 @@ public class WorldScene : Scene
         debugTextEntity.Node.Scale = Vector2.One * 0.5f;
         debugTextEntity.Node.Space = TransformSpace.Screen;
         debugTextEntity.Node.Anchor = TransformAnchor.TopLeft;
-        Animator debugTextAnimator = debugTextEntity.AddComponent<Animator>();
-        debugTextAnimator.PlayAnimation(new NodeDemoAnimation(Engine), debugTextEntity.Node);
 
         Entity playerEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Player);
         Player player = playerEntity.GetComponent<Player>();

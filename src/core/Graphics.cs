@@ -9,8 +9,6 @@ namespace Flatlanders.Core;
 
 public class Graphics : DrawableGameComponent
 {
-    private const float OrderDepthEpsilon = 5.96046448e-8f;
-
     public int ReferencePixelsPerUnit { get; set; } = 100;
     public int PixelsPerUnit { get; set; } = 100;
     public float PixelsPerUnitScale => (float)ReferencePixelsPerUnit / PixelsPerUnit;
@@ -246,8 +244,8 @@ public class Graphics : DrawableGameComponent
             Vector2 sortingScreenPosition = Vector2.Multiply(SortingAxis, Vector2.Divide(screenPosition, WindowSize));
 
             int packedLayerDepth = (drawer.Layer << 16) | ((int)(sortingScreenPosition.Length() * 15) & 0xF) << 12 | (layerDrawIndex & 0xF) << 8;
-            float layerDepth = ((float)packedLayerDepth - int.MinValue) / ((float)int.MaxValue - int.MinValue);;
-            
+            float layerDepth = ((float)packedLayerDepth - int.MinValue) / ((float)int.MaxValue - int.MinValue); ;
+
             bounds.Position = WorldToViewVector(bounds.Position);
             bounds.Size = WorldToViewVector(bounds.Size);
 

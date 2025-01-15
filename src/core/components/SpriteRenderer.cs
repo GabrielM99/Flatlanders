@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core.Components;
 
@@ -27,8 +28,8 @@ public class SpriteRenderer : Renderer
     {
     }
 
-    public override void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default)
+    public override void OnDraw(Graphics graphics, short layer, SpriteEffects effects, Vector2 sortingOrigin = default)
     {
-        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, Effects, layer, sortingOrigin);
+        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, effects, layer, sortingOrigin);
     }
 }

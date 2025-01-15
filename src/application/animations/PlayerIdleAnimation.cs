@@ -25,6 +25,9 @@ public class PlayerIdleAnimation : Animation<Player>
     private AnimationProperty<Sprite> LegsSprite { get; }
     private AnimationProperty<Sprite> FeetSprite { get; }
 
+    private AnimationProperty<Vector2> LeftHandLocalPosition { get; }
+    private AnimationProperty<Vector2> RightHandLocalPosition { get; }
+
     public PlayerIdleAnimation(Engine engine) : base(engine)
     {
         SpriteSheetDatabase spriteSheetDatabase = engine.DatabaseManager.GetDatabase<SpriteSheetDatabase>();
@@ -61,6 +64,18 @@ public class PlayerIdleAnimation : Animation<Player>
 
         FeetSprite = new AnimationProperty<Sprite>(this);
         FeetSprite.SetKeyframe(0, playerSpriteSheet.FeetSprites[0]);
+
+        LeftHandLocalPosition = new AnimationProperty<Vector2>(this);
+        LeftHandLocalPosition.SetKeyframe(0, new Vector2(0.0625f * -2f, 0.0625f * 3f));
+        LeftHandLocalPosition.SetKeyframe(6, new Vector2(0.0625f * -2f, 0.0625f * 3f));
+        LeftHandLocalPosition.SetKeyframe(30, new Vector2(0.0625f * -2f, 0.0625f * 2f));
+        LeftHandLocalPosition.SetKeyframe(54, new Vector2(0.0625f * -2f, 0.0625f * 3f));
+
+        RightHandLocalPosition = new AnimationProperty<Vector2>(this);
+        RightHandLocalPosition.SetKeyframe(0, new Vector2(0.0625f * 3f, 0.0625f * 3f));
+        RightHandLocalPosition.SetKeyframe(6, new Vector2(0.0625f * 3f, 0.0625f * 3f));
+        RightHandLocalPosition.SetKeyframe(30, new Vector2(0.0625f * 3f, 0.0625f * 2f));
+        RightHandLocalPosition.SetKeyframe(54, new Vector2(0.0625f * 3f, 0.0625f * 3f));
     }
 
     public override void Bind(RuntimeAnimation runtimeAnimation, Player obj)
@@ -78,5 +93,8 @@ public class PlayerIdleAnimation : Animation<Player>
         runtimeAnimation.BindProperty(LegsSprite, (value) => obj.LegsSpriteRenderer.Sprite = value);
         runtimeAnimation.BindProperty(FeetSprite, (value) => obj.FeetSpriteRenderer.Sprite = value);
         runtimeAnimation.BindProperty(HairSprite, (value) => obj.HairSpriteRenderer.Sprite = value);
+
+        runtimeAnimation.BindProperty(LeftHandLocalPosition, (value) => obj.LeftHandSpriteRenderer.Entity.Node.LocalPosition = value);
+        runtimeAnimation.BindProperty(RightHandLocalPosition, (value) => obj.RightHandSpriteRenderer.Entity.Node.LocalPosition = value);
     }
 }

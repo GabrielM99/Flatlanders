@@ -39,7 +39,7 @@ public abstract class Renderer : Component, ISizable
     {
     }
 
-    public abstract void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default);
+    public abstract void OnDraw(Graphics graphics, short layer, SpriteEffects effects = SpriteEffects.None, Vector2 sortingOrigin = default);
 
     public override void OnUpdate(float deltaTime)
     {
@@ -47,12 +47,12 @@ public abstract class Renderer : Component, ISizable
 
         if (Group == null)
         {
-            Draw(Layer);
+            Draw(Layer, Effects);
         }
     }
 
-    public void Draw(short layer, Vector2 sortingOrigin = default)
+    public void Draw(short layer, SpriteEffects effects = SpriteEffects.None, Vector2 sortingOrigin = default)
     {
-        OnDraw(Engine.Graphics, layer, sortingOrigin);
+        OnDraw(Engine.Graphics, layer, effects, sortingOrigin);
     }
 }

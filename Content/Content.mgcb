@@ -39,6 +39,18 @@
 /processorParam:TextureFormat=Compressed
 /build:DogicaPixel.spritefont
 
+#begin Hand.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Hand.png
+
 #begin Player.png
 /importer:TextureImporter
 /processor:TextureProcessor

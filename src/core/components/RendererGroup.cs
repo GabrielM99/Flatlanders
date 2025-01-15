@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core.Components;
 
 public class RendererGroup : Component
 {
     public short Layer { get; set; }
+    public SpriteEffects Effects { get; set; }
 
     private SortedDictionary<int, HashSet<Renderer>> RenderersByLayer { get; }
 
@@ -32,6 +34,14 @@ public class RendererGroup : Component
         if (renderers.Add(renderer))
         {
             renderer.Group = this;
+        }
+    }
+
+    public void AddRenderers(params Renderer[] renderers)
+    {
+        foreach (Renderer renderer in renderers)
+        {
+            AddRenderer(renderer);
         }
     }
 
@@ -67,7 +77,7 @@ public class RendererGroup : Component
             foreach (Renderer renderer in renderers)
             {
                 Vector2 sortingOrigin = Entity.Node.Position - renderer.Entity.Node.Position;
-                renderer.Draw(Layer, sortingOrigin);
+                renderer.Draw(Layer, Effects, sortingOrigin);
             }
         }
     }

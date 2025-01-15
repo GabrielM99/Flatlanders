@@ -1,3 +1,4 @@
+using System;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,6 +19,6 @@ public struct TextureDrawer : IDrawer
 
     public readonly void Draw(SpriteBatch spriteBatch, RectangleF bounds, float layerDepth)
     {
-        spriteBatch.Draw(Texture, bounds.Center, SourceRectangle, Color, Transform.Rotation, Origin + SourceRectangle.Size.ToVector2() * 0.5f, Transform.Scale, Effects, layerDepth);
+        spriteBatch.Draw(Texture, bounds.Center, SourceRectangle, Color, Transform.Rotation, Origin + SourceRectangle.Size.ToVector2() * 0.5f, new Vector2(Math.Abs(Transform.Scale.X), Math.Abs(Transform.Scale.Y)), Effects, layerDepth);
     }
 }

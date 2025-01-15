@@ -63,7 +63,8 @@ public class Node : Component, ITransform, ISizable
                 size = Engine.Graphics.ViewToWorldVector(size);
             }
 
-            return new(LocalPosition + Vector2.Multiply(-Pivot, size * 0.5f) - size * 0.5f + (Parent == null ? Vector2.Zero : Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f)), size);
+            // TODO: Bounds should just use the global position.
+            return new(Vector2.Multiply(-Pivot, size * 0.5f) - size * 0.5f + (Parent == null ? LocalPosition : Vector2.Multiply(LocalPosition, Parent.Scale) + Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f)), size);
         }
     }
 
@@ -95,13 +96,18 @@ public class Node : Component, ITransform, ISizable
     public Vector2 LocalPosition { get; set; }
     public Vector2 Position
     {
-        get => LocalPosition + (Parent == null ? Vector2.Zero : Parent.Position);
+        get => Parent == null ? LocalPosition : Vector2.Multiply(LocalPosition, Parent.Scale) + Parent.Position;
         set => LocalPosition = value - (Parent == null ? Vector2.Zero : Parent.Position);
     }
 
     public float Rotation { get; set; }
-    public Vector2 Scale { get; set; } = Vector2.One;
 
+    public Vector2 LocalScale { get; set; } = Vector2.One;
+    public Vector2 Scale
+    {
+        get => Vector2.Multiply(LocalScale, Parent == null ? Vector2.One : Parent.Scale);
+        set => LocalScale = Vector2.Divide(value, Parent == null ? Vector2.One : Parent.Scale);
+    }
     private Vector2 _childrenSize;
     public Vector2 ChildrenSize
     {

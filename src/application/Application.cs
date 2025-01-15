@@ -21,6 +21,7 @@ public class Application : IApplication
         Engine.Graphics.SortingAxis = Vector2.UnitY;
         
         Engine.DatabaseManager.AddDatabase<PrefabDatabase>();
+        Engine.DatabaseManager.AddDatabase<SpriteDatabase>();
         Engine.DatabaseManager.AddDatabase<SpriteSheetDatabase>();
         Engine.DatabaseManager.AddDatabase<AnimationDatabase>();
 
