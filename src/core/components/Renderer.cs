@@ -11,7 +11,7 @@ public abstract class Renderer(Entity entity) : Component(entity), ISizable
 
     public Color Color { get; set; } = Color.White;
     public SpriteEffects Effects { get; set; }
-    public short Layer { get; set; }
+    public sbyte Layer { get; set; }
 
     public RendererGroup Group
     {
@@ -37,7 +37,7 @@ public abstract class Renderer(Entity entity) : Component(entity), ISizable
 
     public abstract Vector2 Size { get; }
 
-    public abstract void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default);
+    public abstract void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default);
 
     public override void OnUpdate(float deltaTime)
     {
@@ -49,7 +49,7 @@ public abstract class Renderer(Entity entity) : Component(entity), ISizable
         }
     }
 
-    public void Draw(short layer, Vector2 sortingOrigin = default)
+    public void Draw(sbyte layer, Vector2 sortingOrigin = default)
     {
         OnDraw(Engine.Graphics, layer, sortingOrigin);
     }

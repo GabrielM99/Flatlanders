@@ -9,12 +9,12 @@ namespace Flatlanders.Core;
 
 public class Graphics : DrawableGameComponent
 {
-    private readonly struct DrawRequest(Transform transform, IDrawer drawer, Color color, short layer, Vector2 sortingOrigin)
+    private readonly struct DrawRequest(Transform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin)
     {
         public Transform Transform { get; } = transform;
         public IDrawer Drawer { get; } = drawer;
         public Color Color { get; } = color;
-        public short Layer { get; } = layer;
+        public sbyte Layer { get; } = layer;
         public Vector2 SortingOrigin { get; } = sortingOrigin;
     }
 
@@ -58,9 +58,12 @@ public class Graphics : DrawableGameComponent
         CreateDrawerSpaces();
     }
 
-    private static float CalculateLayerDepth(short layer)
+    private static float CalculateLayerDepth(sbyte renderLayer, sbyte sortingLayer, sbyte orderLayer)
     {
-        return Math.Clamp(((float)layer / short.MaxValue + 1f) * 0.5f, 0f, 1f);
+        // The last 8 bits [0..7] have no effect, thus are never used.
+        int packedLayerDepth = renderLayer << 24 | sortingLayer << 16 | orderLayer << 8;
+        // Remaps into [0..1] range.
+        return ((float)packedLayerDepth - int.MinValue) / ((float)int.MaxValue - int.MinValue);
     }
 
     protected override void LoadContent()
@@ -81,7 +84,7 @@ public class Graphics : DrawableGameComponent
         DrawCamera();
     }
 
-    public void Draw(ITransform transform, IDrawer drawer, Color color, short layer, Vector2 sortingOrigin = default)
+    public void Draw(ITransform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin = default)
     {
         DrawerRequestsBySpace[transform.Space].Add(new DrawRequest(Transform.Copy(transform), drawer, color, layer, sortingOrigin));
     }
@@ -189,15 +192,15 @@ public class Graphics : DrawableGameComponent
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix, blendState: BlendState.AlphaBlend);
 
         // This is used to maintain the order of consecutive draw calls in a layer.
-        short layerDrawIndex = 0;
-        short lastDrawLayer = 0;
+        sbyte orderLayer = 0;
+        sbyte lastLayer = 0;
 
         foreach (DrawRequest drawRequest in DrawerRequestsBySpace[TransformSpace.World])
         {
-            if (drawRequest.Layer != lastDrawLayer)
+            if (drawRequest.Layer != lastLayer)
             {
-                layerDrawIndex = 0;
-                lastDrawLayer = drawRequest.Layer;
+                orderLayer = 0;
+                lastLayer = drawRequest.Layer;
             }
 
             Transform transform = drawRequest.Transform;
@@ -206,14 +209,13 @@ public class Graphics : DrawableGameComponent
             Vector2 screenPosition = WorldToScreenVector(sortingPosition);
             Vector2 sortingScreenPosition = Vector2.Multiply(SortingAxis, Vector2.Divide(screenPosition, WindowSize));
 
-            int packedLayerDepth = (drawRequest.Layer << 16) | ((int)(sortingScreenPosition.Length() * 15) & 0xF) << 12 | (layerDrawIndex & 0xF) << 8;
-            float layerDepth = ((float)packedLayerDepth - int.MinValue) / ((float)int.MaxValue - int.MinValue); ;
-
             transform.Position = WorldToViewVector(transform.Position);
             transform.Size = WorldToViewVector(transform.Size);
 
-            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, layerDepth);
-            layerDrawIndex++;
+            sbyte sortingLayer = (sbyte)Math.Clamp(sortingScreenPosition.Length() * 127, sbyte.MinValue, sbyte.MaxValue);
+
+            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, sortingLayer, orderLayer));
+            orderLayer++;
         }
 
         SpriteBatch.End();
@@ -234,7 +236,7 @@ public class Graphics : DrawableGameComponent
         {
             Transform transform = drawRequest.Transform;
             transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(transform.Root.Anchor), ActiveCamera.Resolution / PixelsPerUnitScale) * 0.5f;
-            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer));
+            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, 0, 0));
         }
 
         SpriteBatch.End();

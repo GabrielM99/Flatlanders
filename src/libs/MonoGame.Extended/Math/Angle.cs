@@ -32,7 +32,7 @@ using Microsoft.Xna.Framework;
 
 namespace MonoGame.Extended
 {
-    public enum AngleType : byte
+    public enum AngleType : sbyte
     {
         Radian = 0,
         Degree,
