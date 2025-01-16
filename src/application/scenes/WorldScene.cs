@@ -69,7 +69,7 @@ public class WorldScene : Scene
         debugTextEntity.Node.Space = TransformSpace.Screen;
         debugTextEntity.Node.Anchor = TransformAnchor.TopLeft;
 
-        Entity playerEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Player);
+        Entity playerEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Player, "Player");
         Player player = playerEntity.GetComponent<Player>();
         player.tilemap = tilemap;
         player.rockTile = rockTile;
@@ -81,7 +81,6 @@ public class WorldScene : Scene
         enemyEntity.Node.Position = Vector2.UnitX * 3f;
         RectangleCollider enemyCollider = enemyEntity.AddComponent<RectangleCollider>();
         enemyCollider.Size = new Vector2(0.25f);
-        enemyCollider.Offset = new Vector2(0f, 0.25f);
         SpriteRenderer enemySpriteRenderer = enemyEntity.AddComponent<SpriteRenderer>();
         enemySpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Anti"), null, new Vector2(0f, 8f));
 

@@ -1,17 +1,14 @@
+using System;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 
 namespace Flatlanders.Application.Components;
 
-public class PlayerCamera : Component
+public class PlayerCamera(Entity entity) : Component(entity)
 {
-    public override int Order => 2;
+    public override int Order => ComponentOrder.Physics + 1;
 
     public Node Target { get; set; }
-
-    public PlayerCamera(Entity entity) : base(entity)
-    {
-    }
 
     public override void OnUpdate(float deltaTime)
     {

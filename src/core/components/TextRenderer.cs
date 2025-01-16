@@ -6,24 +6,11 @@ namespace Flatlanders.Core.Components;
 // TODO: Text wrapping options (support for break line and masking text based on parent size)
 public class TextRenderer : Renderer, ISizable
 {
-    private SpriteFont _font;
     private string _text = "Text";
-
+    private SpriteFont _font;
+    
+    // TODO: Check performance.
     public override Vector2 Size => Text == null || Font == null ? Vector2.Zero : Font.MeasureString(Text);
-
-    public SpriteFont Font
-    {
-        get => _font;
-
-        set
-        {
-            if (value != _font)
-            {
-                _font = value;
-                Entity.Node.RecalculateSize();
-            }
-        }
-    }
 
     public string Text
     {
@@ -34,6 +21,20 @@ public class TextRenderer : Renderer, ISizable
             if (value != _text)
             {
                 _text = value;
+                Entity.Node.RecalculateSize();
+            }
+        }
+    }
+    
+    public SpriteFont Font
+    {
+        get => _font;
+
+        set
+        {
+            if (value != _font)
+            {
+                _font = value;
                 Entity.Node.RecalculateSize();
             }
         }
@@ -49,8 +50,8 @@ public class TextRenderer : Renderer, ISizable
         Font = Engine.Content.Load<SpriteFont>("Arial");
     }
 
-    public override void OnDraw(Graphics graphics, short layer, SpriteEffects effects, Vector2 sortingOrigin = default)
+    public override void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default)
     {
-        graphics.DrawText(Font, Text, Entity.Node, Color, effects, layer, sortingOrigin);
+        graphics.Draw(Entity.Node, new TextDrawer(Text, Font, Effects), Color, layer, sortingOrigin);
     }
 }

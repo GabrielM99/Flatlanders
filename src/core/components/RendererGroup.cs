@@ -6,6 +6,8 @@ namespace Flatlanders.Core.Components;
 
 public class RendererGroup : Component
 {
+    public override int Order => ComponentOrder.Graphics;
+
     public short Layer { get; set; }
     public SpriteEffects Effects { get; set; }
 
@@ -13,7 +15,7 @@ public class RendererGroup : Component
 
     public RendererGroup(Entity entity) : base(entity)
     {
-        RenderersByLayer = new SortedDictionary<int, HashSet<Renderer>>();
+        RenderersByLayer = [];
     }
 
     public void AddRenderer(Renderer renderer)
@@ -77,7 +79,7 @@ public class RendererGroup : Component
             foreach (Renderer renderer in renderers)
             {
                 Vector2 sortingOrigin = Entity.Node.Position - renderer.Entity.Node.Position;
-                renderer.Draw(Layer, Effects, sortingOrigin);
+                renderer.Draw(Layer, sortingOrigin);
             }
         }
     }

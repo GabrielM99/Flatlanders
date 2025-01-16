@@ -24,7 +24,7 @@ public class HorizontalContainer : Container, ISizable
         for (int i = 0; i < childrenCount; i++)
         {
             Node child = node.GetChild(i);
-            float childWidth = child.Bounds.Width;
+            float childWidth = child.Size.X;
             child.LocalPosition = Vector2.UnitX * (-sizeX * 0.5f + childWidth * 0.5f + lastChildWidth * i + Spacing * i);
             lastChildWidth = childWidth;
         }

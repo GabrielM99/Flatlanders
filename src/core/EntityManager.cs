@@ -15,7 +15,7 @@ public class EntityManager : GameComponent
     public EntityManager(Engine engine) : base(engine)
     {
         Engine = engine;
-        ComponentsByOrder = new SortedDictionary<int, HashSet<Component>>();
+        ComponentsByOrder = [];
     }
 
     public override void Initialize()
@@ -29,7 +29,7 @@ public class EntityManager : GameComponent
         base.Update(gameTime);
 
         float deltaTime = Engine.Time.DeltaTime;
-        
+
         foreach (HashSet<Component> components in ComponentsByOrder.Values)
         {
             foreach (Component component in components)
@@ -41,7 +41,7 @@ public class EntityManager : GameComponent
 
     public Entity CreateEntity(string name = "")
     {
-        return (Entity)Activator.CreateInstance(typeof(Entity), new object[] { Engine, name });
+        return (Entity)Activator.CreateInstance(typeof(Entity), [Engine, name]);
     }
 
     public Entity CreateEntity(Prefab prefab, string name = "")
@@ -51,7 +51,7 @@ public class EntityManager : GameComponent
 
     public T CreateComponent<T>(Entity entity) where T : Component
     {
-        T component = (T)Activator.CreateInstance(typeof(T), new object[] { entity });
+        T component = (T)Activator.CreateInstance(typeof(T), [entity]);
         OnCreateComponent(component);
         return component;
     }
@@ -67,7 +67,7 @@ public class EntityManager : GameComponent
 
         if (!ComponentsByOrder.TryGetValue(order, out HashSet<Component> components))
         {
-            components = new HashSet<Component>();
+            components = [];
             ComponentsByOrder.Add(order, components);
         }
 

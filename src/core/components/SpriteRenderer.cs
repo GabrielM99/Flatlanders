@@ -1,10 +1,9 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core.Components;
 
-public class SpriteRenderer : Renderer
+public class SpriteRenderer(Entity entity) : Renderer(entity)
 {
     private Sprite _sprite;
 
@@ -24,12 +23,8 @@ public class SpriteRenderer : Renderer
 
     public override Vector2 Size => Sprite == null ? Vector2.Zero : Sprite.Rectangle.Size.ToVector2();
 
-    public SpriteRenderer(Entity entity) : base(entity)
-    {
-    }
-
-    public override void OnDraw(Graphics graphics, short layer, SpriteEffects effects, Vector2 sortingOrigin = default)
-    {
-        Engine.Graphics.DrawSprite(Sprite, Entity.Node, Color, effects, layer, sortingOrigin);
+    public override void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default)
+    {        
+        Engine.Graphics.Draw(Entity.Node, new SpriteDrawer(Sprite, Effects), Color, layer, sortingOrigin);
     }
 }

@@ -22,12 +22,12 @@ public class TilemapRenderer : Renderer
         Tilemap ??= Entity.GetComponent<Tilemap>();
     }
 
-    public override void OnDraw(Graphics graphics, short layer, SpriteEffects effects, Vector2 sortingOrigin = default)
+    public override void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default)
     {
         if (Tilemap != null)
         {
             Camera camera = Engine.Graphics.ActiveCamera;
-            RectangleF cameraBounds = camera.Entity.Node.Bounds;
+            RectangleF cameraBounds = new(camera.Entity.Node.Position - camera.Entity.Node.Size * 0.5f, camera.Entity.Node.Size);
             Vector3 cameraMin = new Vector3(cameraBounds.TopLeft, 0f) - Vector3.One;
             Vector3 cameraMax = new Vector3(cameraBounds.BottomRight, 0f) + Vector3.One;
 
@@ -39,7 +39,7 @@ public class TilemapRenderer : Renderer
                 if (tile != null)
                 {
                     Vector2 size = tile.Sprite.Rectangle.Size.ToVector2();
-                    Engine.Graphics.DrawSprite(tile.Sprite, new Transform() { Position = new Vector2(position.X, position.Y) - size * 0.5f, Size = size }, Color, effects, layer);
+                    Engine.Graphics.Draw(new Transform() { Position = new Vector2(position.X, position.Y), Size = size }, new SpriteDrawer(tile.Sprite, Effects), Color, layer);
                 }
             }
         }

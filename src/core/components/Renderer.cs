@@ -3,9 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Core.Components;
 
-public abstract class Renderer : Component, ISizable
+public abstract class Renderer(Entity entity) : Component(entity), ISizable
 {
     private RendererGroup _group;
+
+    public override int Order => ComponentOrder.Graphics;
 
     public Color Color { get; set; } = Color.White;
     public SpriteEffects Effects { get; set; }
@@ -35,11 +37,7 @@ public abstract class Renderer : Component, ISizable
 
     public abstract Vector2 Size { get; }
 
-    public Renderer(Entity entity) : base(entity)
-    {
-    }
-
-    public abstract void OnDraw(Graphics graphics, short layer, SpriteEffects effects = SpriteEffects.None, Vector2 sortingOrigin = default);
+    public abstract void OnDraw(Graphics graphics, short layer, Vector2 sortingOrigin = default);
 
     public override void OnUpdate(float deltaTime)
     {
@@ -47,12 +45,12 @@ public abstract class Renderer : Component, ISizable
 
         if (Group == null)
         {
-            Draw(Layer, Effects);
+            Draw(Layer);
         }
     }
 
-    public void Draw(short layer, SpriteEffects effects = SpriteEffects.None, Vector2 sortingOrigin = default)
+    public void Draw(short layer, Vector2 sortingOrigin = default)
     {
-        OnDraw(Engine.Graphics, layer, effects, sortingOrigin);
+        OnDraw(Engine.Graphics, layer, sortingOrigin);
     }
 }

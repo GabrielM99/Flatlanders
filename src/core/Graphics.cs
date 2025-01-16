@@ -9,6 +9,15 @@ namespace Flatlanders.Core;
 
 public class Graphics : DrawableGameComponent
 {
+    private readonly struct DrawRequest(Transform transform, IDrawer drawer, Color color, short layer, Vector2 sortingOrigin)
+    {
+        public Transform Transform { get; } = transform;
+        public IDrawer Drawer { get; } = drawer;
+        public Color Color { get; } = color;
+        public short Layer { get; } = layer;
+        public Vector2 SortingOrigin { get; } = sortingOrigin;
+    }
+
     public int ReferencePixelsPerUnit { get; set; } = 100;
     public int PixelsPerUnit { get; set; } = 100;
     public float PixelsPerUnitScale => (float)ReferencePixelsPerUnit / PixelsPerUnit;
@@ -40,12 +49,12 @@ public class Graphics : DrawableGameComponent
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
 
-    private Dictionary<TransformSpace, List<IDrawer>> DrawersBySpace { get; }
+    private Dictionary<TransformSpace, List<DrawRequest>> DrawerRequestsBySpace { get; }
 
     public Graphics(Game game) : base(game)
     {
         GraphicsDeviceManager = new GraphicsDeviceManager(game);
-        DrawersBySpace = [];
+        DrawerRequestsBySpace = [];
         CreateDrawerSpaces();
     }
 
@@ -70,6 +79,11 @@ public class Graphics : DrawableGameComponent
     {
         base.Draw(gameTime);
         DrawCamera();
+    }
+
+    public void Draw(ITransform transform, IDrawer drawer, Color color, short layer, Vector2 sortingOrigin = default)
+    {
+        DrawerRequestsBySpace[transform.Space].Add(new DrawRequest(Transform.Copy(transform), drawer, color, layer, sortingOrigin));
     }
 
     public Vector2 ScreenToViewVector(Vector2 screenVector)
@@ -113,75 +127,25 @@ public class Graphics : DrawableGameComponent
         return (normalized * ViewSize) + offset + ViewSize * 0.5f;
     }
 
-    private Vector2 WorldToViewVector(Vector2 worldVector)
+    public Vector2 WorldToViewVector(Vector2 worldVector)
     {
         return worldVector * PixelsPerUnit;
-    }
-
-    public void DrawSprite(Sprite sprite, ITransform transform, Color color, SpriteEffects effects, short layer, Vector2 sortingOrigin = default)
-    {
-        if (sprite == null)
-        {
-            return;
-        }
-
-        Draw(transform.Space, new TextureDrawer
-        {
-            Texture = sprite.Texture,
-            Transform = transform,
-            SourceRectangle = sprite.Rectangle,
-            Color = color,
-            Origin = sprite.Origin,
-            SortingOrigin = sortingOrigin,
-            Effects = effects,
-            Layer = layer,
-        });
-    }
-
-    public void DrawText(SpriteFont font, string text, ITransform transform, Color color, SpriteEffects effects, short layer, Vector2 sortingOrigin = default)
-    {
-        Draw(transform.Space, new TextDrawer
-        {
-            Text = text,
-            Font = font,
-            Transform = transform,
-            Color = color,
-            SortingOrigin = sortingOrigin,
-            Effects = effects,
-            Layer = layer
-        });
-    }
-
-    public void DrawRectangle(ITransform transform, Color color, short layer, Vector2 sortingOrigin = default)
-    {
-        Draw(transform.Space, new RectangleDrawer
-        {
-            Transform = transform,
-            Color = color,
-            Layer = layer,
-            SortingOrigin = sortingOrigin
-        });
     }
 
     private void CreateDrawerSpaces()
     {
         foreach (TransformSpace space in Enum.GetValues(typeof(TransformSpace)))
         {
-            DrawersBySpace.Add(space, new List<IDrawer>());
+            DrawerRequestsBySpace.Add(space, []);
         }
     }
 
     private void ClearDrawers()
     {
-        foreach (List<IDrawer> drawers in DrawersBySpace.Values)
+        foreach (List<DrawRequest> drawerRequests in DrawerRequestsBySpace.Values)
         {
-            drawers.Clear();
+            drawerRequests.Clear();
         }
-    }
-
-    private void Draw(TransformSpace space, IDrawer drawer)
-    {
-        DrawersBySpace[space].Add(drawer);
     }
 
     private void DrawCamera()
@@ -228,28 +192,27 @@ public class Graphics : DrawableGameComponent
         short layerDrawIndex = 0;
         short lastDrawLayer = 0;
 
-        foreach (IDrawer drawer in DrawersBySpace[TransformSpace.World])
+        foreach (DrawRequest drawRequest in DrawerRequestsBySpace[TransformSpace.World])
         {
-            if (drawer.Layer != lastDrawLayer)
+            if (drawRequest.Layer != lastDrawLayer)
             {
                 layerDrawIndex = 0;
-                lastDrawLayer = drawer.Layer;
+                lastDrawLayer = drawRequest.Layer;
             }
 
-            ITransform transform = drawer.Transform;
-            RectangleF bounds = transform.Bounds;
+            Transform transform = drawRequest.Transform;
 
-            Vector2 sortingPosition = bounds.Position + drawer.SortingOrigin;
+            Vector2 sortingPosition = transform.Position + drawRequest.SortingOrigin;
             Vector2 screenPosition = WorldToScreenVector(sortingPosition);
             Vector2 sortingScreenPosition = Vector2.Multiply(SortingAxis, Vector2.Divide(screenPosition, WindowSize));
 
-            int packedLayerDepth = (drawer.Layer << 16) | ((int)(sortingScreenPosition.Length() * 15) & 0xF) << 12 | (layerDrawIndex & 0xF) << 8;
+            int packedLayerDepth = (drawRequest.Layer << 16) | ((int)(sortingScreenPosition.Length() * 15) & 0xF) << 12 | (layerDrawIndex & 0xF) << 8;
             float layerDepth = ((float)packedLayerDepth - int.MinValue) / ((float)int.MaxValue - int.MinValue); ;
 
-            bounds.Position = WorldToViewVector(bounds.Position);
-            bounds.Size = WorldToViewVector(bounds.Size);
+            transform.Position = WorldToViewVector(transform.Position);
+            transform.Size = WorldToViewVector(transform.Size);
 
-            drawer.Draw(SpriteBatch, bounds, layerDepth);
+            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, layerDepth);
             layerDrawIndex++;
         }
 
@@ -267,12 +230,11 @@ public class Graphics : DrawableGameComponent
 
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix);
 
-        foreach (IDrawer drawer in DrawersBySpace[TransformSpace.Screen])
+        foreach (DrawRequest drawRequest in DrawerRequestsBySpace[TransformSpace.Screen])
         {
-            ITransform transform = drawer.Transform;
-            RectangleF bounds = transform.Bounds;
-            bounds.Position += Vector2.Multiply(transform.Root.AnchorPosition, ActiveCamera.Resolution / PixelsPerUnitScale) * 0.5f;
-            drawer.Draw(SpriteBatch, bounds, CalculateLayerDepth(drawer.Layer));
+            Transform transform = drawRequest.Transform;
+            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(transform.Root.Anchor), ActiveCamera.Resolution / PixelsPerUnitScale) * 0.5f;
+            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer));
         }
 
         SpriteBatch.End();

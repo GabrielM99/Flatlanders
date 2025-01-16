@@ -2,7 +2,6 @@ using System;
 using Flatlanders.Application.Databases;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
-using Flatlanders.Core.Prefabs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -45,9 +44,6 @@ public class Player : Component
 
         Rigidbody = Entity.AddComponent<Rigidbody>();
         Animator = Entity.AddComponent<Animator>();
-
-        AnimationDatabase animationDatabase = Engine.DatabaseManager.GetDatabase<AnimationDatabase>();
-        Animator.PlayAnimation(animationDatabase.PlayerIdle, this);
 
         SpriteDatabase spriteDatabase = Engine.DatabaseManager.GetDatabase<SpriteDatabase>();
 
@@ -93,6 +89,9 @@ public class Player : Component
 
         RendererGroup = Entity.AddComponent<RendererGroup>();
         RendererGroup.AddRenderers(HairSpriteRenderer, EyebrowsSpriteRenderer, EyesBackSpriteRenderer, EyesSpriteRenderer, HeadSpriteRenderer, ChestSpriteRenderer, LegsSpriteRenderer, FeetSpriteRenderer, LeftHandSpriteRenderer, RightHandSpriteRenderer);
+
+        AnimationDatabase animationDatabase = Engine.DatabaseManager.GetDatabase<AnimationDatabase>();
+        Animator.PlayAnimation(animationDatabase.PlayerIdle, this);
     }
 
     public override void OnUpdate(float deltaTime)
@@ -131,8 +130,6 @@ public class Player : Component
             RendererGroup.Effects = direction.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
         }
 
-        Console.WriteLine(RightHandSpriteRenderer.Entity.Node.Position);
-
         MouseState mouseState = Mouse.GetState();
         Vector2 mousePosition = mouseState.Position.ToVector2();
         Vector2 worldMousePosition = Engine.Graphics.ScreenToWorldVector(mousePosition);
@@ -146,7 +143,7 @@ public class Player : Component
         {
             tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
         }
-
+        
         Rigidbody.Velocity = direction * 5f;
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended;
 
 namespace Flatlanders.Core.Components;
 
@@ -12,14 +11,8 @@ public class Node : Component, ITransform, ISizable
     public event Action<Node> ChildrenSizeChanged;
 
     private Node _parent;
-
-    private static Vector2[] AnchorPositions { get; } =
-    [
-        new(-1f, -1f),  new(0f, -1f),   new(1f, -1f),
-        new(-1f, 0f),   new(0f, 0f),    new(1f, 0f),
-        new(-1f, 1f),   new(0f, 1f),    new(1f, 1f)
-    ];
-
+    
+    // TODO: Perhaps move these to Layout.cs?
     private Vector2 _minSize;
     public Vector2 MinSize
     {
@@ -50,22 +43,8 @@ public class Node : Component, ITransform, ISizable
     }
 
     // TODO: Check if setting a size is really supported.
-    public Vector2 Size { get; set; }
-
-    public RectangleF Bounds
-    {
-        get
-        {
-            Vector2 size = Size;
-
-            if (Space == TransformSpace.World)
-            {
-                size = Engine.Graphics.ViewToWorldVector(size);
-            }
-
-            return new(Position + Vector2.Multiply(-Pivot, size * 0.5f) - size * 0.5f, size);
-        }
-    }
+    public Vector2 LocalSize { get; set; }
+    public Vector2 Size { get => Space == TransformSpace.World ? Engine.Graphics.ViewToWorldVector(LocalSize) : LocalSize; set => LocalSize = value - (Parent == null ? Vector2.Zero : Parent.Size); }
 
     public Node Parent
     {
@@ -88,22 +67,21 @@ public class Node : Component, ITransform, ISizable
     public TransformSpace Space { get; set; } = TransformSpace.World;
 
     public TransformAnchor Anchor { get; set; } = TransformAnchor.Center;
-    public Vector2 AnchorPosition => GetAnchorPosition(Anchor);
 
     public Vector2 Pivot { get; set; }
 
     public Vector2 LocalPosition { get; set; }
     public Vector2 Position
     {
-        get => Parent == null ? LocalPosition : Vector2.Multiply(LocalPosition, Parent.Scale) + Parent.Bounds.Center + Vector2.Multiply(AnchorPosition, Parent.Bounds.Size * 0.5f);
-        set => LocalPosition = value - (Parent == null ? Vector2.Zero : Parent.Position);
+        get => Vector2.Multiply(-Pivot, Size * 0.5f) + (Parent == null ? LocalPosition : Vector2.Multiply(LocalPosition, Parent.Scale) + Parent.Position + Vector2.Multiply(ITransform.GetAnchorPosition(Anchor), Parent.Size * 0.5f));
+        set => LocalPosition = Parent == null ? value : value - Parent.Position;
     }
 
     public float LocalRotation { get; set; }
     public float Rotation
     {
         get => Parent == null ? LocalRotation : LocalRotation * Parent.Scale.X + Parent.Rotation;
-        set => LocalRotation = value - (Parent == null ? 0f : Parent.Rotation);
+        set => LocalRotation = Parent == null ? value : value - Parent.Rotation;
     }
 
     public Vector2 LocalScale { get; set; } = Vector2.One;
@@ -134,16 +112,11 @@ public class Node : Component, ITransform, ISizable
 
     public Node(Entity entity) : base(entity)
     {
-        Children = new List<Node>();
-        SizableComponents = new List<ISizable>();
+        Children = [];
+        SizableComponents = [];
         Root = this;
         // Nodes will always recalculate their sizes upon start.
         IsRecalculateSizePending = true;
-    }
-
-    private static Vector2 GetAnchorPosition(TransformAnchor anchor)
-    {
-        return AnchorPositions[(int)anchor];
     }
 
     public override void OnCreate()

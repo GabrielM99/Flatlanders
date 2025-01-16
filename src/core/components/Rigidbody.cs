@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Collisions;
 
@@ -9,7 +10,7 @@ public class Rigidbody : Component
     
     private readonly CollisionEventArgs[] _collisionBuffer;
     
-    public override int Order => 1;
+    public override int Order => ComponentOrder.Physics;
 
     public Vector2 Velocity { get; set; }
 
@@ -29,7 +30,7 @@ public class Rigidbody : Component
     public override void OnUpdate(float deltaTime)
     {
         base.OnUpdate(deltaTime);
-
+        
         if (Velocity == Vector2.Zero)
         {
             return;

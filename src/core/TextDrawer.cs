@@ -1,23 +1,13 @@
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 
 namespace Flatlanders.Core;
 
-public struct TextDrawer : IDrawer
+public readonly struct TextDrawer(string text, SpriteFont font, SpriteEffects effects) : IDrawer
 {
-    public string Text { get; set; }
-    public SpriteFont Font { get; set; }
-    public ITransform Transform { get; set; }
-    public Color Color { get; set; }
-    public Vector2 Origin { get; set; }
-    public Vector2 SortingOrigin { get; set; }
-    public SpriteEffects Effects { get; set; }
-    public short Layer { get; set; }
-
-    public readonly void Draw(SpriteBatch spriteBatch, RectangleF bounds, float layerDepth)
+    public readonly void Draw(SpriteBatch spriteBatch, ITransform transform, Color color, float layerDepth)
     {
-        spriteBatch.DrawString(Font, Text, bounds.Position, Color, Transform.Rotation, Origin, Transform.Scale, Effects, layerDepth);
+        spriteBatch.DrawString(font, text, transform.Position - transform.Size * 0.5f, color, transform.Rotation, Vector2.Zero, transform.Scale, effects, layerDepth);
     }
 }
