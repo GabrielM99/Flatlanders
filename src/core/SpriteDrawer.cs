@@ -14,18 +14,18 @@ public readonly struct SpriteDrawer(Sprite sprite, SpriteEffects effects) : IDra
             return;
         }
 
-        SpriteEffects newEffects = effects;
+        SpriteEffects scaledEffects = effects;
 
-        if (transform.Scale.X < 0)
+        if (transform.Scale.X < 0f)
         {
-            newEffects ^= SpriteEffects.FlipHorizontally;
+            scaledEffects ^= SpriteEffects.FlipHorizontally;
         }
 
-        if (transform.Scale.Y < 0)
+        if (transform.Scale.Y < 0f)
         {
-            newEffects ^= SpriteEffects.FlipVertically;
+            scaledEffects ^= SpriteEffects.FlipVertically;
         }
 
-        spriteBatch.Draw(sprite.Texture, transform.Position, sprite.Rectangle, color, transform.Rotation, sprite.Origin + sprite.Rectangle.Size.ToVector2() * 0.5f, new Vector2(Math.Abs(transform.Scale.X), Math.Abs(transform.Scale.Y)), newEffects, layerDepth);
+        spriteBatch.Draw(sprite.Texture, transform.Position, sprite.Rectangle, color, transform.Rotation, sprite.Origin + sprite.Rectangle.Size.ToVector2() * 0.5f, new Vector2(Math.Abs(transform.Scale.X), Math.Abs(transform.Scale.Y)), scaledEffects, layerDepth);
     }
 }

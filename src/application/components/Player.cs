@@ -1,4 +1,5 @@
 using System;
+using Flatlanders.Application.Animations;
 using Flatlanders.Application.Databases;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
@@ -8,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Flatlanders.Application.Components;
 
-public class Player : Component
+public class Player(Entity entity) : Component(entity)
 {
     public Tilemap tilemap;
     public Tile rockTile;
@@ -29,14 +30,19 @@ public class Player : Component
     private Rigidbody Rigidbody { get; set; }
     private Animator Animator { get; set; }
 
-    public Player(Entity entity) : base(entity)
-    {
-    }
+    private PlayerIdleAnimation PlayerIdleAnimation { get; set; }
+    private PlayerWalkAnimation PlayerWalkAnimation { get; set; }
+    private PlayerBlinkAnimation PlayerBlinkAnimation { get; set; }
+    
+    private Random Random { get; set; }
 
     public override void OnCreate()
     {
         base.OnCreate();
-
+        
+        // TODO: Static randomness.
+        Random = new Random();
+        
         // TODO: Order shouldn't matter here.
         RectangleCollider playerCollider = Entity.AddComponent<RectangleCollider>();
         playerCollider.Size = new Vector2(0.25f);
@@ -49,7 +55,10 @@ public class Player : Component
 
         Color skinColor = new(0.933333337f, 0.847058833f, 0.7019608f);
 
-        HeadSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        Entity graphicsEntity = Entity.CreateChild();
+        graphicsEntity.Node.LocalPosition = -Vector2.UnitY * 0.0625f * 8f;
+
+        HeadSpriteRenderer = graphicsEntity.CreateChild().AddComponent<SpriteRenderer>();
         HeadSpriteRenderer.Color = skinColor;
 
         EyebrowsSpriteRenderer = HeadSpriteRenderer.Entity.CreateChild().AddComponent<SpriteRenderer>();
@@ -67,22 +76,22 @@ public class Player : Component
         HairSpriteRenderer.Color = new Color(0.34117648f, 0.2784314f, 0.141176462f);
         HairSpriteRenderer.Layer = 1;
 
-        ChestSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        ChestSpriteRenderer = graphicsEntity.CreateChild().AddComponent<SpriteRenderer>();
         ChestSpriteRenderer.Color = new Color(0.807843149f, 0.572549045f, 0.282352984f);
         ChestSpriteRenderer.Layer = 1;
 
-        LegsSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        LegsSpriteRenderer = graphicsEntity.CreateChild().AddComponent<SpriteRenderer>();
         LegsSpriteRenderer.Color = new Color(0.3019608f, 0.207843155f, 0.2f);
 
-        FeetSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        FeetSpriteRenderer = graphicsEntity.CreateChild().AddComponent<SpriteRenderer>();
         FeetSpriteRenderer.Color = new Color(0.129411772f, 0.129411772f, 0.129411772f);
 
-        LeftHandSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        LeftHandSpriteRenderer = graphicsEntity.CreateChild().AddComponent<SpriteRenderer>();
         LeftHandSpriteRenderer.Sprite = spriteDatabase.Hand;
         LeftHandSpriteRenderer.Layer = 2;
-        LeftHandSpriteRenderer.Color = Color.Pink;
+        LeftHandSpriteRenderer.Color = skinColor;
 
-        RightHandSpriteRenderer = Entity.CreateChild().AddComponent<SpriteRenderer>();
+        RightHandSpriteRenderer = graphicsEntity.CreateChild().AddComponent<SpriteRenderer>();
         RightHandSpriteRenderer.Sprite = spriteDatabase.Hand;
         RightHandSpriteRenderer.Layer = -1;
         RightHandSpriteRenderer.Color = skinColor;
@@ -91,7 +100,9 @@ public class Player : Component
         RendererGroup.AddRenderers(HairSpriteRenderer, EyebrowsSpriteRenderer, EyesBackSpriteRenderer, EyesSpriteRenderer, HeadSpriteRenderer, ChestSpriteRenderer, LegsSpriteRenderer, FeetSpriteRenderer, LeftHandSpriteRenderer, RightHandSpriteRenderer);
 
         AnimationDatabase animationDatabase = Engine.DatabaseManager.GetDatabase<AnimationDatabase>();
-        Animator.PlayAnimation(animationDatabase.PlayerIdle, this);
+        PlayerIdleAnimation = animationDatabase.PlayerIdle;
+        PlayerWalkAnimation = animationDatabase.PlayerWalk;
+        PlayerBlinkAnimation = animationDatabase.PlayerBlink;
     }
 
     public override void OnUpdate(float deltaTime)
@@ -124,15 +135,29 @@ public class Player : Component
             direction.X += 1;
         }
 
-        if (direction.X != 0f)
+        if (direction == Vector2.Zero)
         {
-            Entity.Node.Scale = new Vector2(direction.X, 1f);
-            RendererGroup.Effects = direction.X < 0 ? SpriteEffects.FlipHorizontally : SpriteEffects.None;
+            Animator.PlayAnimation(PlayerIdleAnimation, this);
+        }
+        else
+        {
+            Animator.PlayAnimation(PlayerWalkAnimation, this);
+        }
+        
+        if(Random.NextSingle() <= 0.01f)
+        {
+            Animator.PlayAnimation(PlayerBlinkAnimation, this, 1);
         }
 
         MouseState mouseState = Mouse.GetState();
         Vector2 mousePosition = mouseState.Position.ToVector2();
         Vector2 worldMousePosition = Engine.Graphics.ScreenToWorldVector(mousePosition);
+        Vector2 worldMouseDirection = Vector2.Normalize(worldMousePosition - Entity.Node.Position);
+
+        if (worldMouseDirection.X != 0f && !float.IsNaN(worldMouseDirection.X))
+        {
+            Entity.Node.Scale = new Vector2(Math.Sign(worldMouseDirection.X), 1f);
+        }
 
         if (mouseState.LeftButton == ButtonState.Pressed)
         {
@@ -143,7 +168,7 @@ public class Player : Component
         {
             tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
         }
-        
-        Rigidbody.Velocity = direction * 5f;
+
+        Rigidbody.Velocity = direction * 3f;
     }
 }

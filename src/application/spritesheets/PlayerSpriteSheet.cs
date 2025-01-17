@@ -17,14 +17,13 @@ public class PlayerSpriteSheet : SpriteSheet
 
     public PlayerSpriteSheet(Texture2D texture) : base(texture)
     {
-        Vector2 offset = new(0, 8);
-        HeadSprite = Slice(0, 0, 16, 16, offset);
-        EyesBackSprite = Slice(0, 16, 16, 16, offset);
-        EyesSprite = Slice(16, 16, 16, 16, offset);
-        EyebrowsSprite = Slice(32, 16, 16, 16, offset);
-        ChestSprites = Slice(0, 32, 64, 16, 4, 1, offset);
-        LegsSprites = Slice(0, 48, 80, 16, 5, 1, offset);
-        FeetSprites = Slice(0, 64, 80, 16, 5, 1, offset);
-        HairSprite = Slice(0, 80, 16, 16, offset);
+        HeadSprite = Slice(0, 0, 16, 16);
+        EyesBackSprite = Slice(0, 16, 16, 16);
+        EyesSprite = Slice(16, 16, 16, 16);
+        EyebrowsSprite = Slice(16 * 2, 16, 16, 16);
+        ChestSprites = Slice(0, 16 * 2, 16 * 4, 16, 4, 1);
+        LegsSprites = Slice(0, 16 * 3, 16 * 5, 16, 5, 1);
+        FeetSprites = Slice(0, 16 * 4, 16 * 5, 16, 5, 1);
+        HairSprite = Slice(0, 16 * 5, 16, 16);
     }
 }

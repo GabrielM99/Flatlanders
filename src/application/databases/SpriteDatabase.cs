@@ -10,6 +10,6 @@ public class SpriteDatabase : Database<Sprite>
 
     protected override void OnLoad(Engine engine)
     {
-        Register(0, Hand = new Sprite(engine.Content.Load<Texture2D>("Hand"), null, new Vector2(0, 8)));
+        Register(0, Hand = new Sprite(engine.Content.Load<Texture2D>("Hand")));
     }
 }

@@ -57,13 +57,13 @@ public class Graphics : DrawableGameComponent
         DrawerRequestsBySpace = [];
         CreateDrawerSpaces();
     }
-
+    
     private static float CalculateLayerDepth(sbyte renderLayer, sbyte sortingLayer, sbyte orderLayer)
     {
         // The last 8 bits [0..7] have no effect, thus are never used.
         int packedLayerDepth = renderLayer << 24 | sortingLayer << 16 | orderLayer << 8;
         // Remaps into [0..1] range.
-        return ((float)packedLayerDepth - int.MinValue) / ((float)int.MaxValue - int.MinValue);
+        return GameMath.Remap(packedLayerDepth, int.MinValue, int.MaxValue, 0f, 1f);
     }
 
     protected override void LoadContent()
@@ -219,11 +219,6 @@ public class Graphics : DrawableGameComponent
         }
 
         SpriteBatch.End();
-    }
-
-    public static float Remap(float value, float oldMin, float oldMax, float newMin, float newMax)
-    {
-        return (value - oldMin) * (newMax - newMin) / (oldMax - oldMin) + newMin;
     }
 
     private void DrawScreenSpace()

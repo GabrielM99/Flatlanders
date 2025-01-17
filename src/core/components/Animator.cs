@@ -51,6 +51,15 @@ public class Animator : Component
 
             if (RuntimeAnimation == null || animation != RuntimeAnimation.Animation)
             {
+                // TODO: Blend between animations.
+                if (RuntimeAnimation != null)
+                {
+                    foreach (RuntimeAnimationProperty property in RuntimeAnimation.GetProperties())
+                    {
+                        property.Evaluate(0);
+                    }
+                }
+
                 RuntimeAnimation = new(animation);
                 animation.Bind(RuntimeAnimation, obj);
                 Reset();

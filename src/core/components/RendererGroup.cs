@@ -9,7 +9,6 @@ public class RendererGroup : Component
     public override int Order => ComponentOrder.Graphics;
 
     public sbyte Layer { get; set; }
-    public SpriteEffects Effects { get; set; }
 
     private SortedDictionary<int, HashSet<Renderer>> RenderersByLayer { get; }
 

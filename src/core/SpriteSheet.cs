@@ -30,7 +30,7 @@ public class SpriteSheet
         {
             for (int i = 0; i < width; i += spriteWidth)
             {
-                sprites[index] = Slice(x, y, spriteWidth, spriteHeight, origin);
+                sprites[index] = Slice(x + i, y + j, spriteWidth, spriteHeight, origin);
                 index++;
             }
         }
