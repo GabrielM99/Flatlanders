@@ -135,7 +135,7 @@ public class Player(Entity entity) : Component(entity)
             direction.X += 1;
         }
 
-        if (direction == Vector2.Zero)
+        if (Rigidbody.Velocity == Vector2.Zero)
         {
             Animator.PlayAnimation(PlayerIdleAnimation, this, 0.1f);
         }
