@@ -10,6 +10,11 @@ public class Animator : Component
         public RuntimeAnimation RuntimeAnimation { get; private set; }
         public float Time { get; private set; }
 
+        private RuntimeAnimation NextRuntimeAnimation { get; set; }
+
+        private float? TransitionDuration { get; set; }
+        private float TransitionTime { get; set; }
+
         public void OnUpdate(float deltaTime)
         {
             if (RuntimeAnimation == null)
@@ -17,14 +22,38 @@ public class Animator : Component
                 return;
             }
 
-            int currentFrameIndex = (int)(RuntimeAnimation.Animation.FrameRate * Time);
+            int frameIndex = (int)(RuntimeAnimation.Animation.FrameRate * Time);
+
+            if (TransitionDuration != null)
+            {
+                if (TransitionTime < TransitionDuration)
+                {
+                    TransitionTime = Math.Clamp(TransitionTime + deltaTime, 0f, TransitionDuration.Value);
+
+                    float t = TransitionTime / TransitionDuration.Value;
+
+                    foreach (RuntimeAnimationProperty property in RuntimeAnimation.GetProperties())
+                    {
+                        property.OnEvaluateTransition(frameIndex, t);
+                    }
+                }
+                else
+                {
+                    Reset();
+                    RuntimeAnimation = NextRuntimeAnimation;
+                    TransitionDuration = null;
+                    TransitionTime = 0f;
+                }
+                
+                return;
+            }
 
             foreach (RuntimeAnimationProperty property in RuntimeAnimation.GetProperties())
             {
-                property.Evaluate(currentFrameIndex);
+                property.OnEvaluateFrame(frameIndex);
             }
 
-            if (currentFrameIndex >= RuntimeAnimation.Animation.Frames)
+            if (frameIndex >= RuntimeAnimation.Animation.Frames)
             {
                 if (RuntimeAnimation.Animation.IsLoopable)
                 {
@@ -41,28 +70,32 @@ public class Animator : Component
             }
         }
 
-        public void PlayAnimation<T>(Animation<T> animation, T obj)
+        public void PlayAnimation<T>(Animation<T> animation, T obj, float transitionDuration = 0f)
         {
             if (animation == null)
             {
+                TransitionDuration = null;
+                TransitionTime = 0f;
                 Clear();
                 return;
             }
 
-            if (RuntimeAnimation == null || animation != RuntimeAnimation.Animation)
+            if (RuntimeAnimation == null || (animation != RuntimeAnimation.Animation && (NextRuntimeAnimation == null || NextRuntimeAnimation.Animation != animation)))
             {
-                // TODO: Blend between animations.
-                if (RuntimeAnimation != null)
-                {
-                    foreach (RuntimeAnimationProperty property in RuntimeAnimation.GetProperties())
-                    {
-                        property.Evaluate(0);
-                    }
-                }
+                RuntimeAnimation runtimeAnimation = new(animation);
+                animation.Bind(runtimeAnimation, obj);
 
-                RuntimeAnimation = new(animation);
-                animation.Bind(RuntimeAnimation, obj);
-                Reset();
+                if (RuntimeAnimation != null && transitionDuration > 0f)
+                {
+                    TransitionDuration = transitionDuration;
+                    TransitionTime = 0f;
+                    NextRuntimeAnimation = runtimeAnimation;
+                }
+                else
+                {
+                    RuntimeAnimation = runtimeAnimation;
+                    Reset();
+                }
             }
         }
 
@@ -95,7 +128,7 @@ public class Animator : Component
         }
     }
 
-    public void PlayAnimation<T>(Animation<T> animation, T obj, int layerIndex = 0)
+    public void PlayAnimation<T>(Animation<T> animation, T obj, float transitionDuration = 0f, int layerIndex = 0)
     {
         if (!LayerByIndex.TryGetValue(layerIndex, out AnimatorLayer layer))
         {
@@ -103,6 +136,6 @@ public class Animator : Component
             LayerByIndex[layerIndex] = layer;
         }
 
-        layer.PlayAnimation(animation, obj);
+        layer.PlayAnimation(animation, obj, transitionDuration);
     }
 }

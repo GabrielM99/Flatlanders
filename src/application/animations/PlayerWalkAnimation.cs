@@ -30,7 +30,7 @@ public class PlayerWalkAnimation : Animation<Player>
     private AnimationProperty<float> LeftHandLocalRotation { get; }
 
     private AnimationProperty<Vector2> RightHandLocalPosition { get; }
-    private AnimationProperty<float> RightHandLocalRotation { get; }
+    private AnimationProperty<float> RightHandLocalRotation { get; }    
 
     public PlayerWalkAnimation(Engine engine) : base(engine)
     {

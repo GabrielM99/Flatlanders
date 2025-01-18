@@ -4,29 +4,34 @@ namespace Flatlanders.Core;
 
 public abstract class RuntimeAnimationProperty
 {
-    private int _lastKeyframeIndex;
+    private int _keyframeIndex;
 
-    public abstract void OnEvaluate(ref int lastKeyframeIndex, int currentFrameIndex);
+    public abstract void OnEvaluateFrame(ref int keyframeIndex, int frameIndex);
+    public abstract void OnEvaluateTransition(int keyframeIndex, int frameIndex, float t);
 
-    public void Evaluate(int currentFrameIndex)
+    public void OnEvaluateFrame(int frameIndex)
     {
-        OnEvaluate(ref _lastKeyframeIndex, currentFrameIndex);
+        OnEvaluateFrame(ref _keyframeIndex, frameIndex);
+    }
+
+    public void OnEvaluateTransition(int frameIndex, float t)
+    {
+        OnEvaluateTransition(_keyframeIndex, frameIndex, t);
     }
 }
 
-public class RuntimeAnimationProperty<T> : RuntimeAnimationProperty
+public class RuntimeAnimationProperty<T>(AnimationProperty<T> property, Action<T> valueChanged) : RuntimeAnimationProperty
 {
-    private AnimationProperty<T> Property { get; }
-    private Action<T> ValueChanged { get; }
+    private AnimationProperty<T> Property { get; } = property;
+    private Action<T> ValueChanged { get; } = valueChanged;
 
-    public RuntimeAnimationProperty(AnimationProperty<T> property, Action<T> valueChanged)
+    public override void OnEvaluateFrame(ref int keyframeIndex, int frameIndex)
     {
-        Property = property;
-        ValueChanged = valueChanged;
+        ValueChanged?.Invoke(Property.EvaluateFrame(ref keyframeIndex, frameIndex));
     }
 
-    public override void OnEvaluate(ref int lastKeyframeIndex, int currentFrameIndex)
+    public override void OnEvaluateTransition(int keyframeIndex, int frameIndex, float t)
     {
-        ValueChanged?.Invoke(Property.Evaluate(ref lastKeyframeIndex, currentFrameIndex));
+        ValueChanged?.Invoke(Property.EvaluateTransition(keyframeIndex, frameIndex, t));
     }
 }

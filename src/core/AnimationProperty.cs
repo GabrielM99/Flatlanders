@@ -3,26 +3,17 @@ using System.Collections.Generic;
 
 namespace Flatlanders.Core;
 
-public class AnimationProperty<T> : IAnimationProperty
+public class AnimationProperty<T>
 {
-    private class AnimationKeyframe
+    private class AnimationKeyframe(int index, T value, AnimationInterpolator<T> interpolator = null)
     {
-        public int Index { get; }
-        public T Value { get; }
-        public AnimationInterpolator<T> Interpolator { get; }
+        public int Index { get; } = index;
+        public T Value { get; } = value;
+        public AnimationInterpolator<T> Interpolator { get; } = interpolator;
 
         public AnimationKeyframe Next { get; set; }
         public AnimationKeyframe Previous { get; set; }
-
-        public AnimationKeyframe(int index, T value, AnimationInterpolator<T> interpolator = null)
-        {
-            Index = index;
-            Value = value;
-            Interpolator = interpolator;
-        }
     }
-
-    public int Frames { get; private set; }
 
     private SortedDictionary<int, AnimationKeyframe> KeyframeByIndex { get; }
     private Animation Animation { get; }
@@ -31,39 +22,61 @@ public class AnimationProperty<T> : IAnimationProperty
     public AnimationProperty(Animation animation)
     {
         Animation = animation;
-        KeyframeByIndex = new SortedDictionary<int, AnimationKeyframe>();
+        KeyframeByIndex = [];
         DefaultInterpolator = animation.GetDefaultInterpolator<T>();
     }
 
-    public T Evaluate(ref int lastKeyframeIndex, int currentFrameIndex)
+    public T EvaluateFrame(ref int keyframeIndex, int frameIndex)
     {
         if (KeyframeByIndex.Count == 0)
         {
             return default;
         }
 
-        if (KeyframeByIndex.TryGetValue(currentFrameIndex, out AnimationKeyframe currentKeyframe))
+        if (KeyframeByIndex.TryGetValue(frameIndex, out AnimationKeyframe keyframe))
         {
-            lastKeyframeIndex = currentFrameIndex;
+            keyframeIndex = frameIndex;
         }
         else
         {
-            currentKeyframe = KeyframeByIndex[lastKeyframeIndex];
+            keyframe = KeyframeByIndex[keyframeIndex];
         }
 
-        T lastKeyframeValue = KeyframeByIndex[lastKeyframeIndex].Value;
-        T currentFrameValue = currentKeyframe.Value;
+        T frameValue = keyframe.Value;
 
-        AnimationInterpolator<T> interpolator = currentKeyframe.Interpolator ?? DefaultInterpolator;
+        AnimationInterpolator<T> interpolator = keyframe.Interpolator ?? DefaultInterpolator;
 
         if (interpolator != null)
         {
-            AnimationKeyframe nextKeyframe = currentKeyframe.Next;
-            float t = nextKeyframe.Index - lastKeyframeIndex == 0f ? 0f : (float)(currentFrameIndex - lastKeyframeIndex) / Math.Abs(nextKeyframe.Index - lastKeyframeIndex);
-            currentFrameValue = interpolator.Invoke(lastKeyframeValue, nextKeyframe.Value, t);
+            AnimationKeyframe nextKeyframe = keyframe.Next;
+            float t = nextKeyframe.Index - keyframeIndex == 0f ? 0f : (float)(frameIndex - keyframeIndex) / Math.Abs(nextKeyframe.Index - keyframeIndex);
+            frameValue = interpolator.Invoke(KeyframeByIndex[keyframeIndex].Value, nextKeyframe.Value, t);
         }
 
-        return currentFrameValue;
+        return frameValue;
+    }
+
+    public T EvaluateTransition(int keyframeIndex, int frameIndex, float t)
+    {
+        if (KeyframeByIndex.Count == 0)
+        {
+            return default;
+        }
+
+        AnimationKeyframe endKeyframe = KeyframeByIndex[Animation.Frames];
+
+        if (KeyframeByIndex.TryGetValue(keyframeIndex, out AnimationKeyframe keyframe))
+        {
+            AnimationInterpolator<T> interpolator = keyframe.Interpolator ?? DefaultInterpolator;
+
+            if (interpolator != null)
+            {
+                T frameValue = interpolator.Invoke(keyframe.Value, keyframe.Next.Value, (float)(frameIndex - keyframeIndex) / Math.Abs(keyframe.Next.Index - keyframeIndex));
+                return interpolator.Invoke(frameValue, endKeyframe.Value, t);
+            }
+        }
+
+        return endKeyframe.Value;
     }
 
     public void SetKeyframe(int index, T value, AnimationInterpolator<T> interpolator = null)
@@ -76,8 +89,6 @@ public class AnimationProperty<T> : IAnimationProperty
             LinkFrame(frame);
         }
 
-        Frames = Math.Max(index, Frames);
-        
         // Ensures a start and end keyframe always exist.
         if (index == 0 && !KeyframeByIndex.ContainsKey(Animation.Frames))
         {

@@ -12,7 +12,7 @@ public class RuntimeAnimation
     public RuntimeAnimation(Animation animation)
     {
         Animation = animation;
-        Properties = new List<RuntimeAnimationProperty>();
+        Properties = [];
     }
 
     public void BindProperty<T>(AnimationProperty<T> property, Action<T> valueChanged)

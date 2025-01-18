@@ -137,16 +137,16 @@ public class Player(Entity entity) : Component(entity)
 
         if (direction == Vector2.Zero)
         {
-            Animator.PlayAnimation(PlayerIdleAnimation, this);
+            Animator.PlayAnimation(PlayerIdleAnimation, this, 0.1f);
         }
         else
         {
-            Animator.PlayAnimation(PlayerWalkAnimation, this);
+            Animator.PlayAnimation(PlayerWalkAnimation, this, 0.1f);
         }
         
         if(Random.NextSingle() <= 0.01f)
         {
-            Animator.PlayAnimation(PlayerBlinkAnimation, this, 1);
+            Animator.PlayAnimation(PlayerBlinkAnimation, this, 0.1f, 1);
         }
 
         MouseState mouseState = Mouse.GetState();
