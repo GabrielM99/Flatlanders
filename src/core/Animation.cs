@@ -11,6 +11,8 @@ public abstract class Animation
     public virtual int FrameRate { get; } = 30;
     public virtual bool IsLoopable { get; } = true;
 
+    public float Duration => (float)Frames / FrameRate;
+
     public Engine Engine { get; }
 
     private Dictionary<Type, object> InterpolatorByType { get; }

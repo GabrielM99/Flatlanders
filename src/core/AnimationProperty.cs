@@ -26,16 +26,16 @@ public class AnimationProperty<T>
         DefaultInterpolator = animation.GetDefaultInterpolator<T>();
     }
 
-    public T EvaluateFrame(ref int keyframeIndex, int frameIndex)
+    public T EvaluateFrame(ref int keyframeIndex, int frame)
     {
         if (KeyframeByIndex.Count == 0)
         {
             return default;
         }
 
-        if (KeyframeByIndex.TryGetValue(frameIndex, out AnimationKeyframe keyframe))
+        if (KeyframeByIndex.TryGetValue(frame, out AnimationKeyframe keyframe))
         {
-            keyframeIndex = frameIndex;
+            keyframeIndex = frame;
         }
         else
         {
@@ -49,14 +49,14 @@ public class AnimationProperty<T>
         if (interpolator != null)
         {
             AnimationKeyframe nextKeyframe = keyframe.Next;
-            float t = nextKeyframe.Index - keyframeIndex == 0f ? 0f : (float)(frameIndex - keyframeIndex) / Math.Abs(nextKeyframe.Index - keyframeIndex);
+            float t = nextKeyframe.Index - keyframeIndex == 0f ? 0f : (float)(frame - keyframeIndex) / Math.Abs(nextKeyframe.Index - keyframeIndex);
             frameValue = interpolator.Invoke(KeyframeByIndex[keyframeIndex].Value, nextKeyframe.Value, t);
         }
 
         return frameValue;
     }
 
-    public T EvaluateTransition(int keyframeIndex, int frameIndex, float t)
+    public T EvaluateBlend(int keyframeIndex, int frame, float t)
     {
         if (KeyframeByIndex.Count == 0)
         {
@@ -71,7 +71,7 @@ public class AnimationProperty<T>
 
             if (interpolator != null)
             {
-                T frameValue = interpolator.Invoke(keyframe.Value, keyframe.Next.Value, (float)(frameIndex - keyframeIndex) / Math.Abs(keyframe.Next.Index - keyframeIndex));
+                T frameValue = interpolator.Invoke(keyframe.Value, keyframe.Next.Value, (float)(frame - keyframeIndex) / Math.Abs(keyframe.Next.Index - keyframeIndex));
                 return interpolator.Invoke(frameValue, endKeyframe.Value, t);
             }
         }

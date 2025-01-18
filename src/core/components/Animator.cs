@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Flatlanders.Core.Components;
@@ -7,13 +6,8 @@ public class Animator : Component
 {
     private class AnimatorLayer
     {
-        public RuntimeAnimation RuntimeAnimation { get; private set; }
-        public float Time { get; private set; }
-
-        private RuntimeAnimation NextRuntimeAnimation { get; set; }
-
-        private float? TransitionDuration { get; set; }
-        private float TransitionTime { get; set; }
+        private RuntimeAnimation RuntimeAnimation { get; set; }
+        private AnimationBlend AnimationBlend { get; set; }
 
         public void OnUpdate(float deltaTime)
         {
@@ -22,92 +16,55 @@ public class Animator : Component
                 return;
             }
 
-            int frameIndex = (int)(RuntimeAnimation.Animation.FrameRate * Time);
-
-            if (TransitionDuration != null)
+            if (AnimationBlend != null)
             {
-                if (TransitionTime < TransitionDuration)
-                {
-                    TransitionTime = Math.Clamp(TransitionTime + deltaTime, 0f, TransitionDuration.Value);
+                AnimationBlend.OnUpdate(deltaTime);
 
-                    float t = TransitionTime / TransitionDuration.Value;
-
-                    foreach (RuntimeAnimationProperty property in RuntimeAnimation.GetProperties())
-                    {
-                        property.OnEvaluateTransition(frameIndex, t);
-                    }
-                }
-                else
+                if (AnimationBlend.NormalizedTime >= 1f)
                 {
-                    Reset();
-                    RuntimeAnimation = NextRuntimeAnimation;
-                    TransitionDuration = null;
-                    TransitionTime = 0f;
+                    RuntimeAnimation = AnimationBlend.EndRuntimeAnimation;
+                    AnimationBlend = null;
                 }
-                
+
                 return;
             }
 
-            foreach (RuntimeAnimationProperty property in RuntimeAnimation.GetProperties())
-            {
-                property.OnEvaluateFrame(frameIndex);
-            }
+            RuntimeAnimation.OnUpdate(deltaTime);
 
-            if (frameIndex >= RuntimeAnimation.Animation.Frames)
+            if (RuntimeAnimation.NormalizedTime >= 1f && !RuntimeAnimation.Animation.IsLoopable)
             {
-                if (RuntimeAnimation.Animation.IsLoopable)
-                {
-                    Reset();
-                }
-                else
-                {
-                    Clear();
-                }
-            }
-            else
-            {
-                Time += deltaTime;
+                Clear();
             }
         }
 
-        public void PlayAnimation<T>(Animation<T> animation, T obj, float transitionDuration = 0f)
+        public void PlayAnimation<T>(Animation<T> animation, T obj, float blendTime = 0f)
         {
             if (animation == null)
             {
-                TransitionDuration = null;
-                TransitionTime = 0f;
                 Clear();
                 return;
             }
 
-            if (RuntimeAnimation == null || (animation != RuntimeAnimation.Animation && (NextRuntimeAnimation == null || NextRuntimeAnimation.Animation != animation)))
+            if (RuntimeAnimation == null || (animation != RuntimeAnimation.Animation && (AnimationBlend == null || AnimationBlend.EndRuntimeAnimation.Animation != animation)))
             {
-                RuntimeAnimation runtimeAnimation = new(animation);
-                animation.Bind(runtimeAnimation, obj);
+                RuntimeAnimation newRuntimeAnimation = new(animation);
+                animation.Bind(newRuntimeAnimation, obj);
 
-                if (RuntimeAnimation != null && transitionDuration > 0f)
+                if (RuntimeAnimation != null && blendTime > 0f)
                 {
-                    TransitionDuration = transitionDuration;
-                    TransitionTime = 0f;
-                    NextRuntimeAnimation = runtimeAnimation;
+                    AnimationBlend = new AnimationBlend(RuntimeAnimation, newRuntimeAnimation, blendTime);
                 }
                 else
                 {
-                    RuntimeAnimation = runtimeAnimation;
-                    Reset();
+                    RuntimeAnimation = newRuntimeAnimation;
                 }
             }
-        }
-
-        private void Reset()
-        {
-            Time = 0f;
         }
 
         private void Clear()
         {
             RuntimeAnimation = null;
-            Reset();
+            AnimationBlend = null;
         }
     }
 
