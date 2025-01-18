@@ -16,12 +16,6 @@ public class TilemapRenderer : Renderer
     {
     }
 
-    public override void OnCreate()
-    {
-        base.OnCreate();
-        Tilemap ??= Entity.GetComponent<Tilemap>();
-    }
-
     public override void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default)
     {
         if (Tilemap != null)

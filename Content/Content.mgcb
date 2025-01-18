@@ -39,6 +39,24 @@
 /processorParam:TextureFormat=Compressed
 /build:DogicaPixel.spritefont
 
+#begin ForestDay.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:ForestDay.wav
+
+#begin GrassFootstep1.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:GrassFootstep1.wav
+
+#begin GrassFootstep2.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:GrassFootstep2.wav
+
 #begin Hand.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -5,16 +5,13 @@ using Flatlanders.Application.Databases;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Application.Scenes;
 
-public class WorldScene : Scene
+public class WorldScene(Engine engine) : Scene(engine)
 {
-    public WorldScene(Engine engine) : base(engine)
-    {
-    }
-
     public override void Load()
     {
         base.Load();
@@ -22,15 +19,20 @@ public class WorldScene : Scene
         PrefabDatabase prefabDatabase = Engine.DatabaseManager.GetDatabase<PrefabDatabase>();
 
         Entity cameraEntity = Engine.EntityManager.CreateEntity();
+        AudioPlayer ambientAudioPlayer = cameraEntity.AddComponent<AudioPlayer>();
+        ambientAudioPlayer.Loop = true;
+        ambientAudioPlayer.Play(Engine.Content.Load<SoundEffect>("ForestDay"));
         Camera camera = Engine.Graphics.ActiveCamera = cameraEntity.AddComponent<Camera>();
         PlayerCamera playerCamera = cameraEntity.AddComponent<PlayerCamera>();
         camera.BackgroundColor = new Color(54, 197, 244);
 
         Entity tilemapEntity = Engine.EntityManager.CreateEntity();
-        Tilemap tilemap = tilemapEntity.AddComponent<Tilemap>();
+        Tilemap tilemap = new();
         TilemapRenderer tilemapRenderer = tilemapEntity.AddComponent<TilemapRenderer>();
+        tilemapRenderer.Tilemap = tilemap;
         tilemapRenderer.Layer = -1;
-        tilemapEntity.AddComponent<TilemapCollider>();
+        TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
+        tilemapCollider.Tilemap = tilemap;
 
         Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)), false);
         Tile rockTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16)));
@@ -38,10 +40,10 @@ public class WorldScene : Scene
         Vector2 worldSize = new(32, 32);
 
         Random random = new();
-        
+
         int seed = random.Next();
         Console.WriteLine($"Generating world with seed {seed}.");
-        
+
         Random tileRandom = new(seed);
 
         for (int x = -(int)(worldSize.X / 2); x < worldSize.X / 2; x++)

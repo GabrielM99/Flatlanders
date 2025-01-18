@@ -4,6 +4,7 @@ using Flatlanders.Application.Databases;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -29,20 +30,23 @@ public class Player(Entity entity) : Component(entity)
 
     private Rigidbody Rigidbody { get; set; }
     private Animator Animator { get; set; }
+    private AudioPlayer AudioPlayer { get; set; }
 
     private PlayerIdleAnimation PlayerIdleAnimation { get; set; }
     private PlayerWalkAnimation PlayerWalkAnimation { get; set; }
     private PlayerBlinkAnimation PlayerBlinkAnimation { get; set; }
-    
+
+    private SoundEffect FootstepAudio { get; set; }
+
     private Random Random { get; set; }
 
     public override void OnCreate()
     {
         base.OnCreate();
-        
+
         // TODO: Static randomness.
         Random = new Random();
-        
+
         // TODO: Order shouldn't matter here.
         RectangleCollider playerCollider = Entity.AddComponent<RectangleCollider>();
         playerCollider.Size = new Vector2(0.25f);
@@ -50,6 +54,9 @@ public class Player(Entity entity) : Component(entity)
 
         Rigidbody = Entity.AddComponent<Rigidbody>();
         Animator = Entity.AddComponent<Animator>();
+        AudioPlayer = Entity.AddComponent<AudioPlayer>();
+
+        FootstepAudio = Engine.Content.Load<SoundEffect>("GrassFootstep1");
 
         SpriteDatabase spriteDatabase = Engine.DatabaseManager.GetDatabase<SpriteDatabase>();
 
@@ -143,8 +150,8 @@ public class Player(Entity entity) : Component(entity)
         {
             Animator.PlayAnimation(PlayerWalkAnimation, this, 0.1f);
         }
-        
-        if(Random.NextSingle() <= 0.01f)
+
+        if (Random.NextSingle() <= 0.01f)
         {
             Animator.PlayAnimation(PlayerBlinkAnimation, this, 0.1f, 1);
         }
@@ -170,5 +177,10 @@ public class Player(Entity entity) : Component(entity)
         }
 
         Rigidbody.Velocity = direction * 3f;
+    }
+
+    public void PlayFootstepAudio()
+    {
+        AudioPlayer.Play(FootstepAudio);
     }
 }

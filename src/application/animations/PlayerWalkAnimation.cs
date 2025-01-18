@@ -30,7 +30,7 @@ public class PlayerWalkAnimation : Animation<Player>
     private AnimationProperty<float> LeftHandLocalRotation { get; }
 
     private AnimationProperty<Vector2> RightHandLocalPosition { get; }
-    private AnimationProperty<float> RightHandLocalRotation { get; }    
+    private AnimationProperty<float> RightHandLocalRotation { get; }
 
     public PlayerWalkAnimation(Engine engine) : base(engine)
     {
@@ -106,6 +106,9 @@ public class PlayerWalkAnimation : Animation<Player>
 
     public override void Bind(RuntimeAnimation runtimeAnimation, Player obj)
     {
+        runtimeAnimation.BindEvent(8, obj.PlayFootstepAudio);
+        runtimeAnimation.BindEvent(24, obj.PlayFootstepAudio);
+
         runtimeAnimation.BindProperty(HeadSprite, (value) => obj.HeadSpriteRenderer.Sprite = value);
         runtimeAnimation.BindProperty(HeadLocalPosition, (value) => obj.HeadSpriteRenderer.Entity.Node.LocalPosition = value);
 

@@ -55,13 +55,7 @@ public class TilemapCollider : Component
 
     public TilemapCollider(Entity entity) : base(entity)
     {
-        TileColliderByPosition = new Dictionary<Vector3, TileCollider>();
-    }
-
-    public override void OnCreate()
-    {
-        base.OnCreate();
-        Tilemap ??= Entity.GetComponent<Tilemap>();
+        TileColliderByPosition = [];
     }
 
     public void AddTileCollider(Vector3 position)

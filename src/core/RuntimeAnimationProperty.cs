@@ -4,19 +4,19 @@ namespace Flatlanders.Core;
 
 public abstract class RuntimeAnimationProperty
 {
-    private int _keyframeIndex;
+    private int _key;
 
-    public abstract void OnEvaluateFrame(ref int keyframeIndex, int frame);
-    public abstract void OnEvaluateBlend(int keyframeIndex, int frame, float t);
+    public abstract void OnEvaluateFrame(ref int key, int frame);
+    public abstract void OnEvaluateBlend(int key, int frame, float t);
 
     public void OnEvaluateFrame(int frame)
     {
-        OnEvaluateFrame(ref _keyframeIndex, frame);
+        OnEvaluateFrame(ref _key, frame);
     }
 
     public void OnEvaluateBlend(int frame, float t)
     {
-        OnEvaluateBlend(_keyframeIndex, frame, t);
+        OnEvaluateBlend(_key, frame, t);
     }
 }
 
@@ -25,13 +25,13 @@ public class RuntimeAnimationProperty<T>(AnimationProperty<T> property, Action<T
     private AnimationProperty<T> Property { get; } = property;
     private Action<T> ValueChanged { get; } = valueChanged;
 
-    public override void OnEvaluateFrame(ref int keyframeIndex, int frame)
+    public override void OnEvaluateFrame(ref int key, int frame)
     {
-        ValueChanged?.Invoke(Property.EvaluateFrame(ref keyframeIndex, frame));
+        ValueChanged?.Invoke(Property.EvaluateFrame(ref key, frame));
     }
 
-    public override void OnEvaluateBlend(int keyframeIndex, int frame, float t)
+    public override void OnEvaluateBlend(int key, int frame, float t)
     {
-        ValueChanged?.Invoke(Property.EvaluateBlend(keyframeIndex, frame, t));
+        ValueChanged?.Invoke(Property.EvaluateBlend(key, frame, t));
     }
 }
