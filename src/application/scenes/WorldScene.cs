@@ -2,6 +2,7 @@ using System;
 using Flatlanders.Application.Animations;
 using Flatlanders.Application.Components;
 using Flatlanders.Application.Databases;
+using Flatlanders.Application.SpriteSheets;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
@@ -26,16 +27,61 @@ public class WorldScene(Engine engine) : Scene(engine)
         PlayerCamera playerCamera = cameraEntity.AddComponent<PlayerCamera>();
         camera.BackgroundColor = new Color(54, 197, 244);
 
+        Tilemap worldTilemap = new();
+        Tilemap viewTilemap = new();
+
+        worldTilemap.TileSetted += (tileInfo) =>
+        {
+            Tile tile = tileInfo.Tile ?? viewTilemap.GetTile(tileInfo.Position);
+
+            for (int x = 0; x <= 1; x++)
+            {
+                for (int y = 0; y <= 1; y++)
+                {
+                    Vector3 viewTilePosition = tileInfo.Position + new Vector3(x, y, 0);
+
+                    int mask = 0;
+
+                    for (int i = 0; i <= 1; i++)
+                    {
+                        for (int j = 0; j <= 1; j++)
+                        {
+                            int index = i + j * 2;
+
+                            Tile neighborTile = tileInfo.Tilemap.GetTile(viewTilePosition - new Vector3(i, j, 0));
+
+                            if (neighborTile == tile)
+                            {
+                                mask |= 1 << index;
+                            }
+                        }
+                    }
+
+                    if (mask == 0)
+                    {
+                        viewTilemap.SetTile(null, viewTilePosition);
+                    }
+                    else
+                    {
+                        viewTilemap.SetTile(tile, viewTilePosition, out TileInfo viewTileInfo);
+                        viewTileInfo.Sprite = tile.Sprites[mask];
+                    }
+                }
+            }
+        };
+
         Entity tilemapEntity = Engine.EntityManager.CreateEntity();
-        Tilemap tilemap = new();
         TilemapRenderer tilemapRenderer = tilemapEntity.AddComponent<TilemapRenderer>();
-        tilemapRenderer.Tilemap = tilemap;
+        tilemapRenderer.Entity.Node.LocalPosition -= Vector2.One * 0.5f;
+        tilemapRenderer.Tilemap = viewTilemap;
         tilemapRenderer.Layer = -1;
         TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
-        tilemapCollider.Tilemap = tilemap;
+        tilemapCollider.Tilemap = worldTilemap;
+
+        DualGridTileSpriteSheet testSpriteSheet = new(Engine.Content.Load<Texture2D>("DualTiles"));
 
         Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)), false);
-        Tile rockTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(16, 0, 16, 16)));
+        Tile rockTile = new(testSpriteSheet.Sprites);
 
         Vector2 worldSize = new(32, 32);
 
@@ -46,20 +92,20 @@ public class WorldScene(Engine engine) : Scene(engine)
 
         Random tileRandom = new(seed);
 
-        for (int x = -(int)(worldSize.X / 2); x < worldSize.X / 2; x++)
+        /*for (int x = -(int)(worldSize.X / 2); x < worldSize.X / 2; x++)
         {
             for (int y = -(int)(worldSize.Y / 2); y < worldSize.Y / 2; y++)
             {
                 if (tileRandom.NextSingle() <= 0.75f)
                 {
-                    tilemap.SetTile(grassTile, new Vector3(x, y, 0f));
+                    worldTilemap.SetTile(grassTile, new Vector3(x, y, 0f));
                 }
                 else
                 {
-                    tilemap.SetTile(rockTile, new Vector3(x, y, 0f));
+                    worldTilemap.SetTile(rockTile, new Vector3(x, y, 0f));
                 }
             }
-        }
+        }*/
 
         Entity debugTextEntity = Engine.EntityManager.CreateEntity();
         TextRenderer debugTextRenderer = debugTextEntity.AddComponent<TextRenderer>();
@@ -73,7 +119,7 @@ public class WorldScene(Engine engine) : Scene(engine)
 
         Entity playerEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Player, "Player");
         Player player = playerEntity.GetComponent<Player>();
-        player.tilemap = tilemap;
+        player.tilemap = worldTilemap;
         player.rockTile = rockTile;
         player.debugTextRenderer = debugTextRenderer;
 

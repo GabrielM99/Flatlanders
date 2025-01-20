@@ -9,6 +9,7 @@ public class AnimationProperty<T>
     {
         public int Index { get; } = index;
         public T Value { get; } = value;
+        
         public AnimationInterpolator<T> Interpolator { get; } = interpolator;
 
         public AnimationKeyframe Next { get; set; }
@@ -63,7 +64,7 @@ public class AnimationProperty<T>
             return default;
         }
 
-        AnimationKeyframe endKeyframe = KeyByFrame[Animation.Frames];
+        AnimationKeyframe endKeyframe = KeyByFrame[Animation.FrameCount];
 
         if (KeyByFrame.TryGetValue(key, out AnimationKeyframe keyframe))
         {
@@ -90,9 +91,9 @@ public class AnimationProperty<T>
         }
 
         // Ensures a start and end keyframe always exist.
-        if (index == 0 && !KeyByFrame.ContainsKey(Animation.Frames))
+        if (index == 0 && !KeyByFrame.ContainsKey(Animation.FrameCount))
         {
-            SetKeyframe(Animation.Frames, value);
+            SetKeyframe(Animation.FrameCount, value);
         }
         else if (index != 0 && !KeyByFrame.ContainsKey(0))
         {
@@ -105,7 +106,7 @@ public class AnimationProperty<T>
         int index = frame.Index;
 
         frame.Previous = KeyByFrame[0];
-        frame.Next = KeyByFrame.GetValueOrDefault(Animation.Frames);
+        frame.Next = KeyByFrame.GetValueOrDefault(Animation.FrameCount);
 
         foreach (AnimationKeyframe otherFrame in KeyByFrame.Values)
         {

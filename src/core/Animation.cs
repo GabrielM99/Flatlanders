@@ -6,12 +6,12 @@ namespace Flatlanders.Core;
 
 public abstract class Animation
 {
-    public abstract int Frames { get; }
+    public abstract int FrameCount { get; }
 
     public virtual int FrameRate { get; } = 30;
     public virtual bool IsLoopable { get; } = true;
 
-    public float Duration => (float)Frames / FrameRate;
+    public float Duration => (float)FrameCount / FrameRate;
 
     public Engine Engine { get; }
 

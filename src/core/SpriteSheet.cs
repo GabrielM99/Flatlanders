@@ -26,9 +26,9 @@ public class SpriteSheet
 
         int index = 0;
 
-        for (int j = 0; j < height; j += spriteHeight)
+        for (int i = 0; i < width; i += spriteWidth)
         {
-            for (int i = 0; i < width; i += spriteWidth)
+            for (int j = 0; j < height; j += spriteHeight)
             {
                 sprites[index] = Slice(x + i, y + j, spriteWidth, spriteHeight, origin);
                 index++;

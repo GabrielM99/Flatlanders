@@ -9,7 +9,7 @@ namespace Flatlanders.Application.Animations;
 
 public class PlayerBlinkAnimation : Animation<Player>
 {
-    public override int Frames => 8;
+    public override int FrameCount => 8;
     public override bool IsLoopable => false;
 
     private AnimationProperty<Vector2> EyebrowsLocalPosition { get; }

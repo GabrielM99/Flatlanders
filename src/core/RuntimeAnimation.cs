@@ -42,7 +42,7 @@ public class RuntimeAnimation
             }
         }
 
-        if (frame >= Animation.Frames)
+        if (frame >= Animation.FrameCount)
         {
             if (Animation.IsLoopable)
             {

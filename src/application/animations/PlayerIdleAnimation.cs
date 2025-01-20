@@ -8,7 +8,7 @@ namespace Flatlanders.Application.Animations;
 
 public class PlayerIdleAnimation : Animation<Player>
 {
-    public override int Frames => 48;
+    public override int FrameCount => 48;
 
     private AnimationProperty<Sprite> HairSprite { get; }
 

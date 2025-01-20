@@ -98,13 +98,13 @@ public class TilemapCollider : Component
         RemoveTileCollider(position);
     }
 
-    private void OnTilemapTileSetted(Tile tile, Vector3 position)
+    private void OnTilemapTileSetted(TileInfo tileInfo)
     {
-        UpdateTileCollider(position);
+        UpdateTileCollider(tileInfo.Position);
 
         foreach (Vector3 neighborOffset in TileNeighborOffsets)
         {
-            UpdateTileCollider(position + neighborOffset);
+            UpdateTileCollider(tileInfo.Position + neighborOffset);
         }
     }
 }

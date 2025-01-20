@@ -6,43 +6,66 @@ namespace Flatlanders.Core;
 
 public class Tilemap
 {
-    public event Action<Tile, Vector3> TileSetted;
+    public event Action<TileInfo> TileSetted;
 
-    private Dictionary<Vector3, Tile> TileByPosition { get; }
-    
+    private Dictionary<Vector3, TileInfo> TileInfoByPosition { get; }
+
     public Tilemap()
     {
-        TileByPosition = [];
+        TileInfoByPosition = [];
     }
-    
+
     public Tile GetTile(Vector3 position)
     {
-        return TileByPosition.GetValueOrDefault(position);
+        return TileInfoByPosition.GetValueOrDefault(position)?.Tile;
     }
 
     public void SetTile(Tile tile, Vector3 position)
+    {
+        SetTile(tile, position, out _);
+    }
+
+    public void SetTile(Tile tile, Vector3 position, out TileInfo tileInfo)
     {
         position = Vector3.Ceiling(position);
 
         if (tile == null)
         {
-            if (TileByPosition.Remove(position))
+            if (TileInfoByPosition.Remove(position, out tileInfo))
             {
-                TileSetted?.Invoke(tile, position);
+                tileInfo.OnRemove();
+                TileSetted?.Invoke(tileInfo);
+                Refresh(tileInfo);
             }
         }
         else
         {
-            if (!TileByPosition.TryGetValue(position, out Tile oldTile) || tile != oldTile)
+            if (!TileInfoByPosition.TryGetValue(position, out tileInfo) || tile != tileInfo.Tile)
             {
-                TileByPosition[position] = tile;
-                TileSetted?.Invoke(tile, position);
+                tileInfo = new(this, tile, position);
+                SetTileInfo(tileInfo);
+                TileSetted?.Invoke(tileInfo);
+                Refresh(tileInfo);
             }
         }
-
     }
 
-    public IEnumerable<KeyValuePair<Vector3, Tile>> GetTiles(Vector3 min, Vector3 max)
+    public TileInfo GetTileInfo(Vector3 position)
+    {
+        return TileInfoByPosition.GetValueOrDefault(position);
+    }
+
+    public void SetTileInfo(TileInfo tileInfo)
+    {
+        TileInfoByPosition[tileInfo.Position] = tileInfo;
+    }
+
+    public void Refresh(TileInfo tileInfo)
+    {
+        tileInfo.Tile?.OnRefresh(tileInfo);
+    }
+
+    public IEnumerable<TileInfo> GetTileInfos(Vector3 min, Vector3 max)
     {
         for (int x = (int)min.X; x <= max.X; x++)
         {
@@ -51,14 +74,9 @@ public class Tilemap
                 for (int z = (int)min.Z; z <= max.Z; z++)
                 {
                     Vector3 position = new(x, y, z);
-                    yield return new KeyValuePair<Vector3, Tile>(position, GetTile(position));
+                    yield return GetTileInfo(position);
                 }
             }
         }
-    }
-
-    public IEnumerable<KeyValuePair<Vector3, Tile>> GetTiles()
-    {
-        return TileByPosition;
     }
 }

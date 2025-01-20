@@ -7,6 +7,7 @@
     <File>E:/Documents/C#/Flatlanders/Content/Anti.png</File>
     <File>E:/Documents/C#/Flatlanders/Content/Arial.spritefont</File>
     <File>E:/Documents/C#/Flatlanders/Content/DogicaPixel.spritefont</File>
+    <File>E:/Documents/C#/Flatlanders/Content/DualTiles.png</File>
     <File>E:/Documents/C#/Flatlanders/Content/ForestDay.wav</File>
     <File>E:/Documents/C#/Flatlanders/Content/GrassFootstep1.wav</File>
     <File>E:/Documents/C#/Flatlanders/Content/GrassFootstep2.wav</File>
@@ -16,6 +17,7 @@
     <File>E:/Documents/C#/Flatlanders/Content/Tiles.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

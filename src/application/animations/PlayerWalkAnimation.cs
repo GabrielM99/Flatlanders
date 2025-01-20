@@ -9,7 +9,7 @@ namespace Flatlanders.Application.Animations;
 
 public class PlayerWalkAnimation : Animation<Player>
 {
-    public override int Frames => 30;
+    public override int FrameCount => 30;
 
     private AnimationProperty<Sprite> HairSprite { get; }
 
