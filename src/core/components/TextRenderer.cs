@@ -50,8 +50,8 @@ public class TextRenderer : Renderer, ISizable
         Font = Engine.Content.Load<SpriteFont>("Arial");
     }
 
-    public override void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default)
+    public override void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {
-        graphics.Draw(Entity.Node, new TextDrawer(Text, Font, Effects), Color, layer, sortingOrigin);
+        graphics.Draw(Entity.Node, new TextDrawer(Text, Font, Effects), Color, layer, sortingOrigin, order);
     }
 }

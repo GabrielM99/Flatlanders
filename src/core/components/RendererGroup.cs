@@ -73,12 +73,15 @@ public class RendererGroup : Component
     {
         base.OnUpdate(deltaTime);
 
+        sbyte order = 0;
+
         foreach (HashSet<Renderer> renderers in RenderersByLayer.Values)
         {
             foreach (Renderer renderer in renderers)
             {
                 Vector2 sortingOrigin = Entity.Node.Position - renderer.Entity.Node.Position;
-                renderer.Draw(Layer, sortingOrigin);
+                renderer.Draw(Layer, sortingOrigin, order);
+                order++;
             }
         }
     }

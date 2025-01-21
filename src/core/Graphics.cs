@@ -9,12 +9,13 @@ namespace Flatlanders.Core;
 
 public class Graphics : DrawableGameComponent
 {
-    private readonly struct DrawRequest(Transform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin)
+    private readonly struct DrawRequest(Transform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin, sbyte order)
     {
         public Transform Transform { get; } = transform;
         public IDrawer Drawer { get; } = drawer;
         public Color Color { get; } = color;
         public sbyte Layer { get; } = layer;
+        public sbyte Order { get; } = order;
         public Vector2 SortingOrigin { get; } = sortingOrigin;
     }
 
@@ -57,13 +58,13 @@ public class Graphics : DrawableGameComponent
         DrawerRequestsBySpace = [];
         CreateDrawerSpaces();
     }
-    
+
     private static float CalculateLayerDepth(sbyte renderLayer, sbyte sortingLayer, sbyte orderLayer)
     {
         // The last 8 bits [0..7] have no effect, thus are never used.
-        int packedLayerDepth = renderLayer << 24 | sortingLayer << 16 | orderLayer << 8;
+        int packedLayerDepth = renderLayer << 24 | ((byte)(sortingLayer + 128)) << 16 | ((byte)(orderLayer + 128)) << 8;
         // Remaps into [0..1] range.
-        return GameMath.Remap(packedLayerDepth, int.MinValue, int.MaxValue, 0f, 1f);
+        return (float)GameMath.Remap(packedLayerDepth, int.MinValue, int.MaxValue, 0f, 1f);
     }
 
     protected override void LoadContent()
@@ -84,9 +85,9 @@ public class Graphics : DrawableGameComponent
         DrawCamera();
     }
 
-    public void Draw(ITransform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin = default)
+    public void Draw(ITransform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {
-        DrawerRequestsBySpace[transform.Space].Add(new DrawRequest(Transform.Copy(transform), drawer, color, layer, sortingOrigin));
+        DrawerRequestsBySpace[transform.Space].Add(new DrawRequest(Transform.Copy(transform), drawer, color, layer, sortingOrigin, order));
     }
 
     public Vector2 ScreenToViewVector(Vector2 screenVector)
@@ -191,18 +192,8 @@ public class Graphics : DrawableGameComponent
 
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix, blendState: BlendState.AlphaBlend);
 
-        // This is used to maintain the order of consecutive draw calls in a layer.
-        sbyte orderLayer = 0;
-        sbyte lastLayer = 0;
-
         foreach (DrawRequest drawRequest in DrawerRequestsBySpace[TransformSpace.World])
         {
-            if (drawRequest.Layer != lastLayer)
-            {
-                orderLayer = 0;
-                lastLayer = drawRequest.Layer;
-            }
-
             Transform transform = drawRequest.Transform;
 
             Vector2 sortingPosition = transform.Position + drawRequest.SortingOrigin;
@@ -212,10 +203,9 @@ public class Graphics : DrawableGameComponent
             transform.Position = WorldToViewVector(transform.Position);
             transform.Size = WorldToViewVector(transform.Size);
 
-            sbyte sortingLayer = (sbyte)Math.Clamp(sortingScreenPosition.Length() * 127, sbyte.MinValue, sbyte.MaxValue);
+            sbyte sortingLayer = (sbyte)(Math.Clamp(sortingScreenPosition.Y, -1f, 1f) * 127);
 
-            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, sortingLayer, orderLayer));
-            orderLayer++;
+            drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, sortingLayer, drawRequest.Order));
         }
 
         SpriteBatch.End();

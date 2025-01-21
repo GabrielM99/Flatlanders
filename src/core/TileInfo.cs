@@ -8,6 +8,7 @@ public class TileInfo(Tilemap tilemap, Tile tile, Vector3 position)
     public Tile Tile { get; private set; } = tile;
     public Vector3 Position { get; } = position;
     public Sprite Sprite { get; set; }
+    public Vector2 SortingOrigin { get; set; }
 
     public void OnRemove()
     {

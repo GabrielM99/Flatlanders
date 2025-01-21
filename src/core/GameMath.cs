@@ -4,7 +4,7 @@ namespace Flatlanders.Core;
 
 public static class GameMath
 {
-    public static float Remap(float value, float oldMin, float oldMax, float newMin, float newMax)
+    public static double Remap(double value, double oldMin, double oldMax, double newMin, double newMax)
     {
         return (value - oldMin) * (newMax - newMin) / (oldMax - oldMin) + newMin;
     }

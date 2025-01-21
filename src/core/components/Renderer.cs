@@ -37,7 +37,7 @@ public abstract class Renderer(Entity entity) : Component(entity), ISizable
 
     public abstract Vector2 Size { get; }
 
-    public abstract void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default);
+    public abstract void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0);
 
     public override void OnUpdate(float deltaTime)
     {
@@ -49,8 +49,8 @@ public abstract class Renderer(Entity entity) : Component(entity), ISizable
         }
     }
 
-    public void Draw(sbyte layer, Vector2 sortingOrigin = default)
+    public void Draw(sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {
-        OnDraw(Engine.Graphics, layer, sortingOrigin);
+        OnDraw(Engine.Graphics, layer, sortingOrigin, order);
     }
 }

@@ -38,7 +38,8 @@ public class WorldScene(Engine engine) : Scene(engine)
             {
                 for (int y = 0; y <= 1; y++)
                 {
-                    Vector3 viewTilePosition = tileInfo.Position + new Vector3(x, y, 0);
+                    Vector3 viewTileOffset = new(x, y, 0);
+                    Vector3 viewTilePosition = tileInfo.Position + viewTileOffset;
 
                     int mask = 0;
 
@@ -65,6 +66,7 @@ public class WorldScene(Engine engine) : Scene(engine)
                     {
                         viewTilemap.SetTile(tile, viewTilePosition, out TileInfo viewTileInfo);
                         viewTileInfo.Sprite = tile.Sprites[mask];
+                        viewTileInfo.SortingOrigin = new Vector2(-viewTileOffset.X, -viewTileOffset.Y) - Vector2.One * 0.5f;
                     }
                 }
             }
@@ -74,7 +76,7 @@ public class WorldScene(Engine engine) : Scene(engine)
         TilemapRenderer tilemapRenderer = tilemapEntity.AddComponent<TilemapRenderer>();
         tilemapRenderer.Entity.Node.LocalPosition -= Vector2.One * 0.5f;
         tilemapRenderer.Tilemap = viewTilemap;
-        tilemapRenderer.Layer = -1;
+        tilemapRenderer.Layer = 0;
         TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
         tilemapCollider.Tilemap = worldTilemap;
 

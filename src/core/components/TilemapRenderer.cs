@@ -13,7 +13,7 @@ public class TilemapRenderer(Entity entity) : Renderer(entity)
 
     public Tilemap Tilemap { get; set; }
 
-    public override void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default)
+    public override void OnDraw(Graphics graphics, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {
         if (Tilemap != null)
         {
@@ -26,9 +26,9 @@ public class TilemapRenderer(Entity entity) : Renderer(entity)
             {
                 if (tileInfo != null)
                 {
-                    Sprite sprite = tileInfo.Sprite;
                     Transform transform = new() { Position = Entity.Node.Position + new Vector2(tileInfo.Position.X, tileInfo.Position.Y) };
-                    Engine.Graphics.Draw(transform, new SpriteDrawer(sprite, Effects), Color, layer);
+                    Sprite sprite = tileInfo.Sprite;
+                    Engine.Graphics.Draw(transform, new SpriteDrawer(sprite, Effects), Color, layer, sortingOrigin + tileInfo.SortingOrigin, order);
                 }
             }
         }
