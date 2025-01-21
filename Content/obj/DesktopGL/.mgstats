@@ -1,12 +1,14 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"E:/Documents/C#/Flatlanders/Content/Anti.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Anti.xnb","TextureProcessor","Texture2DContent",307,1493,0,115511
-"E:/Documents/C#/Flatlanders/Content/Arial.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Arial.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21538,0,0801852
-"E:/Documents/C#/Flatlanders/Content/DogicaPixel.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/DogicaPixel.xnb","FontDescriptionProcessor","SpriteFontContent",2066,21539,0,0514205
-"E:/Documents/C#/Flatlanders/Content/DualTiles.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/DualTiles.xnb","TextureProcessor","Texture2DContent",750,16469,0,0062957
-"E:/Documents/C#/Flatlanders/Content/ForestDay.wav","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/ForestDay.xnb","SoundEffectProcessor","SoundEffectContent",8013546,8013293,0,3779427
-"E:/Documents/C#/Flatlanders/Content/GrassFootstep1.wav","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/GrassFootstep1.xnb","SoundEffectProcessor","SoundEffectContent",51324,51385,0,1042567
-"E:/Documents/C#/Flatlanders/Content/GrassFootstep2.wav","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/GrassFootstep2.xnb","SoundEffectProcessor","SoundEffectContent",57644,57705,0,1130443
-"E:/Documents/C#/Flatlanders/Content/Hand.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Hand.xnb","TextureProcessor","Texture2DContent",110,1109,0,0017328
-"E:/Documents/C#/Flatlanders/Content/Player.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Player.xnb","TextureProcessor","Texture2DContent",580,30805,0,0059796
-"E:/Documents/C#/Flatlanders/Content/Slots.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Slots.xnb","TextureProcessor","Texture2DContent",246,1109,0,0020243
-"E:/Documents/C#/Flatlanders/Content/Tiles.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Tiles.xnb","TextureProcessor","Texture2DContent",385,65621,0,0026307
+"E:/Documents/C#/Flatlanders/Content/Anti.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Anti.xnb","TextureProcessor","Texture2DContent",307,1493,0,0798034
+"E:/Documents/C#/Flatlanders/Content/Arial.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Arial.xnb","FontDescriptionProcessor","SpriteFontContent",2068,21538,0,0634855
+"E:/Documents/C#/Flatlanders/Content/DogicaPixel.spritefont","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/DogicaPixel.xnb","FontDescriptionProcessor","SpriteFontContent",2066,21539,0,0096798
+"E:/Documents/C#/Flatlanders/Content/ForestDay.wav","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/ForestDay.xnb","SoundEffectProcessor","SoundEffectContent",8013546,8013293,0,1950822
+"E:/Documents/C#/Flatlanders/Content/Grass.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Grass.xnb","TextureProcessor","Texture2DContent",681,16469,0,0023373
+"E:/Documents/C#/Flatlanders/Content/GrassFootstep1.wav","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/GrassFootstep1.xnb","SoundEffectProcessor","SoundEffectContent",51324,51385,0,1043864
+"E:/Documents/C#/Flatlanders/Content/GrassFootstep2.wav","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/GrassFootstep2.xnb","SoundEffectProcessor","SoundEffectContent",57644,57705,0,1010742
+"E:/Documents/C#/Flatlanders/Content/Hand.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Hand.xnb","TextureProcessor","Texture2DContent",110,1109,0,0014649
+"E:/Documents/C#/Flatlanders/Content/Player.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Player.xnb","TextureProcessor","Texture2DContent",580,30805,0,0066355
+"E:/Documents/C#/Flatlanders/Content/Rock.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Rock.xnb","TextureProcessor","Texture2DContent",1751,16469,0,0024255
+"E:/Documents/C#/Flatlanders/Content/Rock2.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Rock2.xnb","TextureProcessor","Texture2DContent",794,16469,0,002059
+"E:/Documents/C#/Flatlanders/Content/Slots.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Slots.xnb","TextureProcessor","Texture2DContent",246,1109,0,0013725
+"E:/Documents/C#/Flatlanders/Content/Tiles.png","E:/Documents/C#/Flatlanders/Content/bin/DesktopGL/Tiles.xnb","TextureProcessor","Texture2DContent",385,65621,0,0050276

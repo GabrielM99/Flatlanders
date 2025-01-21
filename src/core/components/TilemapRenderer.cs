@@ -28,7 +28,7 @@ public class TilemapRenderer(Entity entity) : Renderer(entity)
                 {
                     Transform transform = new() { Position = Entity.Node.Position + new Vector2(tileInfo.Position.X, tileInfo.Position.Y) };
                     Sprite sprite = tileInfo.Sprite;
-                    Engine.Graphics.Draw(transform, new SpriteDrawer(sprite, Effects), Color, layer, sortingOrigin + tileInfo.SortingOrigin, order);
+                    Engine.Graphics.Draw(transform, new SpriteDrawer(sprite, Effects), Color, (sbyte)(layer + tileInfo.Position.Z), sortingOrigin + tileInfo.SortingOrigin, order);
                 }
             }
         }

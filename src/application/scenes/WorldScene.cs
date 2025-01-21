@@ -66,7 +66,7 @@ public class WorldScene(Engine engine) : Scene(engine)
                     {
                         viewTilemap.SetTile(tile, viewTilePosition, out TileInfo viewTileInfo);
                         viewTileInfo.Sprite = tile.Sprites[mask];
-                        viewTileInfo.SortingOrigin = new Vector2(-viewTileOffset.X, -viewTileOffset.Y) - Vector2.One * 0.5f;
+                        viewTileInfo.SortingOrigin = Vector2.UnitY * 0.25f;
                     }
                 }
             }
@@ -80,10 +80,11 @@ public class WorldScene(Engine engine) : Scene(engine)
         TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
         tilemapCollider.Tilemap = worldTilemap;
 
-        DualGridTileSpriteSheet testSpriteSheet = new(Engine.Content.Load<Texture2D>("DualTiles"));
+        DualGridTileSpriteSheet rockSpriteSheet = new(Engine.Content.Load<Texture2D>("Rock2"));
+        DualGridTileSpriteSheet grassSpriteSheet = new(Engine.Content.Load<Texture2D>("Grass"));
 
-        Tile grassTile = new(new Sprite(Engine.Content.Load<Texture2D>("Tiles"), new Rectangle(0, 0, 16, 16)), false);
-        Tile rockTile = new(testSpriteSheet.Sprites);
+        Tile grassTile = new(grassSpriteSheet.Sprites, false);
+        Tile rockTile = new(rockSpriteSheet.Sprites);
 
         Vector2 worldSize = new(32, 32);
 
@@ -94,20 +95,18 @@ public class WorldScene(Engine engine) : Scene(engine)
 
         Random tileRandom = new(seed);
 
-        /*for (int x = -(int)(worldSize.X / 2); x < worldSize.X / 2; x++)
+        for (int x = -(int)(worldSize.X / 2); x < worldSize.X / 2; x++)
         {
             for (int y = -(int)(worldSize.Y / 2); y < worldSize.Y / 2; y++)
             {
-                if (tileRandom.NextSingle() <= 0.75f)
-                {
-                    worldTilemap.SetTile(grassTile, new Vector3(x, y, 0f));
-                }
-                else
+                worldTilemap.SetTile(grassTile, new Vector3(x, y, -1f));
+                
+                if (tileRandom.NextSingle() > 0.75f)
                 {
                     worldTilemap.SetTile(rockTile, new Vector3(x, y, 0f));
                 }
             }
-        }*/
+        }
 
         Entity debugTextEntity = Engine.EntityManager.CreateEntity();
         TextRenderer debugTextRenderer = debugTextEntity.AddComponent<TextRenderer>();

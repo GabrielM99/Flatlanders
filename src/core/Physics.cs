@@ -50,7 +50,7 @@ namespace Flatlanders.Core
             {
                 foreach (ICollisionActor actor in firstLayer.Space)
                 {
-                    Engine.Graphics.Draw(new Transform() { Position = actor.Bounds.Position, Size = actor.Bounds.BoundingRectangle.Size }, new RectangleDrawer(1f), Color.Red, 100);
+                    // Engine.Graphics.Draw(new Transform() { Position = actor.Bounds.Position, Size = actor.Bounds.BoundingRectangle.Size }, new RectangleDrawer(1f), Color.Red, 100);
                 }
             }
         }
