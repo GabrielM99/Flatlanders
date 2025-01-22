@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Flatlanders.Core.Animations;
 
 namespace Flatlanders.Core.Components;
 

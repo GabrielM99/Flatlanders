@@ -1,8 +1,6 @@
-using System;
 using Flatlanders.Application.Components;
-using Flatlanders.Application.Databases;
-using Flatlanders.Application.SpriteSheets;
 using Flatlanders.Core;
+using Flatlanders.Core.Animations;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Application.Animations;

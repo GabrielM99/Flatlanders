@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace Flatlanders.Core;
+namespace Flatlanders.Core.Animations;
 
 public abstract class Animation
 {

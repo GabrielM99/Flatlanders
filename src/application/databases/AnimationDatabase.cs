@@ -1,5 +1,6 @@
 using Flatlanders.Application.Animations;
 using Flatlanders.Core;
+using Flatlanders.Core.Animations;
 
 namespace Flatlanders.Application.Databases;
 

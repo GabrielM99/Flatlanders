@@ -1,6 +1,6 @@
 using System;
 
-namespace Flatlanders.Core;
+namespace Flatlanders.Core.Animations;
 
 public abstract class RuntimeAnimationProperty
 {

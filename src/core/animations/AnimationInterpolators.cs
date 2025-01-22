@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace Flatlanders.Core;
+namespace Flatlanders.Core.Animations;
 
 public static partial class AnimationInterpolators
 {

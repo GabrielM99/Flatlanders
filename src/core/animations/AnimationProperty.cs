@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Flatlanders.Core;
+namespace Flatlanders.Core.Animations;
 
 public class AnimationProperty<T>
 {

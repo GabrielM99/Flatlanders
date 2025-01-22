@@ -1,6 +1,6 @@
 using System;
 
-namespace Flatlanders.Core.Components;
+namespace Flatlanders.Core.Animations;
 
 public class AnimationBlend(RuntimeAnimation startRuntimeAnimation, RuntimeAnimation endRuntimeAnimation, float duration)
 {
