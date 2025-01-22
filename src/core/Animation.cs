@@ -20,7 +20,7 @@ public abstract class Animation
     public Animation(Engine engine)
     {
         Engine = engine;
-        InterpolatorByType = new Dictionary<Type, object>();
+        InterpolatorByType = [];
 
         AddDefaultInterpolator<int>(AnimationInterpolators.Linear);
         AddDefaultInterpolator<float>(AnimationInterpolators.Linear);
@@ -39,11 +39,7 @@ public abstract class Animation
     }
 }
 
-public abstract class Animation<T> : Animation
+public abstract class Animation<T>(Engine engine) : Animation(engine)
 {
-    protected Animation(Engine engine) : base(engine)
-    {
-    }
-
     public abstract void Bind(RuntimeAnimation runtimeAnimation, T obj);
 }

@@ -16,9 +16,6 @@ public class PlayerBlinkAnimation : Animation<Player>
 
     public PlayerBlinkAnimation(Engine engine) : base(engine)
     {
-        SpriteSheetDatabase spriteSheetDatabase = engine.DatabaseManager.GetDatabase<SpriteSheetDatabase>();
-        PlayerSpriteSheet playerSpriteSheet = spriteSheetDatabase.Player;
-
         EyebrowsLocalPosition = new AnimationProperty<Vector2>(this);
         EyebrowsLocalPosition.SetKeyframe(0, Vector2.Zero);
         EyebrowsLocalPosition.SetKeyframe(4, Vector2.UnitY * 0.0625f);

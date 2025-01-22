@@ -5,7 +5,6 @@ using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Flatlanders.Application.Components;
@@ -48,7 +47,8 @@ public class Player(Entity entity) : Component(entity)
         Random = new Random();
 
         PointLight light = Entity.AddComponent<PointLight>();
-        light.Range = 5f;
+        light.Range = 10f;
+        light.ShadowMode = LightShadowMode.Solid;
 
         // TODO: Order shouldn't matter here.
         RectangleCollider playerCollider = Entity.AddComponent<RectangleCollider>();
