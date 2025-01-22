@@ -7,7 +7,7 @@ using Penumbra;
 
 namespace Flatlanders.Core;
 
-public class Graphics : DrawableGameComponent
+public partial class Graphics : DrawableGameComponent
 {
     private readonly struct DrawRequest(Transform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin, sbyte order)
     {
@@ -56,31 +56,11 @@ public class Graphics : DrawableGameComponent
 
     private Engine Engine { get; }
 
-    Light light = new PointLight
-    {
-        Scale = new Vector2(8f), // Range of the light source (how far the light will travel)
-        ShadowType = ShadowType.Illuminated // Will not lit hulls themselves
-    };
-
-    public void AddLight(Light light)
-    {
-        light.Scale *= PixelsPerUnit * PixelsPerUnitScale;
-        Lighting.Lights.Add(light);
-    }
-
-    public void AddHull(Hull hull)
-    {
-        hull.Position *= PixelsPerUnit * PixelsPerUnitScale;
-        hull.Scale *= PixelsPerUnit * PixelsPerUnitScale;
-        Lighting.Hulls.Add(hull);
-    }
-
     public Graphics(Engine engine) : base(engine)
     {
         Engine = engine;
         GraphicsDeviceManager = new GraphicsDeviceManager(engine);
         Lighting = new PenumbraComponent(engine);
-        AddLight(light);
         DrawerRequestsBySpace = [];
         CreateDrawerSpaces();
     }
@@ -111,12 +91,9 @@ public class Graphics : DrawableGameComponent
         ClearDrawers();
     }
 
-    static GameTime GameTime;
-
     public override void Draw(GameTime gameTime)
     {
-        GameTime = gameTime;
-        DrawCamera();
+        DrawCamera(gameTime);
         base.Draw(gameTime);
     }
 
@@ -171,6 +148,28 @@ public class Graphics : DrawableGameComponent
         return worldVector * PixelsPerUnit;
     }
 
+    public void AddLight(Light light)
+    {
+        Lighting.Lights.Add(light.Data);
+    }
+
+    public void RemoveLight(Light light)
+    {
+        Lighting.Lights.Remove(light.Data);
+    }
+
+    public LightOccluder CreateLightOccluder(Vector2 position, params Vector2[] points)
+    {
+        LightOccluder lightOccluder = new(Engine, position, points);
+        Lighting.Hulls.Add(lightOccluder.Data);
+        return lightOccluder;
+    }
+
+    public void DestroyLightOccluder(LightOccluder lightOccluder)
+    {
+        Lighting.Hulls.Remove(lightOccluder.Data);
+    }
+
     private void CreateDrawerSpaces()
     {
         foreach (TransformSpace space in Enum.GetValues(typeof(TransformSpace)))
@@ -187,7 +186,7 @@ public class Graphics : DrawableGameComponent
         }
     }
 
-    private void DrawCamera()
+    private void DrawCamera(GameTime gameTime)
     {
         if (ActiveCamera == null)
         {
@@ -195,10 +194,10 @@ public class Graphics : DrawableGameComponent
             return;
         }
 
-        DrawView();
+        DrawView(gameTime);
     }
 
-    private void DrawView()
+    private void DrawView(GameTime gameTime)
     {
         RenderTarget2D worldRenderTarget = ActiveCamera.GetRenderTarget(TransformSpace.World);
         RenderTarget2D screenRenderTarget = ActiveCamera.GetRenderTarget(TransformSpace.Screen);
@@ -219,7 +218,6 @@ public class Graphics : DrawableGameComponent
         GraphicsDevice.Clear(Color.Black);
 
         Vector2 cameraPosition = ActiveCamera.Entity.Node.Position;
-        light.Position = cameraPosition * (PixelsPerUnit * PixelsPerUnitScale);
         Matrix penumbraTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X * (PixelsPerUnit * PixelsPerUnitScale), -cameraPosition.Y * (PixelsPerUnit * PixelsPerUnitScale), 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
 
         Lighting.Transform = penumbraTransformMatrix;
@@ -231,7 +229,7 @@ public class Graphics : DrawableGameComponent
         SpriteBatch.Draw(worldRenderTarget, viewRectangle, Color.White);
         SpriteBatch.End();
 
-        Lighting.Draw(GameTime);
+        Lighting.Draw(gameTime);
 
         SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default);
         SpriteBatch.Draw(screenRenderTarget, viewRectangle, Color.White);

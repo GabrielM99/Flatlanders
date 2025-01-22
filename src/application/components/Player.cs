@@ -47,6 +47,9 @@ public class Player(Entity entity) : Component(entity)
         // TODO: Static randomness.
         Random = new Random();
 
+        PointLight light = Entity.AddComponent<PointLight>();
+        light.Range = 5f;
+
         // TODO: Order shouldn't matter here.
         RectangleCollider playerCollider = Entity.AddComponent<RectangleCollider>();
         playerCollider.Size = new Vector2(0.25f);

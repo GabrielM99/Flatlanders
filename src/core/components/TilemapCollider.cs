@@ -65,14 +65,7 @@ public class TilemapCollider : Component
             TileCollider collider = new(position);
             TileColliderByPosition[position] = collider;
             Engine.Physics.AddCollider(collider);
-
-            Penumbra.Hull hull = new Penumbra.Hull(new Vector2(1.0f), new Vector2(-1.0f, 1.0f), new Vector2(-1.0f), new Vector2(1.0f, -1.0f))
-            {
-                Position = new Vector2(position.X, position.Y),
-                Scale = new Vector2(0.5f)
-            };
-
-            Engine.Graphics.AddHull(hull);
+            Engine.Graphics.CreateLightOccluder(new Vector2(position.X, position.Y), new Vector2(0.5f), new Vector2(-0.5f, 0.5f), new Vector2(-0.5f), new Vector2(0.5f, -0.5f));
         }
     }
 

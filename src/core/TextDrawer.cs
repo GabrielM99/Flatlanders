@@ -26,6 +26,6 @@ public readonly struct TextDrawer(string text, SpriteFont font, SpriteEffects ef
             scaledEffects ^= SpriteEffects.FlipVertically;
         }
 
-        spriteBatch.DrawString(font, text, transform.Position - transform.Size * 0.5f, color, transform.Rotation, Vector2.Zero, new Vector2(Math.Abs(transform.Scale.X), Math.Abs(transform.Scale.Y)), scaledEffects, layerDepth);
+        spriteBatch.DrawString(font, text, transform.Position - transform.Size * 0.5f, color, transform.Rotation, Vector2.Zero, GameMath.Abs(transform.Scale), scaledEffects, layerDepth);
     }
 }

@@ -26,6 +26,6 @@ public readonly struct SpriteDrawer(Sprite sprite, SpriteEffects effects) : IDra
             scaledEffects ^= SpriteEffects.FlipVertically;
         }
 
-        spriteBatch.Draw(sprite.Texture, transform.Position, sprite.Rectangle, color, transform.Rotation, sprite.Origin + sprite.Rectangle.Size.ToVector2() * 0.5f, new Vector2(Math.Abs(transform.Scale.X), Math.Abs(transform.Scale.Y)), scaledEffects, layerDepth);
+        spriteBatch.Draw(sprite.Texture, transform.Position, sprite.Rectangle, color, transform.Rotation, sprite.Origin + sprite.Rectangle.Size.ToVector2() * 0.5f, GameMath.Abs(transform.Scale), scaledEffects, layerDepth);
     }
 }
