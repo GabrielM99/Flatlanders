@@ -47,6 +47,8 @@ public partial class Graphics : DrawableGameComponent
 
     public Vector2 SortingAxis { get; set; }
 
+    public Color AmbientLightColor { get; set; } = Color.White;
+
     public PenumbraComponent Lighting { get; }
 
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
@@ -89,6 +91,7 @@ public partial class Graphics : DrawableGameComponent
     {
         base.Update(gameTime);
         ClearDrawers();
+        Lighting.AmbientColor = AmbientLightColor;
     }
 
     public override void Draw(GameTime gameTime)

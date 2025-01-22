@@ -65,7 +65,6 @@ public class TilemapCollider : Component
             TileCollider collider = new(position);
             TileColliderByPosition[position] = collider;
             Engine.Physics.AddCollider(collider);
-            Engine.Graphics.CreateLightOccluder(new Vector2(position.X, position.Y), new Vector2(0.5f), new Vector2(-0.5f, 0.5f), new Vector2(-0.5f), new Vector2(0.5f, -0.5f));
         }
     }
 
