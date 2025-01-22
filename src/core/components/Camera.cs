@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,36 +9,30 @@ public class Camera : Component, ISizable
 {
     public Vector2 Size => Engine.Graphics.ScreenToViewVector(Resolution);
     
+    // TODO: Recalculate size and recreate render targets when changing resolution.
     public Vector2 Resolution { get; set; } = new Vector2(1920, 1080);
     public float AspectRatio => Resolution.X / Resolution.Y;
-    
-    public RenderTarget2D RenderTarget { get; private set; }
-    
-    public Color BackgroundColor { get; set; } = Color.CornflowerBlue;    
+
+    public Color BackgroundColor { get; set; } = Color.CornflowerBlue;
+
+    private Dictionary<TransformSpace, RenderTarget2D> RenderTargetBySpace { get; }
 
     public Camera(Entity entity) : base(entity)
     {
-        CreateRenderTarget();
+        RenderTargetBySpace = [];
+        CreateRenderTargets();
     }
 
-    public override void OnUpdate(float deltaTime)
+    public RenderTarget2D GetRenderTarget(TransformSpace transformSpace)
     {
-        base.OnUpdate(deltaTime);
-        UpdateRenderTarget();
+        return RenderTargetBySpace[transformSpace];
     }
 
-    private void CreateRenderTarget()
+    private void CreateRenderTargets()
     {
-        RenderTarget = new RenderTarget2D(Engine.GraphicsDevice, (int)Resolution.X, (int)Resolution.Y);
-    }
-
-    private void UpdateRenderTarget()
-    {
-        if (RenderTarget.Bounds.Size.ToVector2() != Resolution)
+        foreach (TransformSpace transformSpace in Enum.GetValues(typeof(TransformSpace)))
         {
-            CreateRenderTarget();
-            // TODO: Size won't be recalculated if PPU is changed.
-            Entity.Node.RecalculateSize();
+            RenderTargetBySpace[transformSpace] = new RenderTarget2D(Engine.GraphicsDevice, (int)Resolution.X, (int)Resolution.Y);
         }
     }
 }

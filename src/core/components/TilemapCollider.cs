@@ -21,10 +21,10 @@ public class TilemapCollider : Component
         public void OnCollision(CollisionEventArgs collisionInfo) { }
     }
 
-    private static Vector3[] TileNeighborOffsets { get; } = new Vector3[]
-    {
+    private static Vector3[] TileNeighborOffsets { get; } =
+    [
         Vector3.UnitX, -Vector3.UnitX, -Vector3.UnitY, Vector3.UnitY
-    };
+    ];
 
     private Tilemap _tilemap;
 
@@ -65,6 +65,14 @@ public class TilemapCollider : Component
             TileCollider collider = new(position);
             TileColliderByPosition[position] = collider;
             Engine.Physics.AddCollider(collider);
+
+            Penumbra.Hull hull = new Penumbra.Hull(new Vector2(1.0f), new Vector2(-1.0f, 1.0f), new Vector2(-1.0f), new Vector2(1.0f, -1.0f))
+            {
+                Position = new Vector2(position.X, position.Y),
+                Scale = new Vector2(0.5f)
+            };
+
+            Engine.Graphics.AddHull(hull);
         }
     }
 

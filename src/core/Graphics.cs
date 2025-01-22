@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Flatlanders.Core.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
+using Penumbra;
 
 namespace Flatlanders.Core;
 
@@ -47,14 +47,40 @@ public class Graphics : DrawableGameComponent
 
     public Vector2 SortingAxis { get; set; }
 
+    public PenumbraComponent Lighting { get; }
+
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
 
     private Dictionary<TransformSpace, List<DrawRequest>> DrawerRequestsBySpace { get; }
 
-    public Graphics(Game game) : base(game)
+    private Engine Engine { get; }
+
+    Light light = new PointLight
     {
-        GraphicsDeviceManager = new GraphicsDeviceManager(game);
+        Scale = new Vector2(8f), // Range of the light source (how far the light will travel)
+        ShadowType = ShadowType.Illuminated // Will not lit hulls themselves
+    };
+
+    public void AddLight(Light light)
+    {
+        light.Scale *= PixelsPerUnit * PixelsPerUnitScale;
+        Lighting.Lights.Add(light);
+    }
+
+    public void AddHull(Hull hull)
+    {
+        hull.Position *= PixelsPerUnit * PixelsPerUnitScale;
+        hull.Scale *= PixelsPerUnit * PixelsPerUnitScale;
+        Lighting.Hulls.Add(hull);
+    }
+
+    public Graphics(Engine engine) : base(engine)
+    {
+        Engine = engine;
+        GraphicsDeviceManager = new GraphicsDeviceManager(engine);
+        Lighting = new PenumbraComponent(engine);
+        AddLight(light);
         DrawerRequestsBySpace = [];
         CreateDrawerSpaces();
     }
@@ -73,16 +99,25 @@ public class Graphics : DrawableGameComponent
         SpriteBatch = new SpriteBatch(GraphicsDevice);
     }
 
+    public override void Initialize()
+    {
+        Lighting.Initialize();
+        base.Initialize();
+    }
+
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
         ClearDrawers();
     }
 
+    static GameTime GameTime;
+
     public override void Draw(GameTime gameTime)
     {
-        base.Draw(gameTime);
+        GameTime = gameTime;
         DrawCamera();
+        base.Draw(gameTime);
     }
 
     public void Draw(ITransform transform, IDrawer drawer, Color color, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
@@ -160,26 +195,46 @@ public class Graphics : DrawableGameComponent
             return;
         }
 
-        DrawSpaces();
         DrawView();
-    }
-
-    private void DrawSpaces()
-    {
-        GraphicsDevice.SetRenderTarget(ActiveCamera.RenderTarget);
-        GraphicsDevice.Clear(ActiveCamera.BackgroundColor);
-
-        DrawWorldSpace();
-        DrawScreenSpace();
-
-        GraphicsDevice.SetRenderTarget(null);
     }
 
     private void DrawView()
     {
+        RenderTarget2D worldRenderTarget = ActiveCamera.GetRenderTarget(TransformSpace.World);
+        RenderTarget2D screenRenderTarget = ActiveCamera.GetRenderTarget(TransformSpace.Screen);
+
+        GraphicsDevice.SetRenderTarget(worldRenderTarget);
+        GraphicsDevice.Clear(ActiveCamera.BackgroundColor);
+
+        DrawWorldSpace();
+
+        GraphicsDevice.SetRenderTarget(null);
+
+        GraphicsDevice.SetRenderTarget(screenRenderTarget);
+        GraphicsDevice.Clear(Color.Transparent);
+
+        DrawScreenSpace();
+
+        GraphicsDevice.SetRenderTarget(null);
         GraphicsDevice.Clear(Color.Black);
-        SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);
-        SpriteBatch.Draw(ActiveCamera.RenderTarget, new Rectangle(((WindowSize - ViewSize) * 0.5f).ToPoint(), ViewSize.ToPoint()), Color.White);
+
+        Vector2 cameraPosition = ActiveCamera.Entity.Node.Position;
+        light.Position = cameraPosition * (PixelsPerUnit * PixelsPerUnitScale);
+        Matrix penumbraTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X * (PixelsPerUnit * PixelsPerUnitScale), -cameraPosition.Y * (PixelsPerUnit * PixelsPerUnitScale), 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
+
+        Lighting.Transform = penumbraTransformMatrix;
+        Lighting.BeginDraw();
+
+        Rectangle viewRectangle = new(((WindowSize - ViewSize) * 0.5f).ToPoint(), ViewSize.ToPoint());
+
+        SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default);
+        SpriteBatch.Draw(worldRenderTarget, viewRectangle, Color.White);
+        SpriteBatch.End();
+
+        Lighting.Draw(GameTime);
+
+        SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default);
+        SpriteBatch.Draw(screenRenderTarget, viewRectangle, Color.White);
         SpriteBatch.End();
     }
 
@@ -188,9 +243,9 @@ public class Graphics : DrawableGameComponent
         Node cameraTransform = ActiveCamera.Entity.Node;
         Vector2 cameraPosition = WorldToViewVector(cameraTransform.Position);
 
-        Matrix transformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
+        Matrix spriteTransformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
 
-        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix, blendState: BlendState.AlphaBlend);
+        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: spriteTransformMatrix, blendState: BlendState.AlphaBlend);
 
         foreach (DrawRequest drawRequest in DrawerRequestsBySpace[TransformSpace.World])
         {

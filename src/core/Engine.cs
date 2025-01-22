@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended;
+using Penumbra;
 
 namespace Flatlanders.Core;
 
@@ -26,7 +27,7 @@ public class Engine : Game
         SceneManager = new SceneManager(this);
         DatabaseManager = new DatabaseManager(this);
         Physics = new Physics(this, new RectangleF(int.MinValue * 0.5f, int.MinValue * 0.5f, int.MaxValue, int.MaxValue));
-
+        
         if (string.IsNullOrEmpty(Content.RootDirectory))
         {
             Content.RootDirectory = DefaultContentDirectory;
@@ -41,7 +42,7 @@ public class Engine : Game
         Components.Add(SceneManager);
         Components.Add(Physics);
         Components.Add(DatabaseManager);
-        
+
         base.Initialize();
 
         Application.Initialize();
