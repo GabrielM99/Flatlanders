@@ -13,6 +13,9 @@ namespace Flatlanders.Application.Components;
 
 public class Player(Entity entity) : Component(entity)
 {
+    private const float WalkSpeed = 3f;
+    private const float RunSpeed = 5f;
+
     public Tilemap tilemap;
     public Tile rockTile;
     public TextRenderer debugTextRenderer;
@@ -125,6 +128,8 @@ public class Player(Entity entity) : Component(entity)
 
         KeyboardState keyboardState = Keyboard.GetState();
 
+        float speed = WalkSpeed;
+
         Vector2 direction = Vector2.Zero;
 
         if (keyboardState.IsKeyDown(Keys.W))
@@ -147,18 +152,23 @@ public class Player(Entity entity) : Component(entity)
             direction.X += 1;
         }
 
+        if (keyboardState.IsKeyDown(Keys.LeftShift))
+        {
+            speed = RunSpeed;
+        }
+
         if (Rigidbody.Velocity == Vector2.Zero)
         {
-            Animator.PlayAnimation(PlayerIdleAnimation, this, 0.1f);
+            Animator.PlayAnimation(PlayerIdleAnimation, this, 0, 0.1f);
         }
         else
         {
-            Animator.PlayAnimation(PlayerWalkAnimation, this, 0.1f);
+            Animator.PlayAnimation(PlayerWalkAnimation, this, 0, 0.1f, speed / WalkSpeed);
         }
 
         if (Random.NextSingle() <= 0.01f)
         {
-            Animator.PlayAnimation(PlayerBlinkAnimation, this, 0.1f, 1);
+            Animator.PlayAnimation(PlayerBlinkAnimation, this, 1, 0.1f);
         }
 
         MouseState mouseState = Mouse.GetState();
@@ -181,7 +191,7 @@ public class Player(Entity entity) : Component(entity)
             tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
         }
 
-        Rigidbody.Velocity = direction * 3f;
+        Rigidbody.Velocity = direction * speed;
     }
 
     public void PlayFootstepAudio()

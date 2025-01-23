@@ -12,37 +12,49 @@ public class RuntimeAnimation
     public float Time { get; private set; }
     public float NormalizedTime => Time / Animation.Duration;
 
+    public float Speed { get; set; }
+
     private List<RuntimeAnimationProperty> Properties { get; }
     private Dictionary<int, Action> EventByFrame { get; }
 
-    public RuntimeAnimation(Animation animation)
+    public RuntimeAnimation(Animation animation, float speed = 1f)
     {
         Animation = animation;
+        Speed = speed;
         Properties = [];
         EventByFrame = [];
     }
 
     public void OnUpdate(float deltaTime)
     {
-        Time = Math.Clamp(Time + deltaTime, 0f, Animation.Duration);
+        Time = Math.Clamp(Time + deltaTime * Speed, 0f, Animation.Duration);
 
-        int frame = (int)(Animation.FrameRate * Time);
+        int newFrame = (int)(Animation.FrameRate * Time);
+        int deltaFrame = newFrame >= Frame ? newFrame - Frame : Animation.FrameCount - Frame + newFrame;
 
-        // TODO: Ensure ALL frames are ALWAYS evaluated, and only ONCE.
-        foreach (RuntimeAnimationProperty property in Properties)
+        // Ensure all frames are always evaluated.
+        while (deltaFrame > 0)
         {
-            property.OnEvaluateFrame(frame);
-        }
+            int stepFrame = (int)GameMath.Repeat(Frame + deltaFrame, Animation.FrameCount);
 
-        if (frame != Frame)
-        {
-            if (EventByFrame.TryGetValue(frame, out Action e))
+            foreach (RuntimeAnimationProperty property in Properties)
             {
-                e?.Invoke();
+                property.OnEvaluateFrame(stepFrame);
             }
+
+            // Invoke frame events only once.
+            if (stepFrame != Frame)
+            {
+                if (EventByFrame.TryGetValue(stepFrame, out Action e))
+                {
+                    e?.Invoke();
+                }
+            }
+
+            deltaFrame--;
         }
 
-        if (frame >= Animation.FrameCount)
+        if (newFrame >= Animation.FrameCount)
         {
             if (Animation.IsLoopable)
             {
@@ -50,7 +62,7 @@ public class RuntimeAnimation
             }
         }
 
-        Frame = frame;
+        Frame = newFrame;
     }
 
     public void Reset()

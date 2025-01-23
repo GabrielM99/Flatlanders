@@ -38,7 +38,7 @@ public class Animator : Component
             }
         }
 
-        public void PlayAnimation<T>(Animation<T> animation, T obj, float blendTime = 0f)
+        public void PlayAnimation<T>(Animation<T> animation, T obj, float blendTime = 0f, float speed = 1f)
         {
             if (animation == null)
             {
@@ -46,18 +46,27 @@ public class Animator : Component
                 return;
             }
 
-            if (RuntimeAnimation == null || (animation != RuntimeAnimation.Animation && (AnimationBlend == null || AnimationBlend.EndRuntimeAnimation.Animation != animation)))
+            // We are already playing the animation.
+            if (RuntimeAnimation != null && animation == RuntimeAnimation.Animation)
             {
-                RuntimeAnimation newRuntimeAnimation = new(animation);
-                animation.Bind(newRuntimeAnimation, obj);
+                // Update only the speed.
+                RuntimeAnimation.Speed = speed;
+            }
+            else
+            {
+                if (AnimationBlend == null || AnimationBlend.EndRuntimeAnimation.Animation != animation)
+                {
+                    RuntimeAnimation newRuntimeAnimation = new(animation, speed);
+                    animation.Bind(newRuntimeAnimation, obj);
 
-                if (RuntimeAnimation != null && blendTime > 0f)
-                {
-                    AnimationBlend = new AnimationBlend(RuntimeAnimation, newRuntimeAnimation, blendTime);
-                }
-                else
-                {
-                    RuntimeAnimation = newRuntimeAnimation;
+                    if (RuntimeAnimation != null && blendTime > 0f)
+                    {
+                        AnimationBlend = new AnimationBlend(RuntimeAnimation, newRuntimeAnimation, blendTime);
+                    }
+                    else
+                    {
+                        RuntimeAnimation = newRuntimeAnimation;
+                    }
                 }
             }
         }
@@ -86,7 +95,7 @@ public class Animator : Component
         }
     }
 
-    public void PlayAnimation<T>(Animation<T> animation, T obj, float transitionDuration = 0f, int layerIndex = 0)
+    public void PlayAnimation<T>(Animation<T> animation, T obj, int layerIndex = 0, float blendTime = 0f, float speed = 1f)
     {
         if (!LayerByIndex.TryGetValue(layerIndex, out AnimatorLayer layer))
         {
@@ -94,6 +103,6 @@ public class Animator : Component
             LayerByIndex[layerIndex] = layer;
         }
 
-        layer.PlayAnimation(animation, obj, transitionDuration);
+        layer.PlayAnimation(animation, obj, blendTime, speed);
     }
 }
