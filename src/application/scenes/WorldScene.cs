@@ -20,7 +20,7 @@ public class WorldScene(Engine engine) : Scene(engine)
     {
         base.Load();
 
-        //Engine.RenderManager.AmbientLightColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+        Engine.RenderManager.AmbientLightColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
         PrefabDatabase prefabDatabase = Engine.DatabaseManager.GetDatabase<PrefabDatabase>();
 

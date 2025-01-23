@@ -25,7 +25,6 @@ public partial class RenderManager : DrawableGameComponent
     public int ReferencePixelsPerUnit { get; set; } = 100;
     public int PixelsPerUnit { get; set; } = 100;
     public float PixelsPerUnitScale => (float)ReferencePixelsPerUnit / PixelsPerUnit;
-    public float ScaledPixelsPerUnit => PixelsPerUnit * PixelsPerUnitScale;
 
     public Camera ActiveCamera { get; set; }
 
@@ -119,7 +118,7 @@ public partial class RenderManager : DrawableGameComponent
 
         // Configure the lighting transform matrix.
         Vector2 cameraPosition = ActiveCamera.Entity.Node.Position;
-        Matrix lightingTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X * (PixelsPerUnit * PixelsPerUnitScale), -cameraPosition.Y * (PixelsPerUnit * PixelsPerUnitScale), 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
+        Matrix lightingTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X * ReferencePixelsPerUnit, -cameraPosition.Y * ReferencePixelsPerUnit, 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
 
         Lighting.Transform = lightingTransformMatrix;
         Lighting.BeginDraw();
@@ -269,7 +268,10 @@ public partial class RenderManager : DrawableGameComponent
         foreach (DrawRequest drawRequest in DrawerRequestsBySpace[TransformSpace.Screen])
         {
             Transform transform = drawRequest.Transform;
-            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(transform.Root.Anchor), ActiveCamera.Resolution / PixelsPerUnitScale) * 0.5f;
+            ITransform root = transform.Root;
+
+            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(root == null ? TransformAnchor.Center : root.Anchor), ActiveCamera.Resolution / PixelsPerUnitScale) * 0.5f;
+
             drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, 0, 0));
         }
 

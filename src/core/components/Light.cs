@@ -19,7 +19,7 @@ public abstract class Light : Component
         set
         {
             _position = value;
-            Data.Position = value * Engine.RenderManager.ScaledPixelsPerUnit;
+            Data.Position = value * Engine.RenderManager.ReferencePixelsPerUnit;
         }
     }
     public Vector2 Scale
@@ -28,7 +28,7 @@ public abstract class Light : Component
         set
         {
             _scale = value;
-            Data.Scale = value * Engine.RenderManager.ScaledPixelsPerUnit * Range;
+            Data.Scale = value * Engine.RenderManager.ReferencePixelsPerUnit * Range;
         }
     }
     public float Rotation { get => Data.Rotation; set => Data.Rotation = value; }

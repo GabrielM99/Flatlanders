@@ -15,7 +15,7 @@ public class LightOccluder
         set
         {
             _position = value;
-            Data.Position = value * Engine.RenderManager.ScaledPixelsPerUnit;
+            Data.Position = value * Engine.RenderManager.ReferencePixelsPerUnit;
         }
     }
     public Vector2 Scale
@@ -24,7 +24,7 @@ public class LightOccluder
         set
         {
             _scale = value;
-            Data.Scale = value * Engine.RenderManager.ScaledPixelsPerUnit;
+            Data.Scale = value * Engine.RenderManager.ReferencePixelsPerUnit;
         }
     }
 

@@ -3,8 +3,8 @@
 [X] Physics
 [X] Animations*
 [X] Lighting*
+[X] Input System
 [ ] Logging
-[ ] Input System
 [ ] Particles
 [ ] Debug Flags
 [ ] Modding
