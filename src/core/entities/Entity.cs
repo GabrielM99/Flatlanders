@@ -132,7 +132,7 @@ public class Entity : ITransform
         SizableComponents = [];
         // By default, entities are their own roots.
         Root = this;
-        // Nodes will always recalculate their sizes upon start.
+        // Entities will always recalculate their sizes upon start.
         IsRecalculateSizePending = true;
     }
 
