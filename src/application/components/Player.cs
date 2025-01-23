@@ -4,6 +4,8 @@ using Flatlanders.Application.Databases;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
 using Flatlanders.Core.Graphics.Lighting;
+using Flatlanders.Core.Inputs;
+using Flatlanders.Core.Inputs.Bindings;
 using Flatlanders.Core.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -44,9 +46,25 @@ public class Player(Entity entity) : Component(entity)
 
     private Random Random { get; set; }
 
+    private InputAction MoveUpAction { get; set; }
+    private InputAction MoveDownAction { get; set; }
+    private InputAction MoveLeftAction { get; set; }
+    private InputAction MoveRightAction { get; set; }
+    private InputAction RunAction { get; set; }
+    private InputAction PlaceAction { get; set; }
+    private InputAction DestroyAction { get; set; }
+
     public override void OnCreate()
     {
         base.OnCreate();
+
+        MoveUpAction = Engine.InputManager.CreateAction(new KeyboardBinding(Keys.W));
+        MoveDownAction = Engine.InputManager.CreateAction(new KeyboardBinding(Keys.S));
+        MoveLeftAction = Engine.InputManager.CreateAction(new KeyboardBinding(Keys.A));
+        MoveRightAction = Engine.InputManager.CreateAction(new KeyboardBinding(Keys.D));
+        RunAction = Engine.InputManager.CreateAction(new KeyboardBinding(Keys.LeftShift));
+        PlaceAction = Engine.InputManager.CreateAction(new MouseBinding(MouseButton.Right));
+        DestroyAction = Engine.InputManager.CreateAction(new MouseBinding(MouseButton.Left));
 
         // TODO: Static randomness.
         Random = new Random();
@@ -126,33 +144,31 @@ public class Player(Entity entity) : Component(entity)
 
         debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.TimeManager.TicksPerSecond}\nFPS:{(int)Engine.TimeManager.FramesPerSecond}\nPOS: (X: {(int)Entity.Node.Position.X}, Y: {(int)Entity.Node.Position.Y})";
 
-        KeyboardState keyboardState = Keyboard.GetState();
-
         float speed = WalkSpeed;
 
         Vector2 direction = Vector2.Zero;
 
-        if (keyboardState.IsKeyDown(Keys.W))
+        if (MoveUpAction.IsExecuting)
         {
             direction.Y -= 1;
         }
 
-        if (keyboardState.IsKeyDown(Keys.S))
+        if (MoveDownAction.IsExecuting)
         {
             direction.Y += 1;
         }
 
-        if (keyboardState.IsKeyDown(Keys.A))
+        if (MoveLeftAction.IsExecuting)
         {
             direction.X -= 1;
         }
 
-        if (keyboardState.IsKeyDown(Keys.D))
+        if (MoveRightAction.IsExecuting)
         {
             direction.X += 1;
         }
 
-        if (keyboardState.IsKeyDown(Keys.LeftShift))
+        if (RunAction.IsExecuting)
         {
             speed = RunSpeed;
         }
@@ -171,8 +187,7 @@ public class Player(Entity entity) : Component(entity)
             Animator.PlayAnimation(PlayerBlinkAnimation, this, 1, 0.1f);
         }
 
-        MouseState mouseState = Mouse.GetState();
-        Vector2 mousePosition = mouseState.Position.ToVector2();
+        Vector2 mousePosition = Engine.InputManager.MousePosition;
         Vector2 worldMousePosition = Engine.RenderManager.ScreenToWorldVector(mousePosition);
         Vector2 worldMouseDirection = Vector2.Normalize(worldMousePosition - Entity.Node.Position);
 
@@ -181,14 +196,14 @@ public class Player(Entity entity) : Component(entity)
             Entity.Node.Scale = new Vector2(Math.Sign(worldMouseDirection.X), 1f);
         }
 
-        if (mouseState.LeftButton == ButtonState.Pressed)
-        {
-            tilemap.SetTile(null, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
-        }
-
-        if (mouseState.RightButton == ButtonState.Pressed)
+        if (PlaceAction.IsExecuting)
         {
             tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
+        }
+
+        if (DestroyAction.IsExecuting)
+        {
+            tilemap.SetTile(null, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
         }
 
         Rigidbody.Velocity = direction * speed;
