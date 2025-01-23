@@ -13,8 +13,8 @@ namespace Flatlanders.Application.Components;
 
 public class Player(Entity entity) : Component(entity)
 {
-    private const float WalkSpeed = 3f;
-    private const float RunSpeed = 5f;
+    private const float WalkSpeed = 2.5f;
+    private const float RunSpeed = 3.75f;
 
     public Tilemap tilemap;
     public Tile rockTile;
