@@ -38,7 +38,7 @@ public abstract class Renderer(Entity entity) : Component(entity), ISizable
 
     public abstract Vector2 Size { get; }
 
-    public abstract void OnDraw(RenderManager graphics, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0);
+    public abstract void OnDraw(RenderManager renderManager, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0);
 
     public override void OnUpdate(float deltaTime)
     {

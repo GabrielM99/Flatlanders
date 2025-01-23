@@ -2,9 +2,9 @@
 [X] Dynamic UI*
 [X] Physics
 [X] Animations*
+[X] Lighting*
 [ ] Logging
 [ ] Input System
-[ ] Lighting*
 [ ] Particles
 [ ] Debug Flags
 [ ] Modding
