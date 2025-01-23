@@ -11,15 +11,19 @@ public class Application : IApplication
 
     public Application()
     {
-        Engine = new Engine(this);
-        
-        Engine.IsMouseVisible = true;
+        Engine = new Engine(this)
+        {
+            IsMouseVisible = true
+        };
+
+        Engine.SetDebugFlags(EngineDebugFlags.DrawColliders);
+
         Engine.Window.AllowUserResizing = true;
-        
+
         Engine.RenderManager.PixelsPerUnit = 16;
         Engine.RenderManager.WindowSize = new Vector2(1280f, 720f);
         Engine.RenderManager.SortingAxis = Vector2.UnitY;
-        
+
         Engine.DatabaseManager.AddDatabase<PrefabDatabase>();
         Engine.DatabaseManager.AddDatabase<SpriteDatabase>();
         Engine.DatabaseManager.AddDatabase<SpriteSheetDatabase>();

@@ -9,6 +9,6 @@ public readonly struct RectangleDrawer(float thickness) : IDrawer
 {
     public readonly void Draw(SpriteBatch spriteBatch, ITransform transform, Color color, float layerDepth)
     {
-        spriteBatch.DrawRectangle(transform.Position, transform.Size, color, thickness, layerDepth);
+        spriteBatch.DrawRectangle(transform.Position - transform.Size * 0.5f, transform.Size, color, thickness, layerDepth);
     }
 }

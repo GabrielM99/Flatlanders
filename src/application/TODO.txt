@@ -4,9 +4,9 @@
 [X] Animations*
 [X] Lighting*
 [X] Input System
+[ ] Debug Flags
 [ ] Logging
 [ ] Particles
-[ ] Debug Flags
 [ ] Modding
 [ ] Networking
 [ ] Masking*

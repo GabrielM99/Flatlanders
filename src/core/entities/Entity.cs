@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Flatlanders.Core.Components;
+using Flatlanders.Core.Graphics.Drawers;
 using Flatlanders.Core.Prefabs;
 using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
@@ -139,6 +140,11 @@ public class Entity : ITransform
     public void OnUpdate(float deltaTime)
     {
         ProcessPendingRecalculateSize();
+
+        if (Engine.HasDebugFlag(EngineDebugFlags.DrawTransforms))
+        {
+            Engine.RenderManager.Draw(this, new RectangleDrawer(1f), Color.White, sbyte.MaxValue);
+        }
     }
 
     public Entity CreateChild(string name = "")

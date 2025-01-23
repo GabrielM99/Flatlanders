@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Flatlanders.Core.Graphics.Drawers;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 
@@ -16,8 +18,11 @@ public class PhysicsManager : GameComponent
     private Dictionary<string, CollisionLayer> Layers { get; }
     private HashSet<(CollisionLayer, CollisionLayer)> LayerCollision { get; }
 
+    private Engine Engine { get; }
+
     public PhysicsManager(Engine engine, RectangleF boundary) : base(engine)
     {
+        Engine = engine;
         Layers = [];
         LayerCollision = [];
         SetDefaultLayer(new CollisionLayer(new QuadTreeSpace(boundary)));
@@ -40,16 +45,16 @@ public class PhysicsManager : GameComponent
 
     public override void Update(GameTime gameTime)
     {
-        foreach (var layer in Layers.Values)
+        foreach (CollisionLayer layer in Layers.Values)
         {
             layer.Reset();
-        }
 
-        foreach (var (firstLayer, secondLayer) in LayerCollision)
-        {
-            foreach (ICollider actor in firstLayer.Space)
+            if (Engine.HasDebugFlag(EngineDebugFlags.DrawColliders))
             {
-                // Engine.Graphics.Draw(new Transform() { Position = actor.Bounds.Position, Size = actor.Bounds.BoundingRectangle.Size }, new RectangleDrawer(1f), Color.Red, 100);
+                foreach (ICollider actor in layer.Space)
+                {
+                    Engine.RenderManager.Draw(new Transform() { Position = actor.Bounds.BoundingRectangle.Center, Size = actor.Bounds.BoundingRectangle.Size }, new RectangleDrawer(1f), Color.Red, 100);
+                }
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using Flatlanders.Core.Graphics;
+﻿using System;
+using System.Collections.Generic;
+using Flatlanders.Core.Graphics;
 using Flatlanders.Core.Inputs;
 using Flatlanders.Core.Physics;
 using Flatlanders.Core.Scenes;
@@ -19,11 +21,14 @@ public class Engine : Game
     public PhysicsManager PhysicsManager { get; }
     public InputManager InputManager { get; }
 
+    private HashSet<Enum> DebugFlags { get; }
+
     private IApplication Application { get; }
 
     public Engine(IApplication application)
     {
         Application = application;
+        DebugFlags = [];
 
         TimeManager = new TimeManager(this);
         RenderManager = new RenderManager(this);
@@ -37,6 +42,16 @@ public class Engine : Game
         {
             Content.RootDirectory = DefaultContentDirectory;
         }
+    }
+
+    public void SetDebugFlags(params Enum[] flags)
+    {
+        DebugFlags.UnionWith(flags);
+    }
+
+    public bool HasDebugFlag(Enum flag)
+    {
+        return DebugFlags.Contains(flag);
     }
 
     protected override void Initialize()
