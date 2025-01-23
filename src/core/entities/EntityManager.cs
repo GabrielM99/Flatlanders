@@ -9,13 +9,30 @@ namespace Flatlanders.Core;
 
 public class EntityManager : GameComponent
 {
-    private Engine Engine { get; }
+    private enum ComponentRequestType
+    {
+        Register,
+        Unregister
+    }
+
+    private readonly struct ComponentRequest(ComponentRequestType type, Component component)
+    {
+        public ComponentRequestType Type { get; } = type;
+        public Component Component { get; } = component;
+    }
+
+    private List<Entity> Entities { get; }
     private SortedDictionary<int, HashSet<Component>> ComponentsByOrder { get; }
+    private Queue<ComponentRequest> ComponentRequests { get; }
+
+    private Engine Engine { get; }
 
     public EntityManager(Engine engine) : base(engine)
     {
         Engine = engine;
+        Entities = [];
         ComponentsByOrder = [];
+        ComponentRequests = [];
     }
 
     public override void Initialize()
@@ -30,6 +47,11 @@ public class EntityManager : GameComponent
 
         float deltaTime = Engine.TimeManager.DeltaTime;
 
+        foreach (Entity entity in Entities)
+        {
+            entity.OnUpdate(deltaTime);
+        }
+
         foreach (HashSet<Component> components in ComponentsByOrder.Values)
         {
             foreach (Component component in components)
@@ -37,11 +59,16 @@ public class EntityManager : GameComponent
                 component.OnUpdate(deltaTime);
             }
         }
+
+        ProcessComponentRequests();
     }
 
     public Entity CreateEntity(string name = "")
     {
-        return (Entity)Activator.CreateInstance(typeof(Entity), [Engine, name]);
+        Entity entity = (Entity)Activator.CreateInstance(typeof(Entity), [Engine, name]);
+        entity.ID = Entities.Count;
+        Entities.Add(entity);
+        return entity;
     }
 
     public Entity CreateEntity(Prefab prefab, string name = "")
@@ -49,19 +76,65 @@ public class EntityManager : GameComponent
         return prefab.Create(this, name);
     }
 
+    public void DestroyEntity(Entity entity)
+    {
+        int id = entity.ID;
+
+        if (id == Entity.InvalidEntityID)
+        {
+            return;
+        }
+
+        Entity lastEntity = Entities[^1];
+        Entities[id] = lastEntity;
+        lastEntity.ID = id;
+        entity.ID = Entity.InvalidEntityID;
+        Entities.RemoveAt(Entities.Count - 1);
+    }
+
     public T CreateComponent<T>(Entity entity) where T : Component
     {
         T component = (T)Activator.CreateInstance(typeof(T), [entity]);
-        OnCreateComponent(component);
+        component.OnCreate();
+        CreateComponentRequest(ComponentRequestType.Register, component);
         return component;
     }
 
-    public void DestroyComponent(Component component)
+    public void DestroyComponent(Component component, bool unregister = true)
     {
-        OnDestroyComponent(component);
+        component.OnDestroy();
+
+        if (unregister)
+        {
+            CreateComponentRequest(ComponentRequestType.Unregister, component);
+        }
     }
 
-    private void OnCreateComponent(Component component)
+    private void CreateComponentRequest(ComponentRequestType type, Component component)
+    {
+        ComponentRequests.Enqueue(new ComponentRequest(type, component));
+    }
+
+    private void ProcessComponentRequests()
+    {
+        while (ComponentRequests.Count > 0)
+        {
+            ComponentRequest request = ComponentRequests.Dequeue();
+            Component component = request.Component;
+
+            switch (request.Type)
+            {
+                case ComponentRequestType.Register:
+                    RegisterComponent(component);
+                    break;
+                case ComponentRequestType.Unregister:
+                    UnregisterComponent(component);
+                    break;
+            }
+        }
+    }
+
+    private void RegisterComponent(Component component)
     {
         int order = component.Order;
 
@@ -72,25 +145,19 @@ public class EntityManager : GameComponent
         }
 
         components.Add(component);
-        component.OnCreate();
     }
 
-    private void OnDestroyComponent(Component component, bool cleanUp = true)
+    private void UnregisterComponent(Component component)
     {
-        component.OnDestroy();
+        int order = component.Order;
 
-        if (cleanUp)
+        if (ComponentsByOrder.TryGetValue(order, out HashSet<Component> components))
         {
-            int order = component.Order;
+            components.Remove(component);
 
-            if (ComponentsByOrder.TryGetValue(order, out HashSet<Component> components))
+            if (components.Count == 0)
             {
-                components.Remove(component);
-
-                if (components.Count == 0)
-                {
-                    ComponentsByOrder.Remove(order);
-                }
+                ComponentsByOrder.Remove(order);
             }
         }
     }
@@ -101,11 +168,13 @@ public class EntityManager : GameComponent
         {
             foreach (Component component in components)
             {
-                OnDestroyComponent(component, false);
+                DestroyComponent(component, false);
             }
         }
 
+        Entities.Clear();
         ComponentsByOrder.Clear();
+        ComponentRequests.Clear();
     }
 
     private void OnSceneLoading(Scene scene)

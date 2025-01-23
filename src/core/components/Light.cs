@@ -1,9 +1,8 @@
-using Flatlanders.Core.Components;
 using Flatlanders.Core.Graphics.Lighting;
 using Microsoft.Xna.Framework;
 using Penumbra;
 
-namespace Flatlanders.Core;
+namespace Flatlanders.Core.Components;
 
 public abstract class Light : Component
 {

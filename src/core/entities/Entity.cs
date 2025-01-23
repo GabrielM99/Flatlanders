@@ -7,12 +7,16 @@ namespace Flatlanders.Core;
 
 public class Entity
 {
+    public const int InvalidEntityID = -1;
+
     public event Action<Component> ComponentAdded;
     public event Action<Component> ComponentRemoved;
 
     public string Name { get; set; }
     public Engine Engine { get; }
     public Node Node { get; }
+
+    internal int ID { get; set; } = InvalidEntityID;
 
     private Dictionary<Type, Component> ComponentByType { get; }
 
@@ -22,6 +26,11 @@ public class Entity
         Engine = engine;
         ComponentByType = new Dictionary<Type, Component>();
         Node = AddComponent<Node>();
+    }
+    
+    public void OnUpdate(float deltaTime)
+    {
+        
     }
 
     public Entity CreateChild(string name = "")
@@ -83,11 +92,32 @@ public class Entity
 
     public void RemoveComponent<T>()
     {
-        if (ComponentByType.TryGetValue(typeof(T), out Component component))
+        if (ComponentByType.Remove(typeof(T), out Component component))
         {
-            Engine.EntityManager.DestroyComponent(component);
-            ComponentRemoved?.Invoke(component);
+            RemoveComponent(component);
         }
+    }
+
+    public void RemoveComponents()
+    {
+        foreach (Component component in ComponentByType.Values)
+        {
+            RemoveComponent(component);
+        }
+
+        ComponentByType.Clear();
+    }
+
+    public void Destroy()
+    {
+        Engine.EntityManager.DestroyEntity(this);
+        RemoveComponents();
+    }
+
+    private void RemoveComponent(Component component)
+    {
+        Engine.EntityManager.DestroyComponent(component);
+        ComponentRemoved?.Invoke(component);
     }
 
     private void OnCreateChild(Entity child)

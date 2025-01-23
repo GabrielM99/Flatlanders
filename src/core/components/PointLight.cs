@@ -1,4 +1,4 @@
-namespace Flatlanders.Core;
+namespace Flatlanders.Core.Components;
 
 public class PointLight(Entity entity) : Light(entity)
 {

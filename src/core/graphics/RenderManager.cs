@@ -6,7 +6,6 @@ using Flatlanders.Core.Graphics.Lighting;
 using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Penumbra;
 
 namespace Flatlanders.Core.Graphics;
 
@@ -52,7 +51,7 @@ public partial class RenderManager : DrawableGameComponent
 
     public Color AmbientLightColor { get; set; } = Color.White;
 
-    public PenumbraComponent Lighting { get; }
+    public Penumbra.PenumbraComponent Lighting { get; }
 
     private GraphicsDeviceManager GraphicsDeviceManager { get; }
     private SpriteBatch SpriteBatch { get; set; }
@@ -65,7 +64,7 @@ public partial class RenderManager : DrawableGameComponent
     {
         Engine = engine;
         GraphicsDeviceManager = new GraphicsDeviceManager(engine);
-        Lighting = new PenumbraComponent(engine);
+        Lighting = new Penumbra.PenumbraComponent(engine);
         DrawerRequestsBySpace = [];
         CreateDrawerSpaces();
     }

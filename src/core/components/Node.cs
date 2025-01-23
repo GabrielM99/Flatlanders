@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
 
+// TODO: Entities should be transforms, Nodes must be removed.
 public class Node : Component, ITransform, ISizable
 {
     public event Action<Node> ChildAdded;
