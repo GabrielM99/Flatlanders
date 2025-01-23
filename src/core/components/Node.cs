@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
@@ -44,7 +45,7 @@ public class Node : Component, ITransform, ISizable
 
     // TODO: Check if setting a size is really supported.
     public Vector2 LocalSize { get; set; }
-    public Vector2 Size { get => Space == TransformSpace.World ? Engine.Graphics.ViewToWorldVector(LocalSize) : LocalSize; set => LocalSize = value - (Parent == null ? Vector2.Zero : Parent.Size); }
+    public Vector2 Size { get => Space == TransformSpace.World ? Engine.RenderManager.ViewToWorldVector(LocalSize) : LocalSize; set => LocalSize = value - (Parent == null ? Vector2.Zero : Parent.Size); }
 
     public Node Parent
     {

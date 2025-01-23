@@ -1,5 +1,6 @@
 using Flatlanders.Application.SpriteSheets;
 using Flatlanders.Core;
+using Flatlanders.Core.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Application.Databases;

@@ -1,10 +1,13 @@
 using System;
-using Flatlanders.Application.Animations;
 using Flatlanders.Application.Components;
 using Flatlanders.Application.Databases;
 using Flatlanders.Application.SpriteSheets;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
+using Flatlanders.Core.Graphics;
+using Flatlanders.Core.Scenes;
+using Flatlanders.Core.Tiles;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,13 +20,15 @@ public class WorldScene(Engine engine) : Scene(engine)
     {
         base.Load();
 
+        Engine.RenderManager.AmbientLightColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+        
         PrefabDatabase prefabDatabase = Engine.DatabaseManager.GetDatabase<PrefabDatabase>();
 
         Entity cameraEntity = Engine.EntityManager.CreateEntity();
         AudioPlayer ambientAudioPlayer = cameraEntity.AddComponent<AudioPlayer>();
         ambientAudioPlayer.Loop = true;
         ambientAudioPlayer.Play(Engine.Content.Load<SoundEffect>("ForestDay"));
-        Camera camera = Engine.Graphics.ActiveCamera = cameraEntity.AddComponent<Camera>();
+        Camera camera = Engine.RenderManager.ActiveCamera = cameraEntity.AddComponent<Camera>();
         PlayerCamera playerCamera = cameraEntity.AddComponent<PlayerCamera>();
         camera.BackgroundColor = new Color(54, 197, 244);
 

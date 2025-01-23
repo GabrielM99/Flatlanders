@@ -3,6 +3,7 @@ using Flatlanders.Application.Databases;
 using Flatlanders.Application.SpriteSheets;
 using Flatlanders.Core;
 using Flatlanders.Core.Animations;
+using Flatlanders.Core.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Application.Animations;

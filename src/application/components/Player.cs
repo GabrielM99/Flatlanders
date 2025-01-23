@@ -3,6 +3,8 @@ using Flatlanders.Application.Animations;
 using Flatlanders.Application.Databases;
 using Flatlanders.Core;
 using Flatlanders.Core.Components;
+using Flatlanders.Core.Graphics.Lighting;
+using Flatlanders.Core.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
@@ -119,7 +121,7 @@ public class Player(Entity entity) : Component(entity)
     {
         base.OnUpdate(deltaTime);
 
-        debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.Time.TicksPerSecond}\nFPS:{(int)Engine.Time.FramesPerSecond}\nPOS: (X: {(int)Entity.Node.Position.X}, Y: {(int)Entity.Node.Position.Y})";
+        debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.TimeManager.TicksPerSecond}\nFPS:{(int)Engine.TimeManager.FramesPerSecond}\nPOS: (X: {(int)Entity.Node.Position.X}, Y: {(int)Entity.Node.Position.Y})";
 
         KeyboardState keyboardState = Keyboard.GetState();
 
@@ -161,7 +163,7 @@ public class Player(Entity entity) : Component(entity)
 
         MouseState mouseState = Mouse.GetState();
         Vector2 mousePosition = mouseState.Position.ToVector2();
-        Vector2 worldMousePosition = Engine.Graphics.ScreenToWorldVector(mousePosition);
+        Vector2 worldMousePosition = Engine.RenderManager.ScreenToWorldVector(mousePosition);
         Vector2 worldMouseDirection = Vector2.Normalize(worldMousePosition - Entity.Node.Position);
 
         if (worldMouseDirection.X != 0f && !float.IsNaN(worldMouseDirection.X))

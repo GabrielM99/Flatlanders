@@ -1,5 +1,5 @@
 using System;
-using Flatlanders.Core;
+using Flatlanders.Core.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

@@ -1,6 +1,5 @@
-using System;
+using Flatlanders.Core.Physics;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Collisions;
 
 namespace Flatlanders.Core.Components;
 
@@ -8,7 +7,7 @@ public class Rigidbody : Component
 {
     private const int CollisionBufferSize = 8;
 
-    private readonly CollisionEventArgs[] _collisionBuffer;
+    private readonly CollisionInfo[] _collisionBuffer;
 
     public override int Order => ComponentOrder.Physics;
 
@@ -18,7 +17,7 @@ public class Rigidbody : Component
 
     public Rigidbody(Entity entity) : base(entity)
     {
-        _collisionBuffer = new CollisionEventArgs[CollisionBufferSize];
+        _collisionBuffer = new CollisionInfo[CollisionBufferSize];
     }
 
     public override void OnCreate()

@@ -1,4 +1,5 @@
 using Flatlanders.Core.Components;
+using Flatlanders.Core.Graphics.Lighting;
 using Microsoft.Xna.Framework;
 using Penumbra;
 
@@ -18,7 +19,7 @@ public abstract class Light : Component
         set
         {
             _position = value;
-            Data.Position = value * (Engine.Graphics.PixelsPerUnit * Engine.Graphics.PixelsPerUnitScale);
+            Data.Position = value * Engine.RenderManager.ScaledPixelsPerUnit;
         }
     }
     public Vector2 Scale
@@ -27,7 +28,7 @@ public abstract class Light : Component
         set
         {
             _scale = value;
-            Data.Scale = value * (Engine.Graphics.PixelsPerUnit * Engine.Graphics.PixelsPerUnitScale) * Range;
+            Data.Scale = value * Engine.RenderManager.ScaledPixelsPerUnit * Range;
         }
     }
     public float Rotation { get => Data.Rotation; set => Data.Rotation = value; }
@@ -51,7 +52,7 @@ public abstract class Light : Component
     public override void OnCreate()
     {
         base.OnCreate();
-        Engine.Graphics.AddLight(this);
+        Engine.RenderManager.AddLight(this);
     }
 
     public override void OnUpdate(float deltaTime)
@@ -67,7 +68,7 @@ public abstract class Light : Component
     public override void OnDestroy()
     {
         base.OnDestroy();
-        Engine.Graphics.RemoveLight(this);
+        Engine.RenderManager.RemoveLight(this);
     }
 
     protected abstract Penumbra.Light CreateData();

@@ -1,24 +1,25 @@
 using System;
 using System.Collections.Generic;
+using Flatlanders.Core.Physics;
+using Flatlanders.Core.Tiles;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
-using MonoGame.Extended.Collisions;
 
 namespace Flatlanders.Core.Components;
 
 public class TilemapCollider : Component
 {
-    private class TileCollider : ICollisionActor
+    private class TileCollider : ICollider
     {
         public IShapeF Bounds { get; private set; }
-        public string LayerName => Physics.DEFAULT_LAYER_NAME;
+        public string LayerName => PhysicsManager.DEFAULT_LAYER_NAME;
 
         public TileCollider(Vector3 position)
         {
             Bounds = new RectangleF(new Vector2(position.X, position.Y) - Vector2.One * 0.5f, Vector2.One);
         }
 
-        public void OnCollision(CollisionEventArgs collisionInfo) { }
+        public void OnCollision(CollisionInfo collisionInfo) { }
     }
 
     private static Vector3[] TileNeighborOffsets { get; } =
@@ -64,7 +65,7 @@ public class TilemapCollider : Component
         {
             TileCollider collider = new(position);
             TileColliderByPosition[position] = collider;
-            Engine.Physics.AddCollider(collider);
+            Engine.PhysicsManager.AddCollider(collider);
         }
     }
 
@@ -72,7 +73,7 @@ public class TilemapCollider : Component
     {
         if (TileColliderByPosition.Remove(position, out TileCollider collider))
         {
-            Engine.Physics.RemoveCollider(collider);
+            Engine.PhysicsManager.RemoveCollider(collider);
         }
     }
 

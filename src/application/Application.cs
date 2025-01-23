@@ -16,9 +16,9 @@ public class Application : IApplication
         Engine.IsMouseVisible = true;
         Engine.Window.AllowUserResizing = true;
         
-        Engine.Graphics.PixelsPerUnit = 16;
-        Engine.Graphics.WindowSize = new Vector2(1280f, 720f);
-        Engine.Graphics.SortingAxis = Vector2.UnitY;
+        Engine.RenderManager.PixelsPerUnit = 16;
+        Engine.RenderManager.WindowSize = new Vector2(1280f, 720f);
+        Engine.RenderManager.SortingAxis = Vector2.UnitY;
         
         Engine.DatabaseManager.AddDatabase<PrefabDatabase>();
         Engine.DatabaseManager.AddDatabase<SpriteDatabase>();

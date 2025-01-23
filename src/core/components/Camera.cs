@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,7 +8,7 @@ namespace Flatlanders.Core.Components;
 
 public class Camera : Component, ISizable
 {
-    public Vector2 Size => Engine.Graphics.ScreenToViewVector(Resolution);
+    public Vector2 Size => Engine.RenderManager.ScreenToViewVector(Resolution);
     
     // TODO: Recalculate size and recreate render targets when changing resolution.
     public Vector2 Resolution { get; set; } = new Vector2(1920, 1080);

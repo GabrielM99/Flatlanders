@@ -1,5 +1,5 @@
 using Flatlanders.Core;
-using Microsoft.Xna.Framework;
+using Flatlanders.Core.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Flatlanders.Application.Databases;
