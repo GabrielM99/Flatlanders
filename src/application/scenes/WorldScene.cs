@@ -20,8 +20,8 @@ public class WorldScene(Engine engine) : Scene(engine)
     {
         base.Load();
 
-        Engine.RenderManager.AmbientLightColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
-        
+        //Engine.RenderManager.AmbientLightColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+
         PrefabDatabase prefabDatabase = Engine.DatabaseManager.GetDatabase<PrefabDatabase>();
 
         Entity cameraEntity = Engine.EntityManager.CreateEntity();
@@ -105,7 +105,7 @@ public class WorldScene(Engine engine) : Scene(engine)
             for (int y = -(int)(worldSize.Y / 2); y < worldSize.Y / 2; y++)
             {
                 worldTilemap.SetTile(grassTile, new Vector3(x, y, -1f));
-                
+
                 if (tileRandom.NextSingle() > 0.75f)
                 {
                     worldTilemap.SetTile(rockTile, new Vector3(x, y, 0f));

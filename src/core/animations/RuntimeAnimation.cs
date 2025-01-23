@@ -61,13 +61,16 @@ public class RuntimeAnimation
                 Reset();
             }
         }
-
-        Frame = newFrame;
+        else
+        {
+            Frame = newFrame;
+        }
     }
 
     public void Reset()
     {
         Time = 0f;
+        Frame = 0;
     }
 
     public void BindProperty<T>(AnimationProperty<T> property, Action<T> valueChanged)
