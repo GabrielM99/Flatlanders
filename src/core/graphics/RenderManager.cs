@@ -38,14 +38,6 @@ public partial class RenderManager : DrawableGameComponent
             GraphicsDeviceManager.PreferredBackBufferHeight = (int)value.Y;
         }
     }
-    public Vector2 ViewSize
-    {
-        get
-        {
-            float aspectRatio = ActiveCamera == null ? 1f : ActiveCamera.AspectRatio;
-            return (WindowSize.X / aspectRatio <= WindowSize.Y) ? new Vector2(WindowSize.X, WindowSize.X / aspectRatio) : new Vector2(WindowSize.Y * aspectRatio, WindowSize.Y);
-        }
-    }
 
     public Vector2 SortingAxis { get; set; }
 
@@ -118,13 +110,16 @@ public partial class RenderManager : DrawableGameComponent
         // Configure the lighting transform matrix. 
         // Lighting works with window coordinates to maintain the high quality of shadows.
         Vector2 cameraPosition = WorldToWindowVector(ActiveCamera.Entity.Position);
-        Matrix lightingTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
+        Matrix lightingTransformMatrix =
+            Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) *
+            Matrix.CreateScale(ActiveCamera.ViewScale.X, ActiveCamera.ViewScale.Y, 1f) *
+            Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
 
         Lighting.Transform = lightingTransformMatrix;
         Lighting.BeginDraw();
 
         // The letterboxed rectangle that represents the game view.
-        Rectangle viewRectangle = new(((WindowSize - ViewSize) * 0.5f).ToPoint(), ViewSize.ToPoint());
+        Rectangle viewRectangle = new(((WindowSize - ActiveCamera.ViewSize) * 0.5f).ToPoint(), ActiveCamera.ViewSize.ToPoint());
 
         // Draw the world space render target.
         SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default);
@@ -175,32 +170,6 @@ public partial class RenderManager : DrawableGameComponent
     public Vector2 WorldToWindowVector(Vector2 worldVector)
     {
         return ScreenToWindowVector(WorldToScreenVector(worldVector));
-    }
-
-    public Vector2 WindowToWorldPosition(Vector2 windowPosition)
-    {
-        if (ActiveCamera == null)
-        {
-            return Vector2.Zero;
-        }
-
-        Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
-        Vector2 normalized = (windowPosition - ViewSize * 0.5f - offset) / ViewSize;
-
-        return normalized * WindowToWorldVector(ActiveCamera.Resolution) + ActiveCamera.Entity.Position;
-    }
-
-    public Vector2 WorldToWindowPosition(Vector2 worldPosition)
-    {
-        if (ActiveCamera == null)
-        {
-            return Vector2.Zero;
-        }
-
-        Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
-        Vector2 normalized = (worldPosition - ActiveCamera.Entity.Position) / WindowToWorldVector(ActiveCamera.Resolution);
-
-        return (normalized * ViewSize) + offset + ViewSize * 0.5f;
     }
 
     public void AddLight(Light light)
@@ -259,13 +228,13 @@ public partial class RenderManager : DrawableGameComponent
             Transform transform = drawRequest.Transform;
 
             Vector2 sortingPosition = transform.Position + drawRequest.SortingOrigin;
-            Vector2 screenPosition = WorldToWindowPosition(sortingPosition);
-            Vector2 sortingScreenPosition = Vector2.Multiply(SortingAxis, Vector2.Divide(screenPosition, WindowSize));
+            Vector2 windowPosition = ActiveCamera.WorldToWindowPosition(sortingPosition);
+            Vector2 sortingAxis = Vector2.Multiply(SortingAxis, Vector2.Divide(windowPosition, WindowSize));
 
             transform.Position = WorldToScreenVector(transform.Position);
             transform.Size = WorldToScreenVector(transform.Size);
 
-            sbyte sortingLayer = (sbyte)(Math.Clamp(sortingScreenPosition.Y, -1f, 1f) * 127);
+            sbyte sortingLayer = (sbyte)(Math.Clamp(sortingAxis.Y, -1f, 1f) * sbyte.MaxValue);
 
             drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, sortingLayer, drawRequest.Order));
         }
