@@ -61,9 +61,9 @@ public abstract class Light : Component
         base.OnUpdate(deltaTime);
 
         // TODO: Event for transform changes.
-        Position = Entity.Node.Position;
-        Rotation = Entity.Node.Rotation;
-        Scale = GameMath.Abs(Entity.Node.Scale);
+        Position = Entity.Position;
+        Rotation = Entity.Rotation;
+        Scale = GameMath.Abs(Entity.Scale);
     }
 
     public override void OnDestroy()

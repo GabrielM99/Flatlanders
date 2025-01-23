@@ -83,20 +83,20 @@ public class PlayerIdleAnimation : Animation<Player>
     public override void Bind(RuntimeAnimation runtimeAnimation, Player obj)
     {
         runtimeAnimation.BindProperty(HeadSprite, (value) => obj.HeadSpriteRenderer.Sprite = value);
-        runtimeAnimation.BindProperty(HeadLocalPosition, (value) => obj.HeadSpriteRenderer.Entity.Node.LocalPosition = value);
+        runtimeAnimation.BindProperty(HeadLocalPosition, (value) => obj.HeadSpriteRenderer.Entity.LocalPosition = value);
 
         runtimeAnimation.BindProperty(EyebrowsSprite, (value) => obj.EyebrowsSpriteRenderer.Sprite = value);
         runtimeAnimation.BindProperty(EyesBackSprite, (value) => obj.EyesBackSpriteRenderer.Sprite = value);
         runtimeAnimation.BindProperty(EyesSprite, (value) => obj.EyesSpriteRenderer.Sprite = value);
 
         runtimeAnimation.BindProperty(ChestSprite, (value) => obj.ChestSpriteRenderer.Sprite = value);
-        runtimeAnimation.BindProperty(ChestLocalPosition, (value) => obj.ChestSpriteRenderer.Entity.Node.LocalPosition = value);
+        runtimeAnimation.BindProperty(ChestLocalPosition, (value) => obj.ChestSpriteRenderer.Entity.LocalPosition = value);
 
         runtimeAnimation.BindProperty(LegsSprite, (value) => obj.LegsSpriteRenderer.Sprite = value);
         runtimeAnimation.BindProperty(FeetSprite, (value) => obj.FeetSpriteRenderer.Sprite = value);
         runtimeAnimation.BindProperty(HairSprite, (value) => obj.HairSpriteRenderer.Sprite = value);
 
-        runtimeAnimation.BindProperty(LeftHandLocalPosition, (value) => obj.LeftHandSpriteRenderer.Entity.Node.LocalPosition = value);
-        runtimeAnimation.BindProperty(RightHandLocalPosition, (value) => obj.RightHandSpriteRenderer.Entity.Node.LocalPosition = value);
+        runtimeAnimation.BindProperty(LeftHandLocalPosition, (value) => obj.LeftHandSpriteRenderer.Entity.LocalPosition = value);
+        runtimeAnimation.BindProperty(RightHandLocalPosition, (value) => obj.RightHandSpriteRenderer.Entity.LocalPosition = value);
     }
 }

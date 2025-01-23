@@ -8,7 +8,7 @@ public class PlayerCamera(Entity entity) : Component(entity)
 {
     public override int Order => ComponentOrder.Physics + 1;
 
-    public Node Target { get; set; }
+    public Entity Target { get; set; }
 
     public override void OnUpdate(float deltaTime)
     {
@@ -16,7 +16,7 @@ public class PlayerCamera(Entity entity) : Component(entity)
 
         if (Target != null)
         {
-            Entity.Node.Position = Target.Position;
+            Entity.Position = Target.Position;
         }
     }
 }

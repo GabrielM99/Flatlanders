@@ -117,7 +117,7 @@ public partial class RenderManager : DrawableGameComponent
 
         // Configure the lighting transform matrix. 
         // Lighting works with window coordinates to maintain the high quality of shadows.
-        Vector2 cameraPosition = WorldToWindowVector(ActiveCamera.Entity.Node.Position);
+        Vector2 cameraPosition = WorldToWindowVector(ActiveCamera.Entity.Position);
         Matrix lightingTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
 
         Lighting.Transform = lightingTransformMatrix;
@@ -187,7 +187,7 @@ public partial class RenderManager : DrawableGameComponent
         Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
         Vector2 normalized = (windowPosition - ViewSize * 0.5f - offset) / ViewSize;
 
-        return normalized * WindowToWorldVector(ActiveCamera.Resolution) + ActiveCamera.Entity.Node.Position;
+        return normalized * WindowToWorldVector(ActiveCamera.Resolution) + ActiveCamera.Entity.Position;
     }
 
     public Vector2 WorldToWindowPosition(Vector2 worldPosition)
@@ -198,7 +198,7 @@ public partial class RenderManager : DrawableGameComponent
         }
 
         Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
-        Vector2 normalized = (worldPosition - ActiveCamera.Entity.Node.Position) / WindowToWorldVector(ActiveCamera.Resolution);
+        Vector2 normalized = (worldPosition - ActiveCamera.Entity.Position) / WindowToWorldVector(ActiveCamera.Resolution);
 
         return (normalized * ViewSize) + offset + ViewSize * 0.5f;
     }
@@ -243,11 +243,11 @@ public partial class RenderManager : DrawableGameComponent
 
     private void DrawWorldSpace()
     {
-        Node cameraTransform = ActiveCamera.Entity.Node;
-        Vector2 cameraPosition = WorldToScreenVector(cameraTransform.Position);
+        Entity cameraEntity = ActiveCamera.Entity;
+        Vector2 cameraPosition = WorldToScreenVector(cameraEntity.Position);
 
         Matrix transformMatrix =
-            Matrix.CreateRotationZ(cameraTransform.Rotation) *
+            Matrix.CreateRotationZ(cameraEntity.Rotation) *
             Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) *
             Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) *
             Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));

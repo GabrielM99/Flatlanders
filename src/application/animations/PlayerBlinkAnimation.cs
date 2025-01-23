@@ -21,6 +21,6 @@ public class PlayerBlinkAnimation : Animation<Player>
 
     public override void Bind(RuntimeAnimation runtimeAnimation, Player obj)
     {
-        runtimeAnimation.BindProperty(EyebrowsLocalPosition, (value) => obj.EyebrowsSpriteRenderer.Entity.Node.LocalPosition = value);
+        runtimeAnimation.BindProperty(EyebrowsLocalPosition, (value) => obj.EyebrowsSpriteRenderer.Entity.LocalPosition = value);
     }
 }

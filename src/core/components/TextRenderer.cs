@@ -23,7 +23,7 @@ public class TextRenderer(Entity entity) : Renderer(entity), ISizable
             if (value != _text)
             {
                 _text = value;
-                Entity.Node.RecalculateSize();
+                Entity.RecalculateSize();
             }
         }
     }
@@ -37,7 +37,7 @@ public class TextRenderer(Entity entity) : Renderer(entity), ISizable
             if (value != _font)
             {
                 _font = value;
-                Entity.Node.RecalculateSize();
+                Entity.RecalculateSize();
             }
         }
     }
@@ -50,6 +50,6 @@ public class TextRenderer(Entity entity) : Renderer(entity), ISizable
 
     public override void OnDraw(RenderManager renderManager, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {
-        renderManager.Draw(Entity.Node, new TextDrawer(Text, Font, Effects), Color, layer, sortingOrigin, order);
+        renderManager.Draw(Entity, new TextDrawer(Text, Font, Effects), Color, layer, sortingOrigin, order);
     }
 }

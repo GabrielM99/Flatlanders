@@ -57,6 +57,6 @@ public class Rigidbody : Component
             }
         }
 
-        Entity.Node.Position += offset;
+        Entity.Position += offset;
     }
 }

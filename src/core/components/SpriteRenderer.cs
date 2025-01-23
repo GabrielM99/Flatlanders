@@ -17,7 +17,7 @@ public class SpriteRenderer(Entity entity) : Renderer(entity)
             if (Sprite != value)
             {
                 _sprite = value;
-                Entity.Node.RecalculateSize();
+                Entity.RecalculateSize();
             }
         }
     }
@@ -26,6 +26,6 @@ public class SpriteRenderer(Entity entity) : Renderer(entity)
 
     public override void OnDraw(RenderManager renderManager, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {
-        renderManager.Draw(Entity.Node, new SpriteDrawer(Sprite, Effects), Color, layer, sortingOrigin, order);
+        renderManager.Draw(Entity, new SpriteDrawer(Sprite, Effects), Color, layer, sortingOrigin, order);
     }
 }

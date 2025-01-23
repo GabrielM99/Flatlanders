@@ -20,7 +20,7 @@ public class TilemapRenderer(Entity entity) : Renderer(entity)
         {
             Camera camera = renderManager.ActiveCamera;
 
-            RectangleF cameraBounds = new(camera.Entity.Node.Position - camera.Entity.Node.Size * 0.5f, camera.Entity.Node.Size);
+            RectangleF cameraBounds = new(camera.Entity.Position - camera.Entity.Size * 0.5f, camera.Entity.Size);
 
             Vector3 cameraMin = new Vector3(cameraBounds.TopLeft, 0f) - Vector3.One;
             Vector3 cameraMax = new Vector3(cameraBounds.BottomRight, 0f) + Vector3.One;
@@ -31,7 +31,7 @@ public class TilemapRenderer(Entity entity) : Renderer(entity)
                 {
                     Transform tileTransform = new()
                     {
-                        Position = Entity.Node.Position +
+                        Position = Entity.Position +
                             new Vector2(tileInfo.Position.X, tileInfo.Position.Y)
                     };
                     renderManager.Draw(tileTransform, new SpriteDrawer(tileInfo.Sprite, Effects), Color, (sbyte)(layer + tileInfo.Position.Z), sortingOrigin + tileInfo.SortingOrigin, order);

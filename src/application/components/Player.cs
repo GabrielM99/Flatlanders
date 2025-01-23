@@ -89,7 +89,7 @@ public class Player(Entity entity) : Component(entity)
         Color skinColor = new(0.933333337f, 0.847058833f, 0.7019608f);
 
         Entity graphicsEntity = Entity.CreateChild();
-        graphicsEntity.Node.LocalPosition = -Vector2.UnitY * 0.0625f * 8f;
+        graphicsEntity.LocalPosition = -Vector2.UnitY * 0.0625f * 8f;
 
         HeadSpriteRenderer = graphicsEntity.CreateChild().AddComponent<SpriteRenderer>();
         HeadSpriteRenderer.Color = skinColor;
@@ -142,7 +142,7 @@ public class Player(Entity entity) : Component(entity)
     {
         base.OnUpdate(deltaTime);
 
-        debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.TimeManager.TicksPerSecond}\nFPS:{(int)Engine.TimeManager.FramesPerSecond}\nPOS: (X: {(int)Entity.Node.Position.X}, Y: {(int)Entity.Node.Position.Y})";
+        debugTextRenderer.Text = $"Flatlanders 0.0.1\nTPS:{(int)Engine.TimeManager.TicksPerSecond}\nFPS:{(int)Engine.TimeManager.FramesPerSecond}\nPOS: (X: {(int)Entity.Position.X}, Y: {(int)Entity.Position.Y})";
 
         float speed = WalkSpeed;
 
@@ -171,7 +171,6 @@ public class Player(Entity entity) : Component(entity)
         if (RunAction.IsExecuting)
         {
             speed = RunSpeed;
-            Entity.Destroy();
         }
 
         if (Rigidbody.Velocity == Vector2.Zero)
@@ -190,11 +189,11 @@ public class Player(Entity entity) : Component(entity)
 
         Vector2 mousePosition = Engine.InputManager.MousePosition;
         Vector2 worldMousePosition = Engine.RenderManager.WindowToWorldPosition(mousePosition);
-        Vector2 worldMouseDirection = Vector2.Normalize(worldMousePosition - Entity.Node.Position);
+        Vector2 worldMouseDirection = Vector2.Normalize(worldMousePosition - Entity.Position);
 
         if (worldMouseDirection.X != 0f && !float.IsNaN(worldMouseDirection.X))
         {
-            Entity.Node.Scale = new Vector2(Math.Sign(worldMouseDirection.X), 1f);
+            Entity.Scale = new Vector2(Math.Sign(worldMouseDirection.X), 1f);
         }
 
         if (PlaceAction.IsExecuting)

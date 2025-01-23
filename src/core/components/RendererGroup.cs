@@ -79,7 +79,7 @@ public class RendererGroup : Component
         {
             foreach (Renderer renderer in renderers)
             {
-                Vector2 sortingOrigin = Entity.Node.Position - renderer.Entity.Node.Position;
+                Vector2 sortingOrigin = Entity.Position - renderer.Entity.Position;
                 renderer.Draw(Layer, sortingOrigin, order);
                 order++;
             }

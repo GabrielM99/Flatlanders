@@ -79,7 +79,7 @@ public class WorldScene(Engine engine) : Scene(engine)
 
         Entity tilemapEntity = Engine.EntityManager.CreateEntity();
         TilemapRenderer tilemapRenderer = tilemapEntity.AddComponent<TilemapRenderer>();
-        tilemapRenderer.Entity.Node.LocalPosition -= Vector2.One * 0.5f;
+        tilemapRenderer.Entity.LocalPosition -= Vector2.One * 0.5f;
         tilemapRenderer.Tilemap = viewTilemap;
         tilemapRenderer.Layer = 0;
         TilemapCollider tilemapCollider = tilemapEntity.AddComponent<TilemapCollider>();
@@ -117,11 +117,11 @@ public class WorldScene(Engine engine) : Scene(engine)
         TextRenderer debugTextRenderer = debugTextEntity.AddComponent<TextRenderer>();
         debugTextRenderer.Font = Engine.Content.Load<SpriteFont>("DogicaPixel");
         debugTextRenderer.Color = Color.LightGray;
-        debugTextEntity.Node.Pivot = -Vector2.One;
-        debugTextEntity.Node.Position = Vector2.One;
-        debugTextEntity.Node.Scale = Vector2.One * 0.5f;
-        debugTextEntity.Node.Space = TransformSpace.Screen;
-        debugTextEntity.Node.Anchor = TransformAnchor.TopLeft;
+        debugTextEntity.Pivot = -Vector2.One;
+        debugTextEntity.Position = Vector2.One;
+        debugTextEntity.Scale = Vector2.One * 0.5f;
+        debugTextEntity.Space = TransformSpace.Screen;
+        debugTextEntity.Anchor = TransformAnchor.TopLeft;
 
         Entity playerEntity = Engine.EntityManager.CreateEntity(prefabDatabase.Player, "Player");
         Player player = playerEntity.GetComponent<Player>();
@@ -129,28 +129,28 @@ public class WorldScene(Engine engine) : Scene(engine)
         player.rockTile = rockTile;
         player.debugTextRenderer = debugTextRenderer;
 
-        playerCamera.Target = playerEntity.Node;
+        playerCamera.Target = playerEntity;
 
         Entity enemyEntity = Engine.EntityManager.CreateEntity();
-        enemyEntity.Node.Position = Vector2.UnitX * 3f;
+        enemyEntity.Position = Vector2.UnitX * 3f;
         RectangleCollider enemyCollider = enemyEntity.AddComponent<RectangleCollider>();
         enemyCollider.Size = new Vector2(0.25f);
         SpriteRenderer enemySpriteRenderer = enemyEntity.AddComponent<SpriteRenderer>();
         enemySpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Anti"), null, new Vector2(0f, 8f));
 
         Entity slotParentEntity = Engine.EntityManager.CreateEntity();
-        slotParentEntity.Node.Position = new Vector2(0f, -1f);
-        slotParentEntity.Node.Pivot = new Vector2(0f, 1f);
-        slotParentEntity.Node.Anchor = TransformAnchor.Bottom;
-        slotParentEntity.Node.Space = TransformSpace.Screen;
+        slotParentEntity.Position = new Vector2(0f, -1f);
+        slotParentEntity.Pivot = new Vector2(0f, 1f);
+        slotParentEntity.Anchor = TransformAnchor.Bottom;
+        slotParentEntity.Space = TransformSpace.Screen;
         slotParentEntity.AddComponent<HorizontalContainer>().Spacing = 1f;
 
         for (int i = 0; i < 5; i++)
         {
             Entity slotEntity = Engine.EntityManager.CreateEntity();
-            slotEntity.Node.Parent = slotParentEntity.Node;
-            slotEntity.Node.Space = TransformSpace.Screen;
-            slotEntity.Node.Anchor = TransformAnchor.Center;
+            slotEntity.Parent = slotParentEntity;
+            slotEntity.Space = TransformSpace.Screen;
+            slotEntity.Anchor = TransformAnchor.Center;
             SpriteRenderer slotSpriteRenderer = slotEntity.AddComponent<SpriteRenderer>();
             slotSpriteRenderer.Sprite = new Sprite(Engine.Content.Load<Texture2D>("Slots"), new Rectangle(0, 0, 16, 16));
         }
