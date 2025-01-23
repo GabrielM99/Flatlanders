@@ -116,7 +116,7 @@ public class WorldScene(Engine engine) : Scene(engine)
         Entity debugTextEntity = Engine.EntityManager.CreateEntity();
         TextRenderer debugTextRenderer = debugTextEntity.AddComponent<TextRenderer>();
         debugTextRenderer.Font = Engine.Content.Load<SpriteFont>("DogicaPixel");
-        debugTextRenderer.Color = Color.Black;
+        debugTextRenderer.Color = Color.LightGray;
         debugTextEntity.Node.Pivot = -Vector2.One;
         debugTextEntity.Node.Position = Vector2.One;
         debugTextEntity.Node.Scale = Vector2.One * 0.5f;

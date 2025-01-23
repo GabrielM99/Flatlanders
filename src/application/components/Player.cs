@@ -188,9 +188,9 @@ public class Player(Entity entity) : Component(entity)
         }
 
         Vector2 mousePosition = Engine.InputManager.MousePosition;
-        Vector2 worldMousePosition = Engine.RenderManager.ScreenToWorldVector(mousePosition);
+        Vector2 worldMousePosition = Engine.RenderManager.WindowToWorldPosition(mousePosition);
         Vector2 worldMouseDirection = Vector2.Normalize(worldMousePosition - Entity.Node.Position);
-
+        
         if (worldMouseDirection.X != 0f && !float.IsNaN(worldMouseDirection.X))
         {
             Entity.Node.Scale = new Vector2(Math.Sign(worldMouseDirection.X), 1f);

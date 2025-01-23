@@ -15,7 +15,8 @@ public class LightOccluder
         set
         {
             _position = value;
-            Data.Position = value * Engine.RenderManager.ReferencePixelsPerUnit;
+            // Lighting works with window coordinates to maintain the high quality of shadows.
+            Data.Position = Engine.RenderManager.WorldToWindowVector(value);
         }
     }
     public Vector2 Scale
@@ -24,7 +25,8 @@ public class LightOccluder
         set
         {
             _scale = value;
-            Data.Scale = value * Engine.RenderManager.ReferencePixelsPerUnit;
+            // Lighting works with window coordinates to maintain the high quality of shadows.
+            Data.Scale = Engine.RenderManager.WorldToWindowVector(value);
         }
     }
 

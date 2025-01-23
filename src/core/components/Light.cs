@@ -19,7 +19,8 @@ public abstract class Light : Component
         set
         {
             _position = value;
-            Data.Position = value * Engine.RenderManager.ReferencePixelsPerUnit;
+            // Lighting works with window coordinates to maintain the high quality of shadows.
+            Data.Position = Engine.RenderManager.WorldToWindowVector(value);
         }
     }
     public Vector2 Scale
@@ -28,7 +29,8 @@ public abstract class Light : Component
         set
         {
             _scale = value;
-            Data.Scale = value * Engine.RenderManager.ReferencePixelsPerUnit * Range;
+            // Lighting works with window coordinates to maintain the high quality of shadows.
+            Data.Scale = Engine.RenderManager.WorldToWindowVector(value) * Range;
         }
     }
     public float Rotation { get => Data.Rotation; set => Data.Rotation = value; }

@@ -116,9 +116,10 @@ public partial class RenderManager : DrawableGameComponent
 
         GraphicsDevice.SetRenderTarget(null);
 
-        // Configure the lighting transform matrix.
-        Vector2 cameraPosition = ActiveCamera.Entity.Node.Position;
-        Matrix lightingTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X * ReferencePixelsPerUnit, -cameraPosition.Y * ReferencePixelsPerUnit, 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
+        // Configure the lighting transform matrix. 
+        // Lighting works with window coordinates to maintain the high quality of shadows.
+        Vector2 cameraPosition = WorldToWindowVector(ActiveCamera.Entity.Node.Position);
+        Matrix lightingTransformMatrix = Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(ViewSize.X / ActiveCamera.Resolution.X, ViewSize.Y / ActiveCamera.Resolution.Y, 1f) * Matrix.CreateTranslation(new Vector3(WindowSize * 0.5f, 0f));
 
         Lighting.Transform = lightingTransformMatrix;
         Lighting.BeginDraw();
@@ -147,50 +148,60 @@ public partial class RenderManager : DrawableGameComponent
         DrawerRequestsBySpace[transform.Space].Add(new DrawRequest(Transform.Copy(transform), drawer, color, layer, sortingOrigin, order));
     }
 
-    public Vector2 ScreenToViewVector(Vector2 screenVector)
+    public Vector2 WindowToScreenVector(Vector2 windowVector)
     {
-        return screenVector / PixelsPerUnitScale;
+        return windowVector / PixelsPerUnitScale;
     }
 
-    public Vector2 ViewToScreenVector(Vector2 screenVector)
+    public Vector2 WindowToWorldVector(Vector2 windowVector)
+    {
+        return ScreenToWorldVector(WindowToScreenVector(windowVector));
+    }
+
+    public Vector2 ScreenToWindowVector(Vector2 screenVector)
     {
         return screenVector * PixelsPerUnitScale;
     }
 
     public Vector2 ScreenToWorldVector(Vector2 screenVector)
     {
-        if (ActiveCamera == null)
-        {
-            return Vector2.Zero;
-        }
-
-        Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
-        Vector2 normalized = (screenVector - ViewSize * 0.5f - offset) / ViewSize;
-
-        return normalized * (ActiveCamera.Resolution / ReferencePixelsPerUnit) + ActiveCamera.Entity.Node.Position;
-    }
-
-    public Vector2 ViewToWorldVector(Vector2 viewVector)
-    {
-        return viewVector / PixelsPerUnit;
+        return screenVector / PixelsPerUnit;
     }
 
     public Vector2 WorldToScreenVector(Vector2 worldVector)
     {
+        return worldVector * PixelsPerUnit;
+    }
+
+    public Vector2 WorldToWindowVector(Vector2 worldVector)
+    {
+        return ScreenToWindowVector(WorldToScreenVector(worldVector));
+    }
+
+    public Vector2 WindowToWorldPosition(Vector2 windowPosition)
+    {
         if (ActiveCamera == null)
         {
             return Vector2.Zero;
         }
 
         Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
-        Vector2 normalized = (worldVector - ActiveCamera.Entity.Node.Position) / (ActiveCamera.Resolution / ReferencePixelsPerUnit);
+        Vector2 normalized = (windowPosition - ViewSize * 0.5f - offset) / ViewSize;
 
-        return (normalized * ViewSize) + offset + ViewSize * 0.5f;
+        return normalized * WindowToWorldVector(ActiveCamera.Resolution) + ActiveCamera.Entity.Node.Position;
     }
 
-    public Vector2 WorldToViewVector(Vector2 worldVector)
+    public Vector2 WorldToWindowPosition(Vector2 worldPosition)
     {
-        return worldVector * PixelsPerUnit;
+        if (ActiveCamera == null)
+        {
+            return Vector2.Zero;
+        }
+
+        Vector2 offset = new((WindowSize.X - ViewSize.X) * 0.5f, (WindowSize.Y - ViewSize.Y) * 0.5f);
+        Vector2 normalized = (worldPosition - ActiveCamera.Entity.Node.Position) / WindowToWorldVector(ActiveCamera.Resolution);
+
+        return (normalized * ViewSize) + offset + ViewSize * 0.5f;
     }
 
     public void AddLight(Light light)
@@ -234,22 +245,26 @@ public partial class RenderManager : DrawableGameComponent
     private void DrawWorldSpace()
     {
         Node cameraTransform = ActiveCamera.Entity.Node;
-        Vector2 cameraPosition = WorldToViewVector(cameraTransform.Position);
+        Vector2 cameraPosition = WorldToScreenVector(cameraTransform.Position);
 
-        Matrix spriteTransformMatrix = Matrix.CreateRotationZ(cameraTransform.Rotation) * Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) * Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
+        Matrix transformMatrix =
+            Matrix.CreateRotationZ(cameraTransform.Rotation) *
+            Matrix.CreateTranslation(-cameraPosition.X, -cameraPosition.Y, 0f) *
+            Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) *
+            Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
 
-        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: spriteTransformMatrix, blendState: BlendState.AlphaBlend);
+        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix, blendState: BlendState.AlphaBlend);
 
         foreach (DrawRequest drawRequest in DrawerRequestsBySpace[TransformSpace.World])
         {
             Transform transform = drawRequest.Transform;
 
             Vector2 sortingPosition = transform.Position + drawRequest.SortingOrigin;
-            Vector2 screenPosition = WorldToScreenVector(sortingPosition);
+            Vector2 screenPosition = WorldToWindowPosition(sortingPosition);
             Vector2 sortingScreenPosition = Vector2.Multiply(SortingAxis, Vector2.Divide(screenPosition, WindowSize));
 
-            transform.Position = WorldToViewVector(transform.Position);
-            transform.Size = WorldToViewVector(transform.Size);
+            transform.Position = WorldToScreenVector(transform.Position);
+            transform.Size = WorldToScreenVector(transform.Size);
 
             sbyte sortingLayer = (sbyte)(Math.Clamp(sortingScreenPosition.Y, -1f, 1f) * 127);
 
@@ -261,7 +276,9 @@ public partial class RenderManager : DrawableGameComponent
 
     private void DrawScreenSpace()
     {
-        Matrix transformMatrix = Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) * Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
+        Matrix transformMatrix =
+            Matrix.CreateScale(PixelsPerUnitScale, PixelsPerUnitScale, 1f) *
+            Matrix.CreateTranslation(new Vector3(ActiveCamera.Resolution * 0.5f, 0f));
 
         SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix: transformMatrix);
 
@@ -270,7 +287,7 @@ public partial class RenderManager : DrawableGameComponent
             Transform transform = drawRequest.Transform;
             ITransform root = transform.Root;
 
-            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(root == null ? TransformAnchor.Center : root.Anchor), ActiveCamera.Resolution / PixelsPerUnitScale) * 0.5f;
+            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(root == null ? TransformAnchor.Center : root.Anchor), WindowToScreenVector(ActiveCamera.Resolution)) * 0.5f;
 
             drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, 0, 0));
         }
