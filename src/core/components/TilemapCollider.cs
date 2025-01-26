@@ -12,7 +12,7 @@ public class TilemapCollider : Component
     private class TileCollider : ICollider
     {
         public IShapeF Bounds { get; private set; }
-        public string LayerName => PhysicsManager.DEFAULT_LAYER_NAME;
+        public string LayerName => PhysicsManager.DefaultLayerName;
 
         public TileCollider(Vector3 position)
         {

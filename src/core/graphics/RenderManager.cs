@@ -255,7 +255,7 @@ public partial class RenderManager : DrawableGameComponent
             Transform transform = drawRequest.Transform;
             ITransform root = transform.Root;
 
-            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(root == null ? TransformAnchor.Center : root.Anchor), WindowToScreenVector(ActiveCamera.Resolution)) * 0.5f;
+            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(root == null ? TransformAnchor.Center : root.Anchor), ActiveCamera.Size) * 0.5f;
 
             drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, 0, 0));
         }

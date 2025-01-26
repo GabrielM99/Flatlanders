@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using Flatlanders.Core.Components;
 using Flatlanders.Core.Graphics.Drawers;
 using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
@@ -10,13 +11,27 @@ using MonoGame.Extended;
 
 namespace Flatlanders.Core.Physics;
 
+public class PointerCollider : ICollider
+{
+    public string LayerName => PhysicsManager.UILayerName;
+    public Vector2 Position { get; set; }
+    public IShapeF Bounds => new RectangleF(Position, Vector2.One);
+
+    public void OnCollision(CollisionInfo collisionInfo)
+    {
+        Console.WriteLine("pointer collided");
+    }
+}
+
 public class PhysicsManager : GameComponent
 {
-    public const string DEFAULT_LAYER_NAME = "Default";
-    public const string UI_LAYER_NAME = "UI";
+    public const string DefaultLayerName = "Default";
+    public const string UILayerName = "UI";
+
+    public PointerCollider PointerCollider { get; }
 
     private Dictionary<string, CollisionLayer> Layers { get; }
-    private HashSet<(CollisionLayer, CollisionLayer)> LayerCollision { get; }
+    private HashSet<(CollisionLayer, CollisionLayer)> LayerCollisions { get; }
 
     private Engine Engine { get; }
 
@@ -24,23 +39,11 @@ public class PhysicsManager : GameComponent
     {
         Engine = engine;
         Layers = [];
-        LayerCollision = [];
-        SetDefaultLayer(new CollisionLayer(new QuadTreeSpace(boundary)));
-    }
+        LayerCollisions = [];
 
-    public void SetDefaultLayer(CollisionLayer layer)
-    {
-        if (Layers.ContainsKey(DEFAULT_LAYER_NAME))
-        {
-            RemoveLayer(DEFAULT_LAYER_NAME);
-        }
-
-        AddLayer(DEFAULT_LAYER_NAME, layer);
-
-        foreach (CollisionLayer otherLayer in Layers.Values)
-        {
-            AddCollisionBetweenLayer(layer, otherLayer);
-        }
+        AddLayer(DefaultLayerName, new CollisionLayer(new QuadTreeSpace(boundary)));
+        AddLayer(UILayerName, new CollisionLayer(new QuadTreeSpace(boundary)));
+        AddCollider(PointerCollider = new PointerCollider());
     }
 
     public override void Update(GameTime gameTime)
@@ -53,13 +56,52 @@ public class PhysicsManager : GameComponent
             {
                 foreach (ICollider actor in layer.Space)
                 {
-                    Engine.RenderManager.Draw(new Transform() { Position = actor.Bounds.BoundingRectangle.Center, Size = actor.Bounds.BoundingRectangle.Size }, new RectangleDrawer(1f), Color.Red, 100);
+                    ITransform root = null;
+                    TransformSpace space = TransformSpace.World;
+                    TransformAnchor anchor = TransformAnchor.Center;
+
+                    if (actor is Collider collider)
+                    {
+                        root = collider.Entity.Root;
+                        space = collider.Entity.Space;
+                        anchor = collider.Entity.Anchor;
+                    }
+
+                    Engine.RenderManager.Draw(new Transform() { Position = actor.Bounds.BoundingRectangle.Center, Size = actor.Bounds.BoundingRectangle.Size, Root = root, Space = space, Anchor = anchor }, new RectangleDrawer(1f), Color.Red, sbyte.MaxValue);
+                }
+            }
+        }
+
+        foreach ((CollisionLayer firstLayer, CollisionLayer secondLayer) in LayerCollisions)
+        {
+            foreach (ICollider collider in firstLayer.Space)
+            {
+                IEnumerable<ICollider> collisions = secondLayer.Space.Query(collider.Bounds.BoundingRectangle);
+
+                foreach (ICollider otherCollider in collisions)
+                {
+                    if (collider != otherCollider && collider.Bounds.Intersects(otherCollider.Bounds))
+                    {
+                        Vector2 penetration = CalculatePenetrationVector(collider.Bounds, otherCollider.Bounds);
+
+                        collider.OnCollision(new CollisionInfo
+                        {
+                            Other = otherCollider,
+                            Penetration = penetration
+                        });
+
+                        otherCollider.OnCollision(new CollisionInfo
+                        {
+                            Other = collider,
+                            Penetration = -penetration
+                        });
+                    }
                 }
             }
         }
     }
 
-    public int CastCollider(IShapeF shape, in CollisionInfo[] collisionInfo, string layerName = DEFAULT_LAYER_NAME, ICollider exclude = null)
+    public int CastCollider(IShapeF shape, in CollisionInfo[] collisionInfo, string layerName = DefaultLayerName, ICollider exclude = null)
     {
         if (collisionInfo == null)
         {
@@ -83,7 +125,7 @@ public class PhysicsManager : GameComponent
                         collisionInfo[collisionCount] = new CollisionInfo
                         {
                             Other = other,
-                            PenetrationVector = penetrationVector
+                            Penetration = penetrationVector
                         };
                     }
 
@@ -97,7 +139,7 @@ public class PhysicsManager : GameComponent
 
     public void AddCollider(ICollider target)
     {
-        var layerName = target.LayerName ?? DEFAULT_LAYER_NAME;
+        var layerName = target.LayerName ?? DefaultLayerName;
 
         if (!Layers.TryGetValue(layerName, out var layer))
         {
@@ -137,27 +179,24 @@ public class PhysicsManager : GameComponent
             throw new DuplicateNameException(name);
         }
 
-        if (name != DEFAULT_LAYER_NAME)
-        {
-            AddCollisionBetweenLayer(Layers[DEFAULT_LAYER_NAME], layer);
-        }
+        AddCollisionBetweenLayer(layer, layer);
     }
 
     public void RemoveLayer(string name = null, CollisionLayer layer = null)
     {
         name ??= Layers.First(x => x.Value == layer).Key;
         Layers.Remove(name, out layer);
-        LayerCollision.RemoveWhere(tuple => tuple.Item1 == layer || tuple.Item2 == layer);
+        LayerCollisions.RemoveWhere(tuple => tuple.Item1 == layer || tuple.Item2 == layer);
     }
 
     public void AddCollisionBetweenLayer(CollisionLayer a, CollisionLayer b)
     {
-        LayerCollision.Add((a, b));
+        LayerCollisions.Add((a, b));
     }
 
     public void AddCollisionBetweenLayer(string nameA, string nameB)
     {
-        LayerCollision.Add((Layers[nameA], Layers[nameB]));
+        LayerCollisions.Add((Layers[nameA], Layers[nameB]));
     }
 
     private static Vector2 CalculatePenetrationVector(IShapeF a, IShapeF b)

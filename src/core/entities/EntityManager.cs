@@ -37,6 +37,7 @@ public class EntityManager : GameComponent
 
     public override void Initialize()
     {
+        // TODO: Should this be in Engine.cs?
         Engine.SceneManager.SceneLoading += OnSceneLoading;
         base.Initialize();
     }
@@ -51,7 +52,8 @@ public class EntityManager : GameComponent
         {
             entity.OnUpdate(deltaTime);
         }
-
+        
+        // TODO: Only update components with IUpdatable.
         foreach (HashSet<Component> components in ComponentsByOrder.Values)
         {
             foreach (Component component in components)

@@ -68,4 +68,10 @@ public class Engine : Game
 
         Application.Initialize();
     }
+
+    protected override void Update(GameTime gameTime)
+    {
+        base.Update(gameTime);
+        //PhysicsManager.PointerCollider.Position = RenderManager.WindowToScreenVector(InputManager.PointerPosition);
+    }
 }

@@ -7,7 +7,8 @@ namespace Flatlanders.Core.Inputs;
 
 public class InputManager : GameComponent
 {
-    public Vector2 MousePosition => MouseState.Position.ToVector2();
+    // TODO: Support pointers other than mouse.
+    public Vector2 PointerPosition => MouseState.Position.ToVector2();
 
     private KeyboardState KeyboardState { get; set; }
     private MouseState MouseState { get; set; }

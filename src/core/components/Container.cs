@@ -1,6 +1,6 @@
 namespace Flatlanders.Core.Components;
 
-public abstract class Container : Layout
+public abstract class Container(Entity entity) : Layout(entity)
 {
     private float _spacing;
 
@@ -16,9 +16,5 @@ public abstract class Container : Layout
                 Build();
             }
         }
-    }
-
-    public Container(Entity entity) : base(entity)
-    {
     }
 }

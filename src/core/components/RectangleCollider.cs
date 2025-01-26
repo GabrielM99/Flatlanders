@@ -1,10 +1,9 @@
-using Flatlanders.Core.Physics;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 
 namespace Flatlanders.Core.Components;
 
-public class RectangleCollider(Entity entity) : Collider(entity), ICollider
+public class RectangleCollider(Entity entity) : Collider(entity)
 {
     public override IShapeF Bounds => new RectangleF(Entity.Position - Size * 0.5f + Offset, Size);
 

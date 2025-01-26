@@ -187,23 +187,23 @@ public class Player(Entity entity) : Component(entity)
             Animator.PlayAnimation(PlayerBlinkAnimation, this, 1, 0.1f);
         }
 
-        Vector2 mousePosition = Engine.InputManager.MousePosition;
-        Vector2 worldMousePosition = Engine.RenderManager.ActiveCamera.WindowToWorldPosition(mousePosition);
-        Vector2 worldMouseDirection = Vector2.Normalize(worldMousePosition - Entity.Position);
+        Vector2 pointerPosition = Engine.InputManager.PointerPosition;
+        Vector2 worldPointerPosition = Engine.RenderManager.ActiveCamera.WindowToWorldPosition(pointerPosition);
+        Vector2 worldPointerDirection = Vector2.Normalize(worldPointerPosition - Entity.Position);
 
-        if (worldMouseDirection.X != 0f && !float.IsNaN(worldMouseDirection.X))
+        if (worldPointerDirection.X != 0f && !float.IsNaN(worldPointerDirection.X))
         {
-            Entity.Scale = new Vector2(Math.Sign(worldMouseDirection.X), 1f);
+            Entity.Scale = new Vector2(Math.Sign(worldPointerDirection.X), 1f);
         }
 
         if (PlaceAction.IsExecuting)
         {
-            tilemap.SetTile(rockTile, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
+            tilemap.SetTile(rockTile, new Vector3(worldPointerPosition - Vector2.One * 0.5f, 0f));
         }
 
         if (DestroyAction.IsExecuting)
         {
-            tilemap.SetTile(null, new Vector3(worldMousePosition - Vector2.One * 0.5f, 0f));
+            tilemap.SetTile(null, new Vector3(worldPointerPosition - Vector2.One * 0.5f, 0f));
         }
 
         Rigidbody.Velocity = direction * speed;
