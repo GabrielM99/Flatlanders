@@ -227,9 +227,8 @@ public partial class RenderManager : DrawableGameComponent
         {
             Transform transform = drawRequest.Transform;
 
-            Vector2 sortingPosition = transform.Position + drawRequest.SortingOrigin;
-            Vector2 windowPosition = ActiveCamera.WorldToWindowPosition(sortingPosition);
-            Vector2 sortingAxis = Vector2.Multiply(SortingAxis, Vector2.Divide(windowPosition, WindowSize));
+            Vector2 sortingPosition = ActiveCamera.WorldToWindowPosition(transform.Position + drawRequest.SortingOrigin);
+            Vector2 sortingAxis = Vector2.Multiply(SortingAxis, Vector2.Divide(sortingPosition, WindowSize));
 
             transform.Position = WorldToScreenVector(transform.Position);
             transform.Size = WorldToScreenVector(transform.Size);
@@ -255,7 +254,7 @@ public partial class RenderManager : DrawableGameComponent
             Transform transform = drawRequest.Transform;
             ITransform root = transform.Root;
 
-            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(root == null ? TransformAnchor.Center : root.Anchor), ActiveCamera.Size) * 0.5f;
+            transform.Position += Vector2.Multiply(ITransform.GetAnchorPosition(root == null ? TransformAnchor.Center : root.Anchor), ActiveCamera.GetSize(TransformSpace.Screen)) * 0.5f;
 
             drawRequest.Drawer.Draw(SpriteBatch, transform, drawRequest.Color, CalculateLayerDepth(drawRequest.Layer, 0, 0));
         }

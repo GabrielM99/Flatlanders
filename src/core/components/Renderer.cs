@@ -1,4 +1,5 @@
 using Flatlanders.Core.Graphics;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -36,8 +37,7 @@ public abstract class Renderer(Entity entity) : Component(entity), ISizable
         }
     }
 
-    public abstract Vector2 Size { get; }
-
+    public abstract Vector2 GetSize(TransformSpace space);
     public abstract void OnDraw(RenderManager renderManager, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0);
 
     public override void OnUpdate(float deltaTime)

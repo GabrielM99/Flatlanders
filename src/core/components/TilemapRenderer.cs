@@ -9,10 +9,13 @@ namespace Flatlanders.Core.Components;
 
 public class TilemapRenderer(Entity entity) : Renderer(entity)
 {
-    // TODO: Implement this.
-    public override Vector2 Size { get; }
-
     public Tilemap Tilemap { get; set; }
+
+    public override Vector2 GetSize(TransformSpace space)
+    {
+        // TODO: Implement this.
+        return default;
+    }
 
     public override void OnDraw(RenderManager renderManager, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {

@@ -1,16 +1,20 @@
 using System;
 using Flatlanders.Core.Physics;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
 
 public abstract class Layout(Entity entity) : Component(entity), ISizable
 {
-    public Vector2 Size { get; protected set; }
+    private RectangleCollider Collider { get; set; }
+
+    public virtual Vector2 GetSize(TransformSpace space)
+    {
+        return default;
+    }
 
     protected virtual void Build() { }
-
-    private RectangleCollider Collider { get; set; }
 
     public override void OnCreate()
     {
@@ -38,7 +42,6 @@ public abstract class Layout(Entity entity) : Component(entity), ISizable
     private void OnEntityChildrenSizeChanged(Entity entity)
     {
         Build();
-        Collider.Size = Size;
-        Console.WriteLine(Collider.Bounds);
+        Collider.Size = GetSize(Entity.Space);
     }
 }

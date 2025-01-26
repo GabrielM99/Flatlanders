@@ -60,7 +60,7 @@ public class Entity : ITransform
 
     // TODO: Check if setting a size is really supported.
     public Vector2 LocalSize { get; set; }
-    public Vector2 Size { get => Space == TransformSpace.World ? Engine.RenderManager.ScreenToWorldVector(LocalSize) : LocalSize; set => LocalSize = value - (Parent == null ? Vector2.Zero : Parent.Size); }
+    public Vector2 Size { get => LocalSize; set => LocalSize = value - (Parent == null ? Vector2.Zero : Parent.Size); }
 
     public Entity Parent
     {
@@ -317,7 +317,7 @@ public class Entity : ITransform
         {
             if (sizableComponent != this)
             {
-                size = Vector2.Max(size, sizableComponent.Size);
+                size = Vector2.Max(size, sizableComponent.GetSize(Space));
             }
         }
 

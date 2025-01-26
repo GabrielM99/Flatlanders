@@ -1,5 +1,6 @@
 using Flatlanders.Core.Graphics;
 using Flatlanders.Core.Graphics.Drawers;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -10,9 +11,6 @@ public class TextRenderer(Entity entity) : Renderer(entity), ISizable
 {
     private string _text = "Text";
     private SpriteFont _font;
-    
-    // TODO: Check performance.
-    public override Vector2 Size => Text == null || Font == null ? Vector2.Zero : Font.MeasureString(Text);
 
     public string Text
     {
@@ -27,7 +25,7 @@ public class TextRenderer(Entity entity) : Renderer(entity), ISizable
             }
         }
     }
-    
+
     public SpriteFont Font
     {
         get => _font;
@@ -46,6 +44,18 @@ public class TextRenderer(Entity entity) : Renderer(entity), ISizable
     {
         base.OnCreate();
         Font = Engine.Content.Load<SpriteFont>("Arial");
+    }
+
+    public override Vector2 GetSize(TransformSpace space)
+    {
+        if (Text == null || Font == null)
+        {
+            return Vector2.Zero;
+        }
+
+        // TODO: Check performance.
+        Vector2 screenSize = Font.MeasureString(Text);
+        return space == TransformSpace.World ? Engine.RenderManager.ScreenToWorldVector(screenSize) : screenSize;
     }
 
     public override void OnDraw(RenderManager renderManager, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)

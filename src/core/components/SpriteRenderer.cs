@@ -1,5 +1,6 @@
 using Flatlanders.Core.Graphics;
 using Flatlanders.Core.Graphics.Drawers;
+using Flatlanders.Core.Transforms;
 using Microsoft.Xna.Framework;
 
 namespace Flatlanders.Core.Components;
@@ -22,7 +23,16 @@ public class SpriteRenderer(Entity entity) : Renderer(entity)
         }
     }
 
-    public override Vector2 Size => Sprite == null ? Vector2.Zero : Sprite.Rectangle.Size.ToVector2();
+    public override Vector2 GetSize(TransformSpace space)
+    {
+        if (Sprite == null)
+        {
+            return Vector2.Zero;
+        }
+
+        Vector2 screenSize = Sprite.Rectangle.Size.ToVector2();
+        return space == TransformSpace.World ? Engine.RenderManager.ScreenToWorldVector(screenSize) : screenSize;
+    }
 
     public override void OnDraw(RenderManager renderManager, sbyte layer, Vector2 sortingOrigin = default, sbyte order = 0)
     {

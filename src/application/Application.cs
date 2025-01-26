@@ -16,7 +16,7 @@ public class Application : IApplication
             IsMouseVisible = true
         };
 
-        Engine.SetDebugFlags(EngineDebugFlags.DrawColliders);
+        Engine.SetDebugFlags(EngineDebugFlags.DrawColliders, EngineDebugFlags.DrawTransforms);
 
         Engine.Window.AllowUserResizing = true;
 
